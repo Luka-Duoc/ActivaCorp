@@ -13,4 +13,7 @@ interface UsuarioDao {
 
     @Query("SELECT * FROM usuarios ORDER BY id DESC LIMIT 1")
     fun obtenerUltimo(): Flow<UsuarioEntity?>
+
+    @Query("SELECT * FROM usuarios WHERE correo = :correo AND clave = :clave LIMIT 1")
+    suspend fun login(correo: String, clave: String): UsuarioEntity?
 }

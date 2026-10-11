@@ -43,6 +43,7 @@ fun IniciarScreen(
 ) {
 
     val estado by viewModel.estado.collectAsState()
+    var claveVisible by remember { mutableStateOf(false) }
 
     Column(
         Modifier
@@ -61,23 +62,6 @@ fun IniciarScreen(
             color = Color.White
         )
 
-        OutlinedTextField(
-            value = estado.nombre,
-            onValueChange = viewModel::onNombreChange,
-            label = { Text("Nombre") },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White, // Color del texto que escribe el usuario
-                unfocusedTextColor = Color.White
-            ),
-            isError = estado.errores.nombre != null,
-            supportingText = {
-                estado.errores.nombre?.let {
-                    Text(it, color = MaterialTheme.colorScheme.error)
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-
-        )
 
         OutlinedTextField(
             value = estado.correo,
@@ -95,8 +79,6 @@ fun IniciarScreen(
             },
             modifier = Modifier.fillMaxWidth()
         )
-
-        var claveVisible by remember { mutableStateOf(false) }
 
         OutlinedTextField(
             value = estado.clave,
@@ -128,9 +110,11 @@ fun IniciarScreen(
 
         Button(
             onClick = {
-                if (viewModel.validarForm()) {
-                    navController.navigate("cuenta")
-                }
+                viewModel.iniciarSesion(
+                    onLoginSuccess = {
+                        navController.navigate("cuenta")
+                    }
+                )
             },
             modifier = Modifier.fillMaxWidth()
         ) {

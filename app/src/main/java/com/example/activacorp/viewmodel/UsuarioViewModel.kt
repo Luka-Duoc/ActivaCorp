@@ -66,4 +66,37 @@ class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
             onListo()
         }
     }
+
+    fun iniciarSesion(onLoginSuccess: () -> Unit) {
+        val correoActual = _estado.value.correo.trim()
+        val claveActual = _estado.value.clave.trim()
+
+        if (correoActual.isBlank() || claveActual.isBlank()) {
+            _estado.update {
+                it.copy(errores = it.errores.copy(clave = "Ingresa correo y contraseña"))
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            val usuarioEncontrado = dao.login(correoActual, claveActual)
+            if (usuarioEncontrado != null) {
+                _estado.update {
+                    it.copy(
+                        nombre = usuarioEncontrado.nombre,
+                        errores = UsuarioErrores()
+                    )
+                }
+                onLoginSuccess()
+            } else {
+                _estado.update {
+                    it.copy(
+                        errores = it.errores.copy(clave = "Correo o contrasela incorrectos")
+                    )
+                }
+            }
+        }
+    }
+
+
 }

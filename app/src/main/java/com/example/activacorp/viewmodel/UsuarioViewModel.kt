@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.activacorp.data.local.UsuarioDatabase
 import com.example.activacorp.data.local.UsuarioEntity
+import com.example.activacorp.model.RolUsuario
 import com.example.activacorp.model.UsuarioErrores
 import com.example.activacorp.model.UsuarioUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,17 +35,19 @@ class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
 
     fun validarForm(): Boolean {
         val estadoActual = _estado.value
+        val correoActual = estadoActual.correo.trim()
+        val rol = RolUsuario.asignarCorreo(correoActual)
 
         val errores = UsuarioErrores(
             nombre = if(estadoActual.nombre.isBlank()) "Campo obligatorio" else null,
-            correo = if(!estadoActual.correo.contains("@gmail")) "Correo invalido" else null,
+            correo = if (correoActual.isBlank() || rol == null) "Correo no valido" else null,
             clave = if(estadoActual.clave.length < 6) "La clave debe tener al menos 6 caracteres" else null
         )
 
         val findError = listOfNotNull(
             errores.nombre,
             errores.correo,
-            errores.clave
+            errores.clave,
         ).isNotEmpty()
 
         _estado.update { it.copy(errores = errores) }
@@ -54,15 +57,22 @@ class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun guardar(onListo: () -> Unit) {
+        if(!validarForm()) return
+
         val a = _estado.value
+        val correo = a.correo.trim()
+        val rol = RolUsuario.asignarCorreo(correo) ?: RolUsuario.EJECUTIVO
+
         viewModelScope.launch {
             dao.insertar(
                 UsuarioEntity(
                     nombre = a.nombre,
                     correo = a.correo,
-                    clave = a.clave
+                    clave = a.clave,
+                    rol = rol.titulo
                 )
             )
+            _estado.update { UsuarioUiState() }
             onListo()
         }
     }
@@ -84,6 +94,8 @@ class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
                 _estado.update {
                     it.copy(
                         nombre = usuarioEncontrado.nombre,
+                        correo = usuarioEncontrado.correo,
+                        rol = usuarioEncontrado.rol,
                         errores = UsuarioErrores()
                     )
                 }

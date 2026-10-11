@@ -2,17 +2,34 @@ package com.example.activacorp.ui.screen
 
 import android.R
 import android.graphics.drawable.Icon
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import com.example.activacorp.viewmodel.UsuarioViewModel
@@ -22,21 +39,40 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CuentaScreen(
     viewModel: UsuarioViewModel,
     onCerrarSesion: () -> Unit = {}
 ) {
-
     val estado by viewModel.estado.collectAsState()
+
+    val eventos = listOf(
+        "Feria Vocacional Duoc UC - 15 Nov",
+        "Activación Empresa Enel - 20 Nov",
+        "Convenio Municipalidad Puente Alto - 02 Dic"
+    )
+
+    var expandido by remember { mutableStateOf(false) }
+    var eventoSeleccionado by remember {
+        mutableStateOf(eventos.firstOrNull() ?: "Sin eventos disponibles")
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .background(Color.Black)
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Encabezado
@@ -59,10 +95,161 @@ fun CuentaScreen(
         Text(
             text = "Perfil de Usuario",
             style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
             color = Color.White
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        //Datos del usuario
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp), // Redondear esquinas
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)) // Color de la carta
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = "Informacion Personal",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
+                )
+
+                HorizontalDivider(color = Color.DarkGray)
+
+                // Nombre
+                ItemDatoCuenta(
+                    icono = Icons.Default.Person,
+                    titulo = "Nombre",
+                    valor = estado.nombre.ifBlank { "No registrado" }
+                )
+
+                // Correo
+                ItemDatoCuenta(
+                    icono = Icons.Default.Email,
+                    titulo = "Correo Electronico",
+                    valor = estado.correo.ifBlank { "No registrado" }
+                )
+
+                ItemDatoCuenta(
+                    icono = Icons.Default.Badge,
+                    titulo = "Cargo asignado",
+                    valor = estado.rol.ifBlank { "Cargo no asignado" }
+                )
+
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Lista de eventos
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Row(
+                   verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Event,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "Eventos y oportunidades",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                }
+
+                Text(
+                    text = "Selecciona un evento para ver su descripción",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.LightGray
+                )
+                ExposedDropdownMenuBox(
+                    expanded = expandido,
+                    onExpandedChange = { expandido = !expandido },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = eventoSeleccionado,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandido) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = Color.Gray,
+                            focusedContainerColor = Color(0xFF2A2A2A),
+                            unfocusedContainerColor = Color(0xFF2A2A2A)
+                        ),
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = expandido,
+                        onDismissRequest = { expandido = false },
+                        modifier = Modifier.background(Color(0xFF2A2A2A))
+                    ) {
+                        eventos.forEach { evento ->
+                            DropdownMenuItem(
+                                text = { Text(evento, color = Color.White) },
+                                onClick = {
+                                    eventoSeleccionado = evento
+                                    expandido = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun ItemDatoCuenta(
+    icono: ImageVector,
+    titulo: String,
+    valor: String
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Icon(
+            imageVector = icono,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(24.dp)
+        )
+        Column {
+            Text(
+                text = titulo,
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.Gray
+            )
+            Text(
+                text = valor,
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }

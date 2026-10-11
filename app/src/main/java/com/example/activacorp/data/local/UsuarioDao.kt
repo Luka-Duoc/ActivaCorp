@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 interface UsuarioDao {
 
     @Insert
-    suspend fun insertar(usuario: UsuarioEntity)
+    suspend fun insertar(usuario: UsuarioEntity): Long
 
     @Query("SELECT * FROM usuarios ORDER BY id DESC LIMIT 1")
     fun obtenerUltimo(): Flow<UsuarioEntity?>

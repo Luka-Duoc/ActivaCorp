@@ -131,7 +131,7 @@ fun RegistroScreen(
             onClick = {
                 if (viewModel.validarForm()) {
                     viewModel.guardar {
-                        navController.navigate("cuenta")
+                        navController.navigate("login")
                     }
                 }
             },

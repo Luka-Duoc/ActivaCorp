@@ -10,10 +10,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -53,6 +56,7 @@ fun RegistroScreen(
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
+            color = Color.White,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
@@ -62,6 +66,10 @@ fun RegistroScreen(
             value = estado.nombre,
             onValueChange = viewModel::onNombreChange,
             label = { Text("Nombre completo") },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White
+            ),
             singleLine = true,
             isError = estado.errores.nombre != null,
             supportingText = {
@@ -76,6 +84,10 @@ fun RegistroScreen(
             value = estado.correo,
             onValueChange = viewModel::onCorreoChange,
             label = { Text("Correo corporativo") },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White
+            ),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             isError = estado.errores.correo != null,
@@ -91,6 +103,10 @@ fun RegistroScreen(
             value = estado.clave,
             onValueChange = viewModel::onClaveChange,
             label = { Text("Contraseña") },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White
+            ),
             singleLine = true,
             visualTransformation = if (claveVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -128,6 +144,10 @@ fun RegistroScreen(
 
         TextButton(
             onClick = { navController.navigate("login") },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.Black
+            ),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("¿Ya tienes cuenta? Inicia sesión aquí")

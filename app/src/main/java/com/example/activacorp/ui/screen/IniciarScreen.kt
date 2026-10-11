@@ -28,8 +28,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 
@@ -54,13 +57,18 @@ fun IniciarScreen(
             text = "Iniciar Sesion",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = Color.White
         )
 
         OutlinedTextField(
             value = estado.nombre,
             onValueChange = viewModel::onNombreChange,
             label = { Text("Nombre") },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.White, // Color del texto que escribe el usuario
+                unfocusedTextColor = Color.White
+            ),
             isError = estado.errores.nombre != null,
             supportingText = {
                 estado.errores.nombre?.let {
@@ -75,6 +83,10 @@ fun IniciarScreen(
             value = estado.correo,
             onValueChange = viewModel::onCorreoChange,
             label = { Text("Correo electronico") },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White
+            ),
             isError = estado.errores.correo != null,
             supportingText = {
                 estado.errores.correo?.let {
@@ -90,6 +102,10 @@ fun IniciarScreen(
             value = estado.clave,
             onValueChange = viewModel::onClaveChange,
             label = { Text("Contraseña") },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White
+            ),
             singleLine = true,
             visualTransformation = if (claveVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -123,6 +139,10 @@ fun IniciarScreen(
 
         TextButton(
             onClick = { navController.navigate("registrar") },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.Black
+            ),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("¿No tienes cuenta? Registrate aqui")

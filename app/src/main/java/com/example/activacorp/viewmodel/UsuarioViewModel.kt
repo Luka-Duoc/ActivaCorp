@@ -3,7 +3,7 @@ package com.example.activacorp.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.activacorp.data.local.MainDatabase
+import com.example.activacorp.data.local.AppDatabase
 import com.example.activacorp.data.local.UsuarioEntity
 import com.example.activacorp.model.RolUsuario
 import com.example.activacorp.model.UsuarioErrores
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
 
-    private val dao = MainDatabase.getDatabase(app).UsuarioDao()
+    private val dao = AppDatabase.getDatabase(app).UsuarioDao()
     private val _estado = MutableStateFlow(UsuarioUiState())
 
     val estado: StateFlow<UsuarioUiState> = _estado

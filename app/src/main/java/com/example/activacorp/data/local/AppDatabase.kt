@@ -12,20 +12,20 @@ import androidx.room.RoomDatabase
     RegionEntity::class,
     ComunaEntity::class
                      ], version = 1, exportSchema = false)
-abstract class MainDatabase : RoomDatabase() {
+abstract class AppDatabase : RoomDatabase() {
     abstract fun UsuarioDao(): UsuarioDao
     abstract fun EventoDao(): EventoDao
 
     companion object {
         @Volatile
-        private var INSTANCE: MainDatabase? = null
+        private var INSTANCE: AppDatabase? = null
 
-        fun getDatabase(context: Context): MainDatabase {
+        fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 Room.databaseBuilder(
                     context.applicationContext,
-                    MainDatabase::class.java,
-                    "main_database"
+                    AppDatabase::class.java,
+                    "app_database"
                 ).fallbackToDestructiveMigration()
                     .build().also { INSTANCE = it }
             }

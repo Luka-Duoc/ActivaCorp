@@ -49,7 +49,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable
+@Composable()
 fun CuentaScreen(
     viewModel: UsuarioViewModel,
     onCerrarSesion: () -> Unit = {}

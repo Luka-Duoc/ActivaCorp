@@ -5,9 +5,16 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [UsuarioEntity::class], version = 3)
+@Database(entities = [
+    UsuarioEntity::class,
+    EventoEntity::class,
+    OrganizacionEntity::class,
+    RegionEntity::class,
+    ComunaEntity::class
+                     ], version = 4)
 abstract class UsuarioDatabase : RoomDatabase() {
     abstract fun UsuarioDao(): UsuarioDao
+    abstract fun EventoDao(): EventoDao
 
     companion object {
         @Volatile

@@ -1,8 +1,10 @@
-package com.example.activacorp.data.local
+package com.example.activacorp.data.repository
 
-import kotlinx.coroutines.flow.Flow
+import com.example.activacorp.data.local.entity.UsuarioEntity
 
 interface UsuarioRepository {
     suspend fun insertarUsuario(usuario: UsuarioEntity)
     suspend fun actualizarUsuario(usuario: UsuarioEntity)
+
+    suspend fun limpiarSesion()
 }

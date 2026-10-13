@@ -27,7 +27,7 @@ fun AppNavigation() {
             IniciarScreen(navController, UsuarioViewModel)
         }
         composable("cuenta") {
-            CuentaScreen(UsuarioViewModel)
+            CuentaScreen(UsuarioViewModel, navController)
         }
 
     }

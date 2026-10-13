@@ -4,7 +4,9 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.activacorp.data.local.AppDatabase
-import com.example.activacorp.data.local.UsuarioEntity
+import com.example.activacorp.data.local.entity.UsuarioEntity
+import com.example.activacorp.data.repository.OfflineUsuarioRepository
+import com.example.activacorp.data.repository.UsuarioRepository
 import com.example.activacorp.model.RolUsuario
 import com.example.activacorp.model.UsuarioErrores
 import com.example.activacorp.model.UsuarioUiState
@@ -17,7 +19,7 @@ class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
 
     private val dao = AppDatabase.getDatabase(app).UsuarioDao()
     private val _estado = MutableStateFlow(UsuarioUiState())
-
+    private val usuarioRepository: UsuarioRepository = OfflineUsuarioRepository(dao)
     val estado: StateFlow<UsuarioUiState> = _estado
 
     fun onNombreChange(valor: String) {
@@ -106,6 +108,13 @@ class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
                     )
                 }
             }
+        }
+    }
+
+    fun cerrarSesion() {
+        viewModelScope.launch {
+            usuarioRepository.limpiarSesion()
+            _estado.value = UsuarioUiState()
         }
     }
 

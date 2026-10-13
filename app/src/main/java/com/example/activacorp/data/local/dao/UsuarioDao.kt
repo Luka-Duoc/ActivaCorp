@@ -1,10 +1,11 @@
-package com.example.activacorp.data.local
+package com.example.activacorp.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import com.example.activacorp.data.local.entity.UsuarioEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -27,4 +28,7 @@ interface UsuarioDao {
 
     @Query("SELECT * FROM usuarios WHERE correo = :correo AND clave = :clave LIMIT 1")
     suspend fun login(correo: String, clave: String): UsuarioEntity?
+
+    @Query("UPDATE usuarios SET activo = 0 WHERE activo = 1")
+    suspend fun cerrarSesion()
 }

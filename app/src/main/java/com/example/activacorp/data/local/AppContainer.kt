@@ -1,6 +1,8 @@
 package com.example.activacorp.data.local
 
 import android.content.Context
+import com.example.activacorp.data.repository.OfflineUsuarioRepository
+import com.example.activacorp.data.repository.UsuarioRepository
 
 interface AppContainer {
     val usuarioRepository: UsuarioRepository

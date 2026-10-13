@@ -4,6 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.activacorp.data.local.dao.EventoDao
+import com.example.activacorp.data.local.dao.UsuarioDao
+import com.example.activacorp.data.local.entity.ComunaEntity
+import com.example.activacorp.data.local.entity.EventoEntity
+import com.example.activacorp.data.local.entity.OrganizacionEntity
+import com.example.activacorp.data.local.entity.RegionEntity
+import com.example.activacorp.data.local.entity.UsuarioEntity
 
 @Database(entities = [
     UsuarioEntity::class,

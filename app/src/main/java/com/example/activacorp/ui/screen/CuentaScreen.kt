@@ -23,6 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -47,12 +49,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable()
 fun CuentaScreen(
     viewModel: UsuarioViewModel,
-    onCerrarSesion: () -> Unit = {}
+    navController: NavController
 ) {
     val estado by viewModel.estado.collectAsState()
 
@@ -217,6 +220,25 @@ fun CuentaScreen(
                     }
                 }
             }
+        }
+
+        Button(
+            onClick = {
+                // Limpiar el estado
+                viewModel.cerrarSesion()
+
+                // Navegar a IniciarScreen
+                navController.navigate("login") {
+                    popUpTo(0) { inclusive = true } // Limpia todas las pantallas anteriores
+                    launchSingleTop = true
+                }
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error
+            ),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Cerrar Sesión", color = Color.White)
         }
     }
 }

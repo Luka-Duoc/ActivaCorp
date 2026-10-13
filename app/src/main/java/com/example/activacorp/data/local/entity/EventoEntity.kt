@@ -1,15 +1,15 @@
-package com.example.activacorp.data.local
+package com.example.activacorp.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import java.time.LocalDate
 
 @Entity(tableName = "eventos",
-    foreignKeys = [ForeignKey(entity = ComunaEntity::class,
+    foreignKeys = [ForeignKey(
+        entity = ComunaEntity::class,
         parentColumns = ["id"],
         childColumns = ["comuna"],
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.Companion.CASCADE
     )
 ])
 data class EventoEntity(

@@ -49,14 +49,14 @@ fun RegistroScreen(
             .fillMaxSize()
             .padding(24.dp),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+
     ) {
         Text(
             text = "Crear Cuenta",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            color = Color.White,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
@@ -66,10 +66,6 @@ fun RegistroScreen(
             value = estado.nombre,
             onValueChange = viewModel::onNombreChange,
             label = { Text("Nombre completo") },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White
-            ),
             singleLine = true,
             isError = estado.errores.nombre != null,
             supportingText = {
@@ -84,10 +80,6 @@ fun RegistroScreen(
             value = estado.correo,
             onValueChange = viewModel::onCorreoChange,
             label = { Text("Correo corporativo") },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White
-            ),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             isError = estado.errores.correo != null,
@@ -103,10 +95,6 @@ fun RegistroScreen(
             value = estado.clave,
             onValueChange = viewModel::onClaveChange,
             label = { Text("Contraseña") },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White
-            ),
             singleLine = true,
             visualTransformation = if (claveVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -144,13 +132,25 @@ fun RegistroScreen(
 
         TextButton(
             onClick = { navController.navigate("login") },
+            modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.White,
                 contentColor = Color.Black
-            ),
-            modifier = Modifier.fillMaxWidth()
+            )
         ) {
             Text("¿Ya tienes cuenta? Inicia sesión aquí")
+        }
+
+
+        TextButton(
+            onClick = {navController.navigate("qrCamara")},
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.Black
+            )
+        ) {
+            Text("Escanear qr")
         }
     }
 }

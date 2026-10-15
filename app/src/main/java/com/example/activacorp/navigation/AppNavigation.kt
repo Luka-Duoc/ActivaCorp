@@ -1,5 +1,6 @@
 package com.example.activacorp.navigation
 
+import android.Manifest
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -7,7 +8,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.activacorp.ui.screen.CuentaScreen
 import com.example.activacorp.ui.screen.IniciarScreen
+import com.example.activacorp.ui.screen.QrScannerScreen
 import com.example.activacorp.ui.screen.RegistroScreen
+import com.example.activacorp.viewmodel.QrViewModel
 import com.example.activacorp.viewmodel.UsuarioViewModel
 
 @Composable
@@ -15,6 +18,7 @@ fun AppNavigation() {
     val navController = rememberNavController()
 
     val UsuarioViewModel: UsuarioViewModel = viewModel()
+    val QrViewModel: QrViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -29,6 +33,10 @@ fun AppNavigation() {
         composable("cuenta") {
             CuentaScreen(UsuarioViewModel, navController)
         }
+        composable("qrCamara") {
+            QrScannerScreen(QrViewModel, true) { }
+        }
+
 
     }
 }

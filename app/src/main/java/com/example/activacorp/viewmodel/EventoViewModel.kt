@@ -173,4 +173,15 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
         }
     }
 
+    fun eliminarEvento(evento: EventoEntity, onExito: () -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                dao.eliminar(evento)
+                onExito()
+            } catch (e: Exception) {
+                _estado.update { it.copy(mensajeError = "Error al eliminar el evento: ${e.message}") }
+            }
+        }
+    }
+
 }

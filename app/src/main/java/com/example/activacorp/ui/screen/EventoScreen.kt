@@ -428,7 +428,12 @@ fun EventoScreen(
         DetalleEvento(
             evento = evento,
             comunas = estado.comunas,
-            onDismiss = { eventoSeleccionadoParaDetalle = null }
+            onDismiss = { eventoSeleccionadoParaDetalle = null },
+            onEliminar = { e ->
+                viewModel.eliminarEvento(e) {
+                    eventoSeleccionadoParaDetalle = null
+                }
+            }
         )
     }
 

@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.activacorp.data.local.dao.ComunaDao
 import com.example.activacorp.data.local.dao.EventoDao
+import com.example.activacorp.data.local.dao.OrganizacionDao
 import com.example.activacorp.data.local.dao.RegionDao
 import com.example.activacorp.data.local.dao.UsuarioDao
 import com.example.activacorp.data.local.entity.ComunaEntity
@@ -15,21 +16,25 @@ import com.example.activacorp.data.local.entity.OrganizacionEntity
 import com.example.activacorp.data.local.entity.RegionEntity
 import com.example.activacorp.data.local.entity.UsuarioEntity
 import com.example.activacorp.data.local.seed.ComunaSeed
+import com.example.activacorp.data.local.seed.OrganizacionSeed
 import com.example.activacorp.data.local.seed.RegionSeed
 
 
-@Database(entities = [
-    UsuarioEntity::class,
-    EventoEntity::class,
-    OrganizacionEntity::class,
-    RegionEntity::class,
-    ComunaEntity::class
-                     ], version = 1, exportSchema = false)
+@Database(
+    entities = [
+        UsuarioEntity::class,
+        EventoEntity::class,
+        OrganizacionEntity::class,
+        RegionEntity::class,
+        ComunaEntity::class
+    ], version = 1, exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun UsuarioDao(): UsuarioDao
     abstract fun EventoDao(): EventoDao
     abstract fun ComunaDao(): ComunaDao
     abstract fun RegionDao(): RegionDao
+    abstract fun OrganizacionDao(): OrganizacionDao
 
     companion object {
         @Volatile
@@ -53,7 +58,22 @@ abstract class AppDatabase : RoomDatabase() {
                         ComunaSeed.listaComunas.forEach { comuna ->
                             db.execSQL(
                                 "INSERT INTO comunas (id, idRegion,nombre) VALUES (?, ?, ?)",
-                                arrayOf(comuna.id, comuna.idRegion ,comuna.nombre)
+                                arrayOf(comuna.id, comuna.idRegion, comuna.nombre)
+                            )
+                        }
+                        OrganizacionSeed.listaOrganizaciones.forEach { organizacion ->
+                            db.execSQL(
+                                "INSERT INTO organizaciones (id, nombre, tipo, rubro, comuna, sitioWeb, publico, historial) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                                arrayOf(
+                                    organizacion.id,
+                                    organizacion.nombre,
+                                    organizacion.tipo,
+                                    organizacion.rubro,
+                                    organizacion.comuna,
+                                    organizacion.sitioWeb,
+                                    organizacion.publico,
+                                    organizacion.historial
+                                )
                             )
                         }
                     }

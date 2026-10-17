@@ -6,6 +6,7 @@ import com.example.activacorp.model.TipoOrganizacion
 object OrganizacionSeed {
     val listaOrganizaciones = listOf(
         OrganizacionEntity(
+            id = 1L,
             nombre = "Comercial Andina SpA",
             tipo = TipoOrganizacion.EMPRESA,
             rubro = "Comercio y retail",
@@ -15,6 +16,7 @@ object OrganizacionSeed {
             historial = "Interesada en convenios corporativos y jornadas de beneficios."
         ),
         OrganizacionEntity(
+            id = 2L,
             nombre = "Municipalidad de Villa Esperanza",
             tipo = TipoOrganizacion.MUNICIPALIDAD,
             rubro = "Administración municipal",
@@ -24,6 +26,7 @@ object OrganizacionSeed {
             historial = "Organiza ferias de servicios y actividades comunitarias."
         ),
         OrganizacionEntity(
+            id = 3L,
             nombre = "Instituto Público de Desarrollo Regional",
             tipo = TipoOrganizacion.INSTITUCION_PUBLICA,
             rubro = "Servicios públicos",
@@ -33,6 +36,7 @@ object OrganizacionSeed {
             historial = "Realiza encuentros institucionales y jornadas informativas."
         ),
         OrganizacionEntity(
+            id = 4L,
             nombre = "Centro Educativo Horizonte",
             tipo = TipoOrganizacion.INSTITUCION_PRIVADA,
             rubro = "Educación",
@@ -42,6 +46,7 @@ object OrganizacionSeed {
             historial = "Evalúa incorporar beneficios para su comunidad educativa."
         ),
         OrganizacionEntity(
+            id = 5L,
             nombre = "Eventos Prisma",
             tipo = TipoOrganizacion.ORGANIZADOR_EVENTOS,
             rubro = "Producción y organización de eventos",
@@ -51,6 +56,7 @@ object OrganizacionSeed {
             historial = "Gestiona eventos con espacios potenciales para activaciones."
         ),
         OrganizacionEntity(
+            id = 6L,
             nombre = "Portal del Valle",
             tipo = TipoOrganizacion.CENTRO_COMERCIAL,
             rubro = "Comercio y entretenimiento",
@@ -60,6 +66,7 @@ object OrganizacionSeed {
             historial = "Evalúa habilitar espacios para stands y campañas promocionales."
         ),
         OrganizacionEntity(
+            id = 7L,
             nombre = "Asociación de Empresas del Sur",
             tipo = TipoOrganizacion.ASOCIACION,
             rubro = "Asociatividad empresarial",
@@ -69,6 +76,7 @@ object OrganizacionSeed {
             historial = "Promueve encuentros empresariales y actividades de colaboración."
         ),
         OrganizacionEntity(
+            id = 8L,
             nombre = "Fundación Nuevos Horizontes",
             tipo = TipoOrganizacion.OTROS,
             rubro = "Desarrollo social",

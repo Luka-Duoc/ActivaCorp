@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class EventoViewModel(app: Application): AndroidViewModel(app) {
 
@@ -43,6 +46,33 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
             }
         }
     }
+
+    fun validarHora(entrada: String): String? {
+        // Deja solo los dígitos
+        val digitos = entrada.filter { it.isDigit() }
+
+        if (digitos.length != 4) return null
+
+        val hora = digitos.substring(0, 2).toIntOrNull() ?: return null
+        val minutos = digitos.substring(2, 4).toIntOrNull() ?: return null
+
+        // Valida rango de horas (00-23) y minutos (00-59)
+        if (hora !in 0..23 || minutos !in 0..59) return null
+
+        return String.format(Locale.getDefault(), "%02d:%02d", hora, minutos)
+    }
+
+    fun validacionFecha(fechaStr: String): Date? {
+            return try {
+                val formato = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
+                    isLenient = false // Evita interpretar fechas invalidas
+                }
+                formato.parse(fechaStr)
+            } catch (e: Exception) {
+                null
+            }
+    }
+
     fun onComunaSeleccionada(comuna: ComunaEntity) {
         _estado.update {
             it.copy(
@@ -89,6 +119,34 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
             return
         }
 
+        if (st.direccion.isBlank()) {
+            _estado.update { it.copy(mensajeError = "Direccion es obligatorio") }
+            return
+        }
+
+        val fechaIni = validacionFecha(st.fechaInicio)
+        val fechaFin = validacionFecha(st.fechaTermino)
+        if (fechaIni == null || fechaFin == null) {
+            _estado.update { it.copy(mensajeError = "Formato de fecha inválido") }
+            return
+        }
+
+        if (fechaFin.before(fechaIni)) {
+            _estado.update { it.copy(mensajeError = "La fecha de término no puede ser anterior a la de inicio") }
+            return
+        }
+
+        val horarioFinal = if (st.horario.isNotBlank()) {
+            val horarioValido = validarHora(st.horario)
+            if (horarioValido == null) {
+                _estado.update { it.copy(mensajeError = "El horario debe ser válido (ej: 1750 o 17:50)") }
+                return
+            }
+            horarioValido
+        } else {
+            ""
+        }
+
         viewModelScope.launch {
             try {
                 dao.insertar(
@@ -97,7 +155,7 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
                         tipo = st.tipo.trim(),
                         fechaInicio = st.fechaInicio.trim(),
                         fechaTermino = st.fechaTermino.trim(),
-                        horario = st.horario.trim(),
+                        horario = horarioFinal,
                         direccion = st.direccion.trim(),
                         comuna = st.comuna,
                         organizacion = st.organizacion,

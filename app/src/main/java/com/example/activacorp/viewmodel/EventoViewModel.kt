@@ -37,10 +37,9 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
                 _estado.update { actual ->
                     actual.copy(
                         comunas = lista,
-                        comuna = actual.comuna.takeIf { it != 0L } ?: lista.firstOrNull()?.id ?: 1L,
-                        comunaSeleccionada = actual.comunaSeleccionada.ifBlank {
-                            lista.firstOrNull()?.nombre ?: ""
-                        }
+                        // Asigna la primera si no hay ninguna seleccionada
+                        comuna = if (actual.comuna == 0L) lista.firstOrNull()?.id ?: 1L else actual.comuna,
+                        comunaSeleccionada = if (actual.comunaSeleccionada.isBlank()) lista.firstOrNull()?.nombre ?: "" else actual.comunaSeleccionada
                     )
                 }
             }
@@ -63,14 +62,14 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
     }
 
     fun validacionFecha(fechaStr: String): Date? {
-            return try {
-                val formato = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
-                    isLenient = false // Evita interpretar fechas invalidas
-                }
-                formato.parse(fechaStr)
-            } catch (e: Exception) {
-                null
+        return try {
+            val formato = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
+                isLenient = false // Evita interpretar fechas invalidas
             }
+            formato.parse(fechaStr)
+        } catch (e: Exception) {
+            null
+        }
     }
 
     fun onComunaSeleccionada(comuna: ComunaEntity) {
@@ -94,13 +93,21 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
 
     fun onNombreChange(v: String) = _estado.update { it.copy(nombre = v, mensajeError = null) }
     fun onTipoChange(v: String) = _estado.update { it.copy(tipo = v) }
-    fun onFechaInicioChange(v: String) = _estado.update { it.copy(fechaInicio = v, mensajeError = null) }
-    fun onFechaTerminoChange(v: String) = _estado.update { it.copy(fechaTermino = v, mensajeError = null) }
+    fun onFechaInicioChange(v: String) =
+        _estado.update { it.copy(fechaInicio = v, mensajeError = null) }
+
+    fun onFechaTerminoChange(v: String) =
+        _estado.update { it.copy(fechaTermino = v, mensajeError = null) }
+
     fun onDireccionChange(v: String) = _estado.update { it.copy(direccion = v) }
     fun onComunaChange(id: Long) = _estado.update { it.copy(comuna = id) }
     fun onOrganizacionChange(id: Long) = _estado.update { it.copy(organizacion = id) }
-    fun onCantAsistentesChange(v: String) = _estado.update { it.copy(cantAsistentes = v.filter { ch -> ch.isDigit() }) }
-    fun onCostosReferencialesChange(v: String) = _estado.update { it.copy(costosReferenciales = v.filter { ch -> ch.isDigit() }) }
+    fun onCantAsistentesChange(v: String) =
+        _estado.update { it.copy(cantAsistentes = v.filter { ch -> ch.isDigit() }) }
+
+    fun onCostosReferencialesChange(v: String) =
+        _estado.update { it.copy(costosReferenciales = v.filter { ch -> ch.isDigit() }) }
+
     fun onRequisitosChange(v: String) = _estado.update { it.copy(requisitos = v) }
     fun onObservacionesChange(v: String) = _estado.update { it.copy(observaciones = v) }
 
@@ -111,6 +118,53 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
         }
     }
 
+    fun eliminarEvento(evento: EventoEntity, onExito: () -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                dao.eliminar(evento)
+                onExito()
+            } catch (e: Exception) {
+                _estado.update { it.copy(mensajeError = "Error al eliminar el evento: ${e.message}") }
+            }
+        }
+    }
+
+    fun editar(evento: EventoEntity) {
+        val nombreDeComuna = _estado.value.comunas.firstOrNull { it.id == evento.comuna }?.nombre ?: ""
+        _estado.update {
+            it.copy(
+                eventoIdEnEdicion = evento.id,
+                nombre = evento.nombre,
+                tipo = evento.tipo,
+                fechaInicio = evento.fechaInicio,
+                fechaTermino = evento.fechaTermino,
+                horario = evento.horario,
+                direccion = evento.direccion,
+                comuna = evento.comuna,
+                comunaSeleccionada = nombreDeComuna,
+                organizacion = evento.organizacion,
+                cantAsistentes = evento.cantAsistentes.toString(),
+                costosReferenciales = evento.costosReferenciales.toString(),
+                requisitos = evento.requisitos,
+                observaciones = evento.observaciones,
+                mensajeError = null
+            )
+        }
+    }
+
+    // Limpiar Formulario si el usuario cancela la edicion
+    fun cancelarEdicion() {
+        _estado.update {
+            EventoUiState(
+                eventos = it.eventos,
+                comunas = it.comunas,
+                comuna = it.comunas.firstOrNull()?.id ?: 1L,
+                comunaSeleccionada = it.comunas.firstOrNull()?.nombre ?: ""
+            )
+        }
+    }
+
+    // Guardar y editar
     fun guardarEvento(onExito: () -> Unit = {}) {
         val st = _estado.value
 
@@ -149,39 +203,41 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
 
         viewModelScope.launch {
             try {
-                dao.insertar(
-                    EventoEntity(
-                        nombre = st.nombre.trim(),
-                        tipo = st.tipo.trim(),
-                        fechaInicio = st.fechaInicio.trim(),
-                        fechaTermino = st.fechaTermino.trim(),
-                        horario = horarioFinal,
-                        direccion = st.direccion.trim(),
-                        comuna = st.comuna,
-                        organizacion = st.organizacion,
-                        cantAsistentes = st.cantAsistentes.toIntOrNull() ?: 0,
-                        requisitos = st.requisitos.trim(),
-                        costosReferenciales = st.costosReferenciales.toIntOrNull() ?: 0,
-                        observaciones = st.observaciones.trim()
-                    )
+                val eventoAProcesar = EventoEntity(
+                    id = st.eventoIdEnEdicion ?: 0, // Si está editando usa el ID existente, si es nuevo usa 0
+                    nombre = st.nombre.trim(),
+                    tipo = st.tipo.trim(),
+                    fechaInicio = st.fechaInicio.trim(),
+                    fechaTermino = st.fechaTermino.trim(),
+                    horario = horarioFinal,
+                    direccion = st.direccion.trim(),
+                    comuna = st.comuna,
+                    organizacion = st.organizacion,
+                    cantAsistentes = st.cantAsistentes.toIntOrNull() ?: 0,
+                    requisitos = st.requisitos.trim(),
+                    costosReferenciales = st.costosReferenciales.toIntOrNull() ?: 0,
+                    observaciones = st.observaciones.trim()
                 )
-                _estado.update { EventoUiState(eventos = it.eventos, exitSave = true) }
+                if (st.eventoIdEnEdicion != null) {
+                    dao.actualizar(eventoAProcesar)
+                } else {
+                    dao.insertar(eventoAProcesar)
+                }
+
+                // Resetea el formulario tras guardar o actualizar
+                _estado.update { actual ->
+                    EventoUiState(
+                        eventos = actual.eventos,
+                        comunas = actual.comunas,
+                        comuna = actual.comunas.firstOrNull()?.id ?: 1L,
+                        comunaSeleccionada = actual.comunas.firstOrNull()?.nombre ?: "",
+                        exitSave = true
+                    )
+                }
                 onExito()
             } catch (e: Exception) {
-                _estado.update { it.copy(mensajeError = "Error al guardar el evento: ${e.message}") }
+                _estado.update { it.copy(mensajeError = "Error al procesar el evento: ${e.message}") }
             }
         }
     }
-
-    fun eliminarEvento(evento: EventoEntity, onExito: () -> Unit = {}) {
-        viewModelScope.launch {
-            try {
-                dao.eliminar(evento)
-                onExito()
-            } catch (e: Exception) {
-                _estado.update { it.copy(mensajeError = "Error al eliminar el evento: ${e.message}") }
-            }
-        }
-    }
-
 }

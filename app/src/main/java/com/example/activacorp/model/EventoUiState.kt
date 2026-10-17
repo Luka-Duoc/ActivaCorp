@@ -5,6 +5,7 @@ import com.example.activacorp.data.local.entity.EventoEntity
 
 data class EventoUiState(
     val eventos: List<EventoEntity> = emptyList(),
+    val eventoIdEnEdicion: Long? = null,
     val nombre: String = "",
     val tipo: String = "",
     val fechaInicio: String = "",

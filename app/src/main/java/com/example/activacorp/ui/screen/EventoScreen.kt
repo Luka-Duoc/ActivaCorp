@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -329,11 +330,26 @@ fun EventoScreen(
                         }
 
                         // Boton de guardado
-                        Button(
-                            onClick = { viewModel.guardarEvento() },
-                            modifier = Modifier.align(Alignment.End)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Guardar Evento")
+                            // Si  se esta editando, mostramos la opción de cancelar
+                            if (estado.eventoIdEnEdicion != null) {
+                                TextButton(
+                                    onClick = { viewModel.cancelarEdicion() }
+                                ) {
+                                    Text("Cancelar")
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+
+                            Button(
+                                onClick = { viewModel.guardarEvento() }
+                            ) {
+                                Text(if (estado.eventoIdEnEdicion != null) "Actualizar Evento" else "Guardar Evento")
+                            }
                         }
                     }
                 }
@@ -433,6 +449,10 @@ fun EventoScreen(
                 viewModel.eliminarEvento(e) {
                     eventoSeleccionadoParaDetalle = null
                 }
+            },
+            onEditar = { ev ->
+                viewModel.editar(ev)
+                eventoSeleccionadoParaDetalle = null // Cierra el modal para que el usuario vea el formulario para editar
             }
         )
     }

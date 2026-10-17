@@ -12,8 +12,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.People
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -37,7 +39,8 @@ fun DetalleEvento(
     evento: EventoEntity,
     onDismiss: () -> Unit,
     comunas: List<ComunaEntity>,
-    onEliminar: (EventoEntity) -> Unit
+    onEliminar: (EventoEntity) -> Unit,
+    onEditar: (EventoEntity) -> Unit
 ) {
     val nombreComuna = comunas.firstOrNull { it.id == evento.comuna }?.nombre ?: "Comuna no especificada"
 
@@ -152,6 +155,7 @@ fun DetalleEvento(
             }
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Eliminar
             OutlinedButton(
                 onClick = {onEliminar(evento)},
                 colors = ButtonDefaults.outlinedButtonColors(
@@ -166,6 +170,16 @@ fun DetalleEvento(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Eliminar Evento")
+            }
+
+            // Editar
+            Button(
+                onClick = { onEditar(evento) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.Edit, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Editar Evento")
             }
         }
     }

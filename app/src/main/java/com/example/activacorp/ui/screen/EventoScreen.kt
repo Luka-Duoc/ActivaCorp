@@ -68,11 +68,14 @@ fun EventoScreen(
 ) {
     val estado by viewModel.estado.collectAsState()
 
+    //Controlan la vista del calendario
     var mostrarDialogoInicio by remember { mutableStateOf(false) }
     var mostrarDialogoTermino by remember { mutableStateOf(false) }
 
+    // Almacenan la fecha
     val datePickerStateInicio = rememberDatePickerState()
     val datePickerStateTermino = rememberDatePickerState()
+    var eventoSeleccionadoParaDetalle by remember { mutableStateOf<EventoEntity?>(null) }
 
     val listaTipo = listOf(
         "Feria de Emprendimiento",
@@ -361,7 +364,10 @@ fun EventoScreen(
                 items = estado.eventos,
                 key = { it.id }
             ) { evento ->
-                ItemEventoCard(evento)
+                ItemEventoCard(
+                    evento = evento,
+                    onClick = { eventoSeleccionadoParaDetalle = it }
+                )
             }
         }
     }
@@ -417,14 +423,25 @@ fun EventoScreen(
             DatePicker(state = datePickerStateTermino)
         }
     }
+
+    eventoSeleccionadoParaDetalle?.let { evento ->
+        DetalleEvento(
+            evento = evento,
+            comunas = estado.comunas,
+            onDismiss = { eventoSeleccionadoParaDetalle = null }
+        )
+    }
+
 }
 
-// Recibe la entidad evento y creacion de tarjeta base para cada evento
+
 @Composable
-private fun ItemEventoCard(evento: EventoEntity) {
+private fun ItemEventoCard(evento: EventoEntity, onClick: (EventoEntity) -> Unit) {
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick(evento) },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {

@@ -65,10 +65,17 @@ class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
         val rol = RolUsuario.asignarCorreo(correo) ?: RolUsuario.EJECUTIVO
 
         viewModelScope.launch {
-            dao.insertar(
+            val usuarioExistente = usuarioRepository.buscarCorreo(correo)
+            if (usuarioExistente != null) {
+                _estado.update {
+                    it.copy(errores = it.errores.copy(correo = "Este correo ya esta registrado"))
+                }
+                return@launch
+            }
+            usuarioRepository.insertarUsuario(
                 UsuarioEntity(
-                    nombre = a.nombre,
-                    correo = a.correo,
+                    nombre = a.nombre.trim(),
+                    correo = correo,
                     clave = a.clave,
                     rol = rol.titulo
                 )

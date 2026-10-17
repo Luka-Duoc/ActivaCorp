@@ -2,18 +2,23 @@ package com.example.activacorp.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "eventos",
-        foreignKeys = [ForeignKey(
+@Entity(
+    tableName = "eventos",
+    foreignKeys = [
+        ForeignKey(
             entity = ComunaEntity::class,
             parentColumns = ["id"],
             childColumns = ["comuna"],
-            onDelete = ForeignKey.Companion.CASCADE
+            onDelete = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index(value = ["comuna"])
     ]
 )
-
 data class EventoEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
@@ -24,14 +29,9 @@ data class EventoEntity(
     val horario: String = "",
     val direccion: String = "",
     val comuna: Long,
-    val region: Long,
     val organizacion: Long,
-    val publicoEsperado: String = "",
-    val publicoObjetivo: String = "",
     val cantAsistentes: Int = 0,
-    val condiciones: String = "",
     val requisitos: String = "",
     val costosReferenciales: Int = 0,
-    val espaciosDisponbiles: String = "",
     val observaciones: String = ""
 )

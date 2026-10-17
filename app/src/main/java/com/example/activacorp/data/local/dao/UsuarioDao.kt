@@ -31,4 +31,7 @@ interface UsuarioDao {
 
     @Query("UPDATE usuarios SET activo = 0 WHERE activo = 1")
     suspend fun cerrarSesion()
+
+    @Query("SELECT * FROM usuarios WHERE correo = :correo LIMIT 1")
+    suspend fun buscarCorreo(correo: String): UsuarioEntity?
 }

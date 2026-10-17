@@ -8,4 +8,5 @@ class OfflineUsuarioRepository(private val usuarioDao: UsuarioDao) : UsuarioRepo
     override suspend fun insertarUsuario(usuario: UsuarioEntity) = usuarioDao.insertar(usuario)
     override suspend fun actualizarUsuario(usuario: UsuarioEntity) = usuarioDao.actualizar(usuario)
     override suspend fun limpiarSesion() { usuarioDao.cerrarSesion() }
+    override suspend fun buscarCorreo(correo: String): UsuarioEntity? { return usuarioDao.buscarCorreo(correo) }
 }

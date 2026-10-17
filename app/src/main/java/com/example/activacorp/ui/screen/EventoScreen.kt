@@ -1,5 +1,7 @@
 package com.example.activacorp.ui.screen
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,16 +16,25 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,13 +46,43 @@ import androidx.compose.ui.unit.dp
 import com.example.activacorp.data.local.entity.EventoEntity
 import com.example.activacorp.viewmodel.EventoViewModel
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
+
+fun formatearFechas(milisegundos: Long): String {
+    val format = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
+    return format.format(Date(milisegundos))
+}
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventoScreen(
     viewModel: EventoViewModel
 ) {
     val estado by viewModel.estado.collectAsState()
+
+    var mostrarDialogoInicio by remember { mutableStateOf(false) }
+    var mostrarDialogoTermino by remember { mutableStateOf(false) }
+
+    val datePickerStateInicio = rememberDatePickerState()
+    val datePickerStateTermino = rememberDatePickerState()
+
+    val listaTipo = listOf(
+        "Feria de Emprendimiento",
+        "Actividad Deportiva",
+        "Evento Cultural",
+        "Operativo Social",
+        "Fiscalización y Control"
+    )
+    var expandidoTipo by remember { mutableStateOf(false) }
+    var expandidoComuna by remember { mutableStateOf(false) }
 
     LazyColumn (
         modifier = Modifier
@@ -94,17 +135,44 @@ fun EventoScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            OutlinedTextField(
-                                value = estado.tipo,
-                                onValueChange = { viewModel.onTipoChange(it) },
-                                label = { Text("Tipo") },
-                                modifier = Modifier.weight(1f),
-                                singleLine = true
-                            )
+                            ExposedDropdownMenuBox(
+                                expanded = expandidoTipo,
+                                onExpandedChange = { expandidoTipo = it },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                OutlinedTextField(
+                                    value = estado.tipo,
+                                    onValueChange = {},
+                                    label = { Text("Tipo ") },
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandidoTipo)
+                                    },
+                                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                                    modifier = Modifier
+                                        .menuAnchor()
+                                        .fillMaxWidth(),
+                                    singleLine = true
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = expandidoTipo,
+                                    onDismissRequest = { expandidoTipo = false }
+                                ) {
+                                    listaTipo.forEach { opcion ->
+                                        DropdownMenuItem(
+                                            text = { Text(opcion) },
+                                            onClick = {
+                                                viewModel.onTipoChange(opcion)
+                                                expandidoTipo = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
                             OutlinedTextField(
                                 value = estado.horario,
                                 onValueChange = { viewModel.onHorarioChange(it) },
                                 label = { Text("Horario") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 modifier = Modifier.weight(1f),
                                 singleLine = true
                             )
@@ -112,24 +180,55 @@ fun EventoScreen(
 
                         // Fechas
 
-                        Row (
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            OutlinedTextField(
-                                value = estado.fechaInicio,
-                                onValueChange = { viewModel.onFechaInicioChange(it) },
-                                label = { Text("Inicio (DD/MM/YYYY) *") },
-                                modifier = Modifier.weight(1f),
-                                singleLine = true
-                            )
-                            OutlinedTextField(
-                                value = estado.fechaTermino,
-                                onValueChange = { viewModel.onFechaTerminoChange(it) },
-                                label = { Text("Término *") },
-                                modifier = Modifier.weight(1f),
-                                singleLine = true
-                            )
+                            // Fecha Inicio
+                            Box(modifier = Modifier.weight(1f)) {
+                                OutlinedTextField(
+                                    value = estado.fechaInicio,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("Inicio *") },
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.DateRange,
+                                            contentDescription = "Seleccionar fecha de inicio"
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    singleLine = true
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .clickable { mostrarDialogoInicio = true }
+                                )
+                            }
+
+                            // Fecha Término
+                            Box(modifier = Modifier.weight(1f)) {
+                                OutlinedTextField(
+                                    value = estado.fechaTermino,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("Término *") },
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.DateRange,
+                                            contentDescription = "Seleccionar fecha de término"
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    singleLine = true
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .clickable { mostrarDialogoTermino = true }
+                                )
+                            }
                         }
 
                         // Ubicacion
@@ -140,6 +239,42 @@ fun EventoScreen(
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
+
+                        // Comuna
+                        ExposedDropdownMenuBox(
+                            expanded = expandidoComuna,
+                            onExpandedChange = { expandidoComuna = it },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            OutlinedTextField(
+                                value = estado.comunaSeleccionada,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Comuna *") },
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandidoComuna)
+                                },
+                                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth()
+                            )
+
+                            ExposedDropdownMenu(
+                                expanded = expandidoComuna,
+                                onDismissRequest = { expandidoComuna = false }
+                            ) {
+                                estado.comunas.forEach { comunaItem ->
+                                    DropdownMenuItem(
+                                        text = { Text(comunaItem.nombre) },
+                                        onClick = {
+                                            viewModel.onComunaSeleccionada(comunaItem)
+                                            expandidoComuna = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
 
                         // Asistencia y costos
                         Row(
@@ -222,13 +357,64 @@ fun EventoScreen(
                 )
             }
         } else {
-            // Iterar sobre la lista
             items(
                 items = estado.eventos,
-                key = { it.id } // Identificador para cada evento
+                key = { it.id }
             ) { evento ->
                 ItemEventoCard(evento)
             }
+        }
+    }
+
+    // Dialogo Fecha Inicio
+    if (mostrarDialogoInicio) {
+        DatePickerDialog(
+            onDismissRequest = { mostrarDialogoInicio = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerStateInicio.selectedDateMillis?.let { milis ->
+                            viewModel.onFechaInicioChange(formatearFechas(milis))
+                        }
+                        mostrarDialogoInicio = false
+                    }
+                ) {
+                    Text("Aceptar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { mostrarDialogoInicio = false }) {
+                    Text("Cancelar")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerStateInicio)
+        }
+    }
+
+    // Dialogo Fecha Término
+    if (mostrarDialogoTermino) {
+        DatePickerDialog(
+            onDismissRequest = { mostrarDialogoTermino = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerStateTermino.selectedDateMillis?.let { milis ->
+                            viewModel.onFechaTerminoChange(formatearFechas(milis))
+                        }
+                        mostrarDialogoTermino = false
+                    }
+                ) {
+                    Text("Aceptar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { mostrarDialogoTermino = false }) {
+                    Text("Cancelar")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerStateTermino)
         }
     }
 }

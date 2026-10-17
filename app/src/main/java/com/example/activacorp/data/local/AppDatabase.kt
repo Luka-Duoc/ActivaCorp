@@ -24,7 +24,7 @@ import com.example.activacorp.data.local.seed.RegionSeed
     OrganizacionEntity::class,
     RegionEntity::class,
     ComunaEntity::class
-                     ], version = 4, exportSchema = false)
+                     ], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun UsuarioDao(): UsuarioDao
     abstract fun EventoDao(): EventoDao

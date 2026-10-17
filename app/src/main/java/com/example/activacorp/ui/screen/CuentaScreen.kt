@@ -1,7 +1,5 @@
 package com.example.activacorp.ui.screen
 
-import android.R
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -49,25 +47,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.activacorp.viewmodel.EventoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable()
 fun CuentaScreen(
     viewModel: UsuarioViewModel,
-    navController: NavController
+    navController: NavController,
+    eventoViewModel: EventoViewModel = viewModel()
 ) {
     val estado by viewModel.estado.collectAsState()
+    val estadoEvento by eventoViewModel.estado.collectAsState()
 
-    val eventos = listOf(
-        "Feria Vocacional Duoc UC - 15 Nov",
-        "Activación Empresa Enel - 20 Nov",
-        "Convenio Municipalidad Puente Alto - 02 Dic"
-    )
+    val listaEventos = estadoEvento.eventos
 
     var expandido by remember { mutableStateOf(false) }
-    var eventoSeleccionado by remember {
-        mutableStateOf(eventos.firstOrNull() ?: "Sin eventos disponibles")
+    var eventoSeleccionado by remember(listaEventos) {
+        mutableStateOf(
+            listaEventos.firstOrNull()?.nombre ?: "Sin eventos disponibles"
+        )
     }
 
     Column(
@@ -208,14 +208,31 @@ fun CuentaScreen(
                         onDismissRequest = { expandido = false },
                         modifier = Modifier.background(Color(0xFF2A2A2A))
                     ) {
-                        eventos.forEach { evento ->
+                        if (listaEventos.isEmpty()) {
                             DropdownMenuItem(
-                                text = { Text(evento, color = Color.White) },
-                                onClick = {
-                                    eventoSeleccionado = evento
-                                    expandido = false
-                                }
+                                text = {
+                                    Text(
+                                        text = "No hay eventos registrados aún",
+                                        color = Color.LightGray
+                                    )
+                                },
+                                onClick = { expandido = false }
                             )
+                        } else {
+                            listaEventos.forEach { evento ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = "${evento.nombre} (${evento.fechaInicio})",
+                                            color = Color.White
+                                        )
+                                    },
+                                    onClick = {
+                                        eventoSeleccionado = evento.nombre
+                                        expandido = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -239,6 +256,15 @@ fun CuentaScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Cerrar Sesión", color = Color.White)
+        }
+
+        Button(
+            onClick = {
+                navController.navigate("eventos")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Crear Eventos")
         }
     }
 }

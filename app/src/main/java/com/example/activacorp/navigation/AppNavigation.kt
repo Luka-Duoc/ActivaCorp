@@ -7,9 +7,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.activacorp.ui.screen.CuentaScreen
+import com.example.activacorp.ui.screen.EventoScreen
 import com.example.activacorp.ui.screen.IniciarScreen
 import com.example.activacorp.ui.screen.QrScannerScreen
 import com.example.activacorp.ui.screen.RegistroScreen
+import com.example.activacorp.viewmodel.EventoViewModel
 import com.example.activacorp.viewmodel.QrViewModel
 import com.example.activacorp.viewmodel.UsuarioViewModel
 
@@ -19,6 +21,7 @@ fun AppNavigation() {
 
     val UsuarioViewModel: UsuarioViewModel = viewModel()
     val QrViewModel: QrViewModel = viewModel()
+    val eventosViewModel: EventoViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -35,6 +38,9 @@ fun AppNavigation() {
         }
         composable("qrCamara") {
             QrScannerScreen(QrViewModel, true) { }
+        }
+        composable("eventos") {
+            EventoScreen(eventosViewModel)
         }
 
 

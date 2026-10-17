@@ -70,7 +70,7 @@ fun CuentaScreen(
 ) {
     val estado by viewModel.estado.collectAsState()
     val estadoEvento by eventoViewModel.estado.collectAsState()
-
+    val darkPurple = Color(0xFF301934)
     val listaEventos = estadoEvento.eventos
 
     var expandido by remember { mutableStateOf(false) }
@@ -84,7 +84,7 @@ fun CuentaScreen(
         val coroutineScope = rememberCoroutineScope()
         TabRow(
             selectedTabIndex = pagerState.currentPage,
-            containerColor = Color.LightGray, contentColor = Color.White,
+            containerColor = darkPurple, contentColor = Color.White,
             divider = {},
             indicator = { tabPositions ->
                 TabRowDefaults.Indicator(
@@ -101,16 +101,23 @@ fun CuentaScreen(
                     coroutineScope.launch {
                         pagerState.animateScrollToPage(0)
                     }
+                }, icon = {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Cuenta"
+                    )
                 })
             Tab(
                 selected = pagerState.currentPage == 1,
                 text = {
                     Text("Eventos")
-                }, onClick = {
+                },
+                onClick = {
                     coroutineScope.launch {
                         pagerState.animateScrollToPage(1)
                     }
-                })
+                },
+                icon = { Icon(imageVector = Icons.Default.Event, contentDescription = "Eventos") })
         }
     }) { paddingValues ->
         HorizontalPager(

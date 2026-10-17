@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,9 +17,11 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -27,6 +30,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
@@ -47,47 +51,67 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
+    val purpleColor = Color(0xFF800080)
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 colors = topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = purpleColor,
+                    titleContentColor = Color.White,
                 ),
                 title = {
-                    Text("Activa Corp")
+                    Text("Activa Corp", style = MaterialTheme.typography.headlineSmall)
                 }
             )
         },
-        bottomBar = {
-            BottomAppBar(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.primary,
-            ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    text = "Bottom app bar",
-                )
-            }
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate("") }) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
-            }
-        }
     ) { innerPadding ->
-        val contenidos = listOf("Cada oportunidad cuenta", "Descubre, organiza y gestiona nuevas oportunidades de activación corporativa desde un solo lugar.")
+        val contenidos = listOf(
+            "Cada oportunidad cuenta",
+            "Descubre, organiza y gestiona nuevas oportunidades de activación corporativa desde un solo lugar."
+        )
         LazyColumn(
             modifier = Modifier
-                .padding(innerPadding).fillMaxSize(),
+                .padding(innerPadding)
+                .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            itemsIndexed(contenidos) { index, item -> Row() {
-                Text(text = "$item", textAlign = TextAlign.Center)
+            itemsIndexed(contenidos) { index, item ->
+                Row() {
+                    if (index == 0) {
+                        Text(
+                            text = "$item",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                    } else {
+                        Text(
+                            text = "$item",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+
+                }
             }
-            } }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(15.dp),
+                    thickness = 5.dp
+                )
+            }
+            item {
+                TextButton(
+                    modifier = Modifier.padding(15.dp),
+                    onClick = { navController.navigate("registrar") },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = purpleColor,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Crea tu cuenta gratuita", style = MaterialTheme.typography.labelMedium)
+                }
+            }
+        }
     }
 }

@@ -26,8 +26,11 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = "home"
     ) {
+        composable("home") {
+            HomeScreen(navController)
+        }
         composable("registrar") {
             RegistroScreen(navController,UsuarioViewModel)
         }
@@ -43,10 +46,6 @@ fun AppNavigation() {
         composable("eventos") {
             EventoScreen(eventosViewModel)
         }
-        composable("home") {
-            HomeScreen(/*navController*/)
-        }
-
 
     }
 }

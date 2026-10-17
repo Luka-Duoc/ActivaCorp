@@ -1,0 +1,11 @@
+package com.example.activacorp.model
+
+enum class EstadoGestion {
+    EVENTO_IDENTIFICADO,
+    CONTACTO_PENDIENTE,
+    CONTACTO_REALIZADO,
+    PROPUESTA_ENVIADA,
+    EN_ESPERA_DE_RESPUESTA,
+    PARTICIPACION_CONFIRMADA,
+    OPORTUNIDAD_DESCARTADA
+}

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ComunaDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertar(comuna: ComunaEntity)
+    suspend fun insertar(comuna: List<ComunaEntity>)
 
     @Query("SELECT * FROM comunas")
     fun obtenerTodas(): Flow<List<ComunaEntity>>

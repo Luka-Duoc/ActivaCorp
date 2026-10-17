@@ -4,13 +4,19 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.activacorp.data.local.dao.ComunaDao
 import com.example.activacorp.data.local.dao.EventoDao
+import com.example.activacorp.data.local.dao.RegionDao
 import com.example.activacorp.data.local.dao.UsuarioDao
 import com.example.activacorp.data.local.entity.ComunaEntity
 import com.example.activacorp.data.local.entity.EventoEntity
 import com.example.activacorp.data.local.entity.OrganizacionEntity
 import com.example.activacorp.data.local.entity.RegionEntity
 import com.example.activacorp.data.local.entity.UsuarioEntity
+import com.example.activacorp.data.local.seed.ComunaSeed
+import com.example.activacorp.data.local.seed.RegionSeed
+
 
 @Database(entities = [
     UsuarioEntity::class,
@@ -18,10 +24,12 @@ import com.example.activacorp.data.local.entity.UsuarioEntity
     OrganizacionEntity::class,
     RegionEntity::class,
     ComunaEntity::class
-                     ], version = 1, exportSchema = false)
+                     ], version = 4, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun UsuarioDao(): UsuarioDao
     abstract fun EventoDao(): EventoDao
+    abstract fun ComunaDao(): ComunaDao
+    abstract fun RegionDao(): RegionDao
 
     companion object {
         @Volatile
@@ -33,7 +41,24 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "app_database"
-                ).fallbackToDestructiveMigration()
+                ).addCallback(object : RoomDatabase.Callback() {
+                    override fun onCreate(db: SupportSQLiteDatabase) {
+                        super.onCreate(db)
+                        RegionSeed.listaRegiones.forEach { region ->
+                            db.execSQL(
+                                "INSERT INTO regiones (id, nombre) VALUES (?, ?)",
+                                arrayOf(region.id, region.nombre)
+                            )
+                        }
+                        ComunaSeed.listaComunas.forEach { comuna ->
+                            db.execSQL(
+                                "INSERT INTO comunas (id, idRegion,nombre) VALUES (?, ?, ?)",
+                                arrayOf(comuna.id, comuna.idRegion ,comuna.nombre)
+                            )
+                        }
+                    }
+                })
+                    .fallbackToDestructiveMigration()
                     .build().also { INSTANCE = it }
             }
         }

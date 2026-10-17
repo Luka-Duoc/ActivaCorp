@@ -4,7 +4,15 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "eventos")
+@Entity(tableName = "eventos",
+        foreignKeys = [ForeignKey(
+            entity = ComunaEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["comuna"],
+            onDelete = ForeignKey.Companion.CASCADE
+        )
+    ]
+)
 
 data class EventoEntity(
     @PrimaryKey(autoGenerate = true)
@@ -27,14 +35,3 @@ data class EventoEntity(
     val espaciosDisponbiles: String = "",
     val observaciones: String = ""
 )
-
-/*
-*
-* foreignKeys = [ForeignKey(
-        entity = ComunaEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["comuna"],
-        onDelete = ForeignKey.Companion.CASCADE
-    )
-])
-* */

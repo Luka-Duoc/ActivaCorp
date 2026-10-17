@@ -8,6 +8,5 @@ enum class TipoOrganizacion() {
     ORGANIZADOR_EVENTOS,
     CENTRO_COMERCIAL,
     ASOCIACION,
-
     OTROS
 }

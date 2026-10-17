@@ -130,9 +130,8 @@ fun CuentaScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-
-                if (page == 0) {
-                    Column(
+                when (page) {
+                    0 -> Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .background(Color.Black)
@@ -229,8 +228,7 @@ fun CuentaScreen(
                         }
                     }
 
-                } else if (page == 1) {
-                    Card(
+                    1 -> Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
@@ -332,6 +330,7 @@ fun CuentaScreen(
                         }
                     }
                 }
+
             }
         }
     }

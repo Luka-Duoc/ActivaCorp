@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,18 +43,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.activacorp.viewmodel.EventoViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable()
+@Composable
 fun CuentaScreen(
     viewModel: UsuarioViewModel,
     navController: NavController,
@@ -69,206 +79,255 @@ fun CuentaScreen(
             listaEventos.firstOrNull()?.nombre ?: "Sin eventos disponibles"
         )
     }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Encabezado
-        Surface(
-            shape = CircleShape, // Forma circular
-            color = MaterialTheme.colorScheme.primaryContainer,
-            modifier = Modifier.size(80.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "Avatar de usuario",
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxSize()
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Perfil de Usuario",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        //Datos del usuario
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp), // Redondear esquinas
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)) // Color de la carta
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    text = "Informacion Personal",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White
+    val pagerState = rememberPagerState(pageCount = { 2 })
+    Scaffold(bottomBar = {
+        val coroutineScope = rememberCoroutineScope()
+        TabRow(
+            selectedTabIndex = pagerState.currentPage,
+            containerColor = Color.LightGray, contentColor = Color.White,
+            divider = {},
+            indicator = { tabPositions ->
+                TabRowDefaults.Indicator(
+                    modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                    height = 2.dp,
+                    color = MaterialTheme.colorScheme.scrim
                 )
-
-                HorizontalDivider(color = Color.DarkGray)
-
-                // Nombre
-                ItemDatoCuenta(
-                    icono = Icons.Default.Person,
-                    titulo = "Nombre",
-                    valor = estado.nombre.ifBlank { "No registrado" }
-                )
-
-                // Correo
-                ItemDatoCuenta(
-                    icono = Icons.Default.Email,
-                    titulo = "Correo Electronico",
-                    valor = estado.correo.ifBlank { "No registrado" }
-                )
-
-                ItemDatoCuenta(
-                    icono = Icons.Default.Badge,
-                    titulo = "Cargo asignado",
-                    valor = estado.rol.ifBlank { "Cargo no asignado" }
-                )
-
             }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Lista de eventos
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
         ) {
+            Tab(
+                selected = pagerState.currentPage == 0,
+                text = { Text("Cuenta") },
+                onClick = {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(0)
+                    }
+                })
+            Tab(
+                selected = pagerState.currentPage == 1,
+                text = {
+                    Text("Eventos")
+                }, onClick = {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(1)
+                    }
+                })
+        }
+    }) { paddingValues ->
+        HorizontalPager(
+            state = pagerState,
+            userScrollEnabled = false,
+            contentPadding = paddingValues
+        ) { page ->
             Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Row(
-                   verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Event,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = "Eventos y oportunidades",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White
-                    )
-                }
-
-                Text(
-                    text = "Selecciona un evento para ver su descripción",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.LightGray
-                )
-                ExposedDropdownMenuBox(
-                    expanded = expandido,
-                    onExpandedChange = { expandido = !expandido },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    OutlinedTextField(
-                        value = eventoSeleccionado,
-                        onValueChange = {},
-                        readOnly = true,
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandido) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = Color.Gray,
-                            focusedContainerColor = Color(0xFF2A2A2A),
-                            unfocusedContainerColor = Color(0xFF2A2A2A)
-                        ),
+                if (page == 0) {
+                    Column(
                         modifier = Modifier
-                            .menuAnchor()
-                            .fillMaxWidth()
-                    )
-
-                    ExposedDropdownMenu(
-                        expanded = expandido,
-                        onDismissRequest = { expandido = false },
-                        modifier = Modifier.background(Color(0xFF2A2A2A))
+                            .fillMaxSize()
+                            .background(Color.Black)
+                            .padding(24.dp)
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        if (listaEventos.isEmpty()) {
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        text = "No hay eventos registrados aún",
-                                        color = Color.LightGray
-                                    )
-                                },
-                                onClick = { expandido = false }
+                        // Encabezado
+                        Surface(
+                            shape = CircleShape, // Forma circular
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            modifier = Modifier.size(80.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Avatar de usuario",
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .fillMaxSize()
                             )
-                        } else {
-                            listaEventos.forEach { evento ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            text = "${evento.nombre} (${evento.fechaInicio})",
-                                            color = Color.White
-                                        )
-                                    },
-                                    onClick = {
-                                        eventoSeleccionado = evento.nombre
-                                        expandido = false
-                                    }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = "Perfil de Usuario",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        //Datos del usuario
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp), // Redondear esquinas
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)) // Color de la carta
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Text(
+                                    text = "Informacion Personal",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.White
+                                )
+
+                                HorizontalDivider(color = Color.DarkGray)
+
+                                // Nombre
+                                ItemDatoCuenta(
+                                    icono = Icons.Default.Person,
+                                    titulo = "Nombre",
+                                    valor = estado.nombre.ifBlank { "No registrado" }
+                                )
+
+                                // Correo
+                                ItemDatoCuenta(
+                                    icono = Icons.Default.Email,
+                                    titulo = "Correo Electronico",
+                                    valor = estado.correo.ifBlank { "No registrado" }
+                                )
+
+                                ItemDatoCuenta(
+                                    icono = Icons.Default.Badge,
+                                    titulo = "Cargo asignado",
+                                    valor = estado.rol.ifBlank { "Cargo no asignado" }
+                                )
+
+                            }
+                        }
+                        Button(
+                            onClick = {
+                                // Limpiar el estado
+                                viewModel.cerrarSesion()
+
+                                // Navegar a IniciarScreen
+                                navController.navigate("login") {
+                                    popUpTo(0) {
+                                        inclusive = true
+                                    } // Limpia todas las pantallas anteriores
+                                    launchSingleTop = true
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Cerrar Sesión", color = Color.White)
+                        }
+                    }
+
+                } else if (page == 1) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Event,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "Eventos y oportunidades",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.White
                                 )
                             }
+
+                            Text(
+                                text = "Selecciona un evento para ver su descripción",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.LightGray
+                            )
+                            ExposedDropdownMenuBox(
+                                expanded = expandido,
+                                onExpandedChange = { expandido = !expandido },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                OutlinedTextField(
+                                    value = eventoSeleccionado,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(
+                                            expanded = expandido
+                                        )
+                                    },
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedTextColor = Color.White,
+                                        unfocusedTextColor = Color.White,
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        unfocusedBorderColor = Color.Gray,
+                                        focusedContainerColor = Color(0xFF2A2A2A),
+                                        unfocusedContainerColor = Color(0xFF2A2A2A)
+                                    ),
+                                    modifier = Modifier
+                                        .menuAnchor()
+                                        .fillMaxWidth()
+                                )
+
+                                ExposedDropdownMenu(
+                                    expanded = expandido,
+                                    onDismissRequest = { expandido = false },
+                                    modifier = Modifier.background(Color(0xFF2A2A2A))
+                                ) {
+                                    if (listaEventos.isEmpty()) {
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    text = "No hay eventos registrados aún",
+                                                    color = Color.LightGray
+                                                )
+                                            },
+                                            onClick = { expandido = false }
+                                        )
+                                    } else {
+                                        listaEventos.forEach { evento ->
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(
+                                                        text = "${evento.nombre} (${evento.fechaInicio})",
+                                                        color = Color.White
+                                                    )
+                                                },
+                                                onClick = {
+                                                    eventoSeleccionado = evento.nombre
+                                                    expandido = false
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        Button(
+                            onClick = {
+                                navController.navigate("eventos")
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Crear Eventos")
                         }
                     }
                 }
             }
         }
-
-        Button(
-            onClick = {
-                // Limpiar el estado
-                viewModel.cerrarSesion()
-
-                // Navegar a IniciarScreen
-                navController.navigate("login") {
-                    popUpTo(0) { inclusive = true } // Limpia todas las pantallas anteriores
-                    launchSingleTop = true
-                }
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.error
-            ),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Cerrar Sesión", color = Color.White)
-        }
-
-        Button(
-            onClick = {
-                navController.navigate("eventos")
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Crear Eventos")
-        }
     }
 }
-
 
 @Composable
 private fun ItemDatoCuenta(

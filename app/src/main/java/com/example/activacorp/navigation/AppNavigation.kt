@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.activacorp.ui.screen.CuentaScreen
 import com.example.activacorp.ui.screen.EventoScreen
+import com.example.activacorp.ui.screen.HomeScreen
 import com.example.activacorp.ui.screen.IniciarScreen
 import com.example.activacorp.ui.screen.QrScannerScreen
 import com.example.activacorp.ui.screen.RegistroScreen
@@ -25,7 +26,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "registrar"
+        startDestination = "login"
     ) {
         composable("registrar") {
             RegistroScreen(navController,UsuarioViewModel)
@@ -41,6 +42,9 @@ fun AppNavigation() {
         }
         composable("eventos") {
             EventoScreen(eventosViewModel)
+        }
+        composable("home") {
+            HomeScreen(/*navController*/)
         }
 
 

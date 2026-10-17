@@ -47,6 +47,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 
+val contenidos = listOf(
+    "Cada oportunidad cuenta",
+    "Descubre, organiza y gestiona nuevas oportunidades de activación corporativa desde un solo lugar."
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,10 +69,6 @@ fun HomeScreen(navController: NavController) {
             )
         },
     ) { innerPadding ->
-        val contenidos = listOf(
-            "Cada oportunidad cuenta",
-            "Descubre, organiza y gestiona nuevas oportunidades de activación corporativa desde un solo lugar."
-        )
         LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)

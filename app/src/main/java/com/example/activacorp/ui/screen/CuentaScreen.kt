@@ -130,6 +130,7 @@ fun CuentaScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
+
                 if (page == 0) {
                     Column(
                         modifier = Modifier

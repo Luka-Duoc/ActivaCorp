@@ -1,5 +1,6 @@
 package com.example.activacorp.ui.screen
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -81,6 +82,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.activacorp.data.local.entity.UsuarioEntity
 import com.example.activacorp.model.RolUsuario
 import com.example.activacorp.viewmodel.EventoViewModel
 import com.example.activacorp.viewmodel.OportunidadViewModel
@@ -96,6 +98,7 @@ fun CuentaScreen(
     oportunidadViewModel: OportunidadViewModel = viewModel(),
     organizacionViewModel: OrganizacionViewModel = viewModel()
 ) {
+    var mostrarDialogoEliminar by remember { mutableStateOf(false) } // Confirmar Eliminacion
     val estado by viewModel.estado.collectAsState()
     val estadoEvento by eventoViewModel.estado.collectAsState()
     val estadoOportunidad by oportunidadViewModel.estado.collectAsState()
@@ -327,6 +330,70 @@ fun CuentaScreen(
                             ), modifier = Modifier.fillMaxWidth()
                         ) {
                             Text("Cerrar Sesión", color = Color.White)
+                        }
+
+                        // Eliminar cuenta
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        OutlinedButton(
+                            onClick = { mostrarDialogoEliminar = true },
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.error
+                            ),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Borrar Cuenta",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Borrar Cuenta", color = MaterialTheme.colorScheme.error)
+                        }
+
+                        if (mostrarDialogoEliminar) {
+                            AlertDialog(
+                                onDismissRequest = { mostrarDialogoEliminar = false },
+                                title = { Text("¿Eliminar cuenta?") },
+                                text = {
+                                    Text("Esta acción es permanente y se borrarán todos tus datos asociados. ¿Estás seguro de que deseas continuar?")
+                                },
+                                confirmButton = {
+                                    Button(
+                                        onClick = {
+                                            mostrarDialogoEliminar = false
+                                            val entidadUsuario = UsuarioEntity(
+                                                id = estado.id,
+                                                nombre = estado.nombre,
+                                                correo = estado.correo,
+                                                clave = estado.clave,
+                                                rol = estado.rol
+                                            )
+                                            viewModel.eliminar(
+                                                usuario = entidadUsuario,
+                                                onEliminar = {
+                                                    viewModel.cerrarSesion()
+                                                    navController.navigate("login") {
+                                                        popUpTo(0) { inclusive = true }
+                                                        launchSingleTop = true
+                                                    }
+                                                }
+                                            )
+                                        },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.error
+                                        )
+                                    ) {
+                                        Text("Eliminar definitivamente", color = Color.White)
+                                    }
+                                },
+                                dismissButton = {
+                                    OutlinedButton(onClick = { mostrarDialogoEliminar = false }) {
+                                        Text("Cancelar")
+                                    }
+                                }
+                            )
                         }
                     }
 

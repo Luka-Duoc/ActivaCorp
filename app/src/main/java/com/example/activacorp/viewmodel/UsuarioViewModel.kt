@@ -102,8 +102,10 @@ class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
             if (usuarioEncontrado != null) {
                 _estado.update {
                     it.copy(
+                        id = usuarioEncontrado.id,
                         nombre = usuarioEncontrado.nombre,
                         correo = usuarioEncontrado.correo,
+                        clave = usuarioEncontrado.clave,
                         rol = usuarioEncontrado.rol,
                         errores = UsuarioErrores()
                     )
@@ -123,6 +125,21 @@ class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             usuarioRepository.limpiarSesion()
             _estado.value = UsuarioUiState()
+        }
+    }
+
+    fun eliminar(usuario: UsuarioEntity, onEliminar: () -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                dao.eliminar(usuario)
+                onEliminar()
+            } catch (e: Exception) {
+                _estado.update {
+                    it.copy(
+                        errores = it.errores.copy(nombre = "Error al eliminar al usuario: ${e.message}")
+                    )
+                }
+            }
         }
     }
 

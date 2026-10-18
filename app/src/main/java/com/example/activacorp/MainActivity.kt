@@ -46,23 +46,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Verificar permiso inicial
-        hasCameraPermission = CameraPermissionHelper.hasCameraPermission(this)
-
         setContent {
-            MaterialTheme (colorScheme = ColoresApp){
+            MaterialTheme(colorScheme = ColoresApp) {
                 Surface {
-
                     AppNavigation()
                 }
-            }
-        }
-
-        // Observa los resultados del QR
-        qrViewModel.qrResult.observe(this) { qrResult ->
-            qrResult?.let { result ->
-                Toast.makeText(this, "Código QR Detectado: ${result.content}", Toast.LENGTH_LONG).show()
             }
         }
     }

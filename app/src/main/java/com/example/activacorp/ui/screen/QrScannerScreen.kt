@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,12 +32,15 @@ import com.example.activacorp.utils.QrScanner
 import com.example.activacorp.viewmodel.QrViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.example.activacorp.viewmodel.EventoViewModel
 
 @Composable
 fun QrScannerScreen(
     viewModel: QrViewModel,
+    eventoViewModel: EventoViewModel, //
     hasCameraPermission: Boolean,
-    onRequestPermission: () -> Unit
+    onRequestPermission: () -> Unit,
+    onEventoRegistrado: () -> Unit = {}
 ) {
     val qrResult by viewModel.qrResult.observeAsState()
     val context = LocalContext.current
@@ -122,7 +126,7 @@ fun QrScannerScreen(
                 modifier = Modifier.padding(16.dp)
             ) {
                 Text(
-                    " QR Detectado:",
+                    "QR Detectado:",
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
@@ -136,19 +140,41 @@ fun QrScannerScreen(
                 ) {
                     Text(
                         qrResult!!.content,
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(16.dp)
                     )
                 }
+
                 Spacer(Modifier.height(16.dp))
+
+                // BOTÓN: Registrar el evento en la base de datos
                 Button(
+                    onClick = {
+                        val contenidoQr = qrResult!!.content
+                        eventoViewModel.registrarEscaneoQR(contenidoQr) { exito, mensaje ->
+                            Toast.makeText(context, mensaje, Toast.LENGTH_LONG).show()
+                            if (exito) {
+                                viewModel.clearResult()
+                                onEventoRegistrado() // Vuelve a la lista o pantalla de eventos
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Registrar Evento")
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                // Reintentar o escanear otro
+                OutlinedButton(
                     onClick = {
                         viewModel.clearResult()
                         isScanning = true
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Escanear otro código QR")
+                    Text("Volver a escanear")
                 }
             }
         }

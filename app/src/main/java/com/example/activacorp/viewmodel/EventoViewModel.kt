@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.activacorp.data.local.AppDatabase
 import com.example.activacorp.data.local.entity.ComunaEntity
 import com.example.activacorp.data.local.entity.EventoEntity
+import com.example.activacorp.model.EventoQr
 import com.example.activacorp.model.EventoUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -237,6 +238,29 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
                 onExito()
             } catch (e: Exception) {
                 _estado.update { it.copy(mensajeError = "Error al procesar el evento: ${e.message}") }
+            }
+        }
+    }
+
+    fun registrarEscaneoQR(qrContenido: String, onResultado: (Boolean, String) -> Unit) {
+        val evento = EventoQr.escanear(qrContenido)
+
+        if (evento == null) {
+            onResultado(false, "El código QR no tiene el formato de evento válido.")
+            return
+        }
+
+        if (evento.nombre.isBlank() || evento.fechaInicio.isBlank() || evento.fechaTermino.isBlank()) {
+            onResultado(false, "El evento del QR no contiene campos obligatorios.")
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                dao.insertar(evento)
+                onResultado(true, "¡Evento '${evento.nombre}' registrado con éxito!")
+            } catch (e: Exception) {
+                onResultado(false, "Error al guardar el evento: ${e.message}")
             }
         }
     }

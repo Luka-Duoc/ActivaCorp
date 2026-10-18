@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
@@ -73,11 +74,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.activacorp.model.RolUsuario
 import com.example.activacorp.viewmodel.EventoViewModel
 import com.example.activacorp.viewmodel.OportunidadViewModel
+import com.example.activacorp.viewmodel.OrganizacionViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,11 +89,13 @@ fun CuentaScreen(
     viewModel: UsuarioViewModel,
     navController: NavController,
     eventoViewModel: EventoViewModel = viewModel(),
-    oportunidadViewModel: OportunidadViewModel = viewModel()
+    oportunidadViewModel: OportunidadViewModel = viewModel(),
+    organizacionViewModel: OrganizacionViewModel = viewModel()
 ) {
     val estado by viewModel.estado.collectAsState()
     val estadoEvento by eventoViewModel.estado.collectAsState()
     val estadoOportunidad by oportunidadViewModel.estado.collectAsState()
+    val estadoOrganizacion by organizacionViewModel.estado.collectAsState()
     val darkPurple = Color(0xFF301934)
     val listaEventos = estadoEvento.eventos
 
@@ -101,7 +106,7 @@ fun CuentaScreen(
             listaEventos.firstOrNull()?.nombre ?: "Sin eventos disponibles"
         )
     }
-    val pagerState = rememberPagerState(pageCount = { 3 })
+    val pagerState = rememberPagerState(pageCount = { 4 })
     Scaffold(bottomBar = {
         val coroutineScope = rememberCoroutineScope()
         TabRow(
@@ -147,6 +152,21 @@ fun CuentaScreen(
                     imageVector = Icons.Default.Campaign, contentDescription = "Oportunidades"
                 )
             })
+            Tab(
+                selected = pagerState.currentPage == 3,
+                text = { Text("Organizaciones") },
+                onClick = {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(3)
+                    }
+                },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Business,
+                        contentDescription = "Organizaciones"
+                    )
+                }
+            )
         }
     }) { innerPadding ->
         HorizontalPager(
@@ -404,17 +424,17 @@ fun CuentaScreen(
                     2 -> Scaffold(topBar = {
                         TopAppBar(
                             title = {
-                            Text(text = "Hola, Ejecutivo")
-                        }, actions = {
-                            IconButton(onClick = { }) {
-                                Icon(
-                                    imageVector = Icons.Default.Notifications,
-                                    contentDescription = "Alertas"
-                                )
-                            }
-                        }, colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.background
-                        )
+                                Text(text = "Hola, Ejecutivo")
+                            }, actions = {
+                                IconButton(onClick = { }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Notifications,
+                                        contentDescription = "Alertas"
+                                    )
+                                }
+                            }, colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.background
+                            )
                         )
                     }, floatingActionButton = {
                         FloatingActionButton(
@@ -604,6 +624,173 @@ fun CuentaScreen(
                                 )
                             }
                         }
+                    }
+
+                    3 -> Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background)
+                            .padding(16.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Organizaciones",
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            IconButton(
+                                onClick = { navController.navigate("CreacionOrganizacion") },
+                                modifier = Modifier.background(
+                                    MaterialTheme.colorScheme.primaryContainer,
+                                    CircleShape
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Agregar Organización",
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Explora las organizaciones, sus eventos y oportunidades asociadas.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        estadoOrganizacion.organizaciones.forEach { organizacion ->
+
+                            val eventosAsociados = remember(estadoEvento.eventos, organizacion.id) {
+                                estadoEvento.eventos.filter { it.organizacion == organizacion.id }
+                            }
+
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 16.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant) // Usando color del tema
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    // Título y Tipo
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = organizacion.nombre,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            modifier = Modifier.weight(1f).padding(end = 8.dp),
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        SuggestionChip(
+                                            onClick = {},
+                                            label = {
+                                                Text(
+                                                    organizacion.tipo.name,
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    maxLines = 1
+                                                )
+                                            }
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "Rubro: ${organizacion.rubro}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    Text(
+                                        text = "Eventos Activos (${eventosAsociados.size})",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    if (eventosAsociados.isEmpty()) {
+                                        Text(
+                                            text = "No hay eventos registrados para esta organización.",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Color.Gray
+                                        )
+                                    } else {
+                                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            eventosAsociados.forEach { evento ->
+
+                                                val cantidadOportunidades =
+                                                    estadoOportunidad.oportunidades.count { it.eventoId == evento.id }
+
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .background(
+                                                            MaterialTheme.colorScheme.surface,
+                                                            RoundedCornerShape(8.dp)
+                                                        )
+                                                        .padding(12.dp),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Column(modifier = Modifier.weight(1f)) {
+                                                        Text(
+                                                            text = evento.nombre,
+                                                            style = MaterialTheme.typography.bodyMedium,
+                                                            fontWeight = FontWeight.Medium,
+                                                            color = MaterialTheme.colorScheme.onSurface
+                                                        )
+                                                        Text(
+                                                            text = evento.fechaInicio,
+                                                            style = MaterialTheme.typography.labelSmall,
+                                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                        )
+                                                    }
+
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .background(
+                                                                if (cantidadOportunidades > 0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+                                                                RoundedCornerShape(8.dp)
+                                                            )
+                                                            .padding(
+                                                                horizontal = 8.dp,
+                                                                vertical = 4.dp
+                                                            )
+                                                    ) {
+                                                        Text(
+                                                            text = "$cantidadOportunidades Op.",
+                                                            style = MaterialTheme.typography.labelSmall,
+                                                            color = if (cantidadOportunidades > 0) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                            fontWeight = FontWeight.SemiBold
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(80.dp))
                     }
                 }
 

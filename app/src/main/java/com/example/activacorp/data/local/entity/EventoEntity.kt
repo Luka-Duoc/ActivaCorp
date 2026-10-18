@@ -13,10 +13,17 @@ import androidx.room.PrimaryKey
             parentColumns = ["id"],
             childColumns = ["comuna"],
             onDelete = ForeignKey.CASCADE
-        )
+        ),
+        ForeignKey(
+            entity = OrganizacionEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["organizacion"],
+            onDelete = ForeignKey.CASCADE
+        ),
     ],
     indices = [
-        Index(value = ["comuna"])
+        Index(value = ["comuna"]),
+        Index(value = ["organizacion"])
     ]
 )
 data class EventoEntity(

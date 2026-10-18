@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.activacorp.data.local.entity.EventoEntity
 import com.example.activacorp.data.local.entity.OrganizacionEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -87,13 +88,12 @@ fun OrganizacionScreen(
                 val nombreComuna = estado.comunas
                     .find { it.id == item.comuna }?.nombre ?: "Sin comuna"
 
-                val nombreEvento = estado.listaEventos
-                    .find { it.id == item.eventoId }?.nombre ?: "Sin evento asignado"
+                val listaEventos = estado.listaEventos.filter { it.organizacion == item.id }
 
                 cardOrganizacion(
                     organizacion = item,
                     nombreComuna = nombreComuna,
-                    nombreEvento = nombreEvento,
+                    eventos = listaEventos,
                     onEditar = {
                         viewModel.prepararEdicion(item)
                         navController.navigate("CreacionOrganizacion")
@@ -108,7 +108,7 @@ fun OrganizacionScreen(
 fun cardOrganizacion(
     organizacion: OrganizacionEntity,
     nombreComuna: String,
-    nombreEvento: String,
+    eventos: List<EventoEntity>,
     onEditar: () -> Unit
 ) {
     Column(
@@ -162,16 +162,28 @@ fun cardOrganizacion(
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Text(
-                    text = "Evento Asociado",
+                    text = "Eventos Activos (${eventos.size})",
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = nombreEvento,
-                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold
                 )
+                Spacer(modifier = Modifier.height(4.dp))
+
+                if (eventos.isEmpty()) {
+                    Text(
+                        text = "No hay eventos registrados para esta organización.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                } else {
+                    eventos.forEach { evento ->
+                        Text(
+                            text = "• ${evento.nombre} (${evento.fechaInicio})",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
             }
 
             // Rubro y sitio web

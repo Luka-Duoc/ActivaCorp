@@ -2,6 +2,7 @@ package com.example.activacorp.model
 
 import com.example.activacorp.data.local.entity.ComunaEntity
 import com.example.activacorp.data.local.entity.EventoEntity
+import com.example.activacorp.data.local.entity.OrganizacionEntity
 
 data class EventoUiState(
     val eventos: List<EventoEntity> = emptyList(),
@@ -21,5 +22,7 @@ data class EventoUiState(
     val costosReferenciales: String = "0",
     val observaciones: String = "",
     val mensajeError: String? = null,
+    val organizaciones: List<OrganizacionEntity> = emptyList(),
+    val organizacionId: Long = 0L,
     val exitSave: Boolean = false
 )

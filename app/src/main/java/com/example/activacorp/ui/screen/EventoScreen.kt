@@ -80,6 +80,11 @@ fun EventoScreen(
     val datePickerStateTermino = rememberDatePickerState()
     var eventoSeleccionadoParaDetalle by remember { mutableStateOf<EventoEntity?>(null) }
 
+    var expandidoOrganizacion by remember { mutableStateOf(false) }
+
+    val organizacionSeleccionadaNombre = estado.organizaciones
+        .find { it.id == estado.organizacionId }?.nombre ?: "Seleccionar organización *"
+
     val listaTipo = listOf(
         "Feria de Emprendimiento",
         "Actividad Deportiva",
@@ -321,6 +326,49 @@ fun EventoScreen(
                             label = { Text("Observaciones") },
                             modifier = Modifier.fillMaxWidth()
                         )
+
+                        // Organizaciones
+                        ExposedDropdownMenuBox(
+                            expanded = expandidoOrganizacion,
+                            onExpandedChange = { expandidoOrganizacion = it },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            OutlinedTextField(
+                                value = organizacionSeleccionadaNombre,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Organización *") },
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandidoOrganizacion)
+                                },
+                                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth()
+                            )
+
+                            ExposedDropdownMenu(
+                                expanded = expandidoOrganizacion,
+                                onDismissRequest = { expandidoOrganizacion = false }
+                            ) {
+                                if (estado.organizaciones.isEmpty()) {
+                                    DropdownMenuItem(
+                                        text = { Text("No hay organizaciones registradas") },
+                                        onClick = { expandidoOrganizacion = false }
+                                    )
+                                } else {
+                                    estado.organizaciones.forEach { orgItem ->
+                                        DropdownMenuItem(
+                                            text = { Text(orgItem.nombre) },
+                                            onClick = {
+                                                viewModel.onOrganizacionSeleccionada(orgItem.id)
+                                                expandidoOrganizacion = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
 
                         // Resultado de validaciones: si error no es null, se muestra en rojo
                         estado.mensajeError?.let { msg ->

@@ -176,45 +176,6 @@ fun CreacionOrganizacionScreen(
                 }
             }
 
-            // Evento
-            ExposedDropdownMenuBox(
-                expanded = expandidoEvento,
-                onExpandedChange = { expandidoEvento = it }
-            ) {
-                OutlinedTextField(
-                    value = eventoSeleccionado,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Evento asociado") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandidoEvento) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor()
-                )
-                ExposedDropdownMenu(
-                    expanded = expandidoEvento,
-                    onDismissRequest = { expandidoEvento = false }
-                ) {
-                    if (estado.listaEventos.isEmpty()) {
-                        DropdownMenuItem(
-                            text = { Text("No hay eventos registrados") },
-                            onClick = { expandidoEvento = false }
-                        )
-                    } else {
-                        estado.listaEventos.forEach { eventoItem ->
-                            DropdownMenuItem(
-                                text = { Text(eventoItem.nombre) },
-                                onClick = {
-                                    viewModel.onEventoChange(eventoItem.id)
-                                    expandidoEvento = false
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-
-
             // Sitio Web
             OutlinedTextField(
                 value = estado.sitioWeb ?: "",

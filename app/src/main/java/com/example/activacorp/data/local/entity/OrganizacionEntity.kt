@@ -14,28 +14,20 @@ import com.example.activacorp.model.TipoOrganizacion
             parentColumns = ["id"],
             childColumns = ["comuna"],
             onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = EventoEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["eventoId"],
-            onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [
         Index(value = ["comuna"]),
-        Index(value = ["eventoId"])
     ]
     )
 data class OrganizacionEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val nombre: String = "",
-    val tipo: TipoOrganizacion,
+    val tipo: TipoOrganizacion = TipoOrganizacion.OTROS,
     val rubro: String = "",
     val comuna: Long,
     val sitioWeb: String? = "",
     val publico: String = "",
     val historial: String = "",
-    val eventoId: Long = 0L
 )

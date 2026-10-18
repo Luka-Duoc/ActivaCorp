@@ -748,16 +748,14 @@ fun CuentaScreen(
                             key = { it.id }
                         ) { organizacion ->
 
-                            val eventosDeEstaOrg = remember(estadoEvento.eventos, organizacion.id) {
+
+                            val eventosAsociados = remember(estadoEvento.eventos, organizacion.id) {
+                                println("DEBUG_EVENTOS: Org ID actual: ${organizacion.id} | Total eventos: ${estadoEvento.eventos.size}")
+                                estadoEvento.eventos.forEach {
+                                    println("DEBUG_EVENTOS: Evento ${it.nombre} pertenece a org: ${it.organizacion}")
+                                }
                                 estadoEvento.eventos.filter { it.organizacion == organizacion.id }
                             }
-
-                            val eventosAsociados = remember(estadoEvento.eventos, organizacion.id, organizacion.eventoId) {
-                                estadoEvento.eventos.filter { evento ->
-                                    evento.id == organizacion.eventoId || evento.organizacion == organizacion.id
-                                }
-                            }
-
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()

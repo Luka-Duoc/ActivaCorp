@@ -32,7 +32,7 @@ import com.example.activacorp.data.local.seed.RegionSeed
         OrganizacionEntity::class,
         RegionEntity::class,
         ComunaEntity::class,
-    ], version = 2, exportSchema = false
+    ], version = 4, exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun UsuarioDao(): UsuarioDao
@@ -73,9 +73,7 @@ abstract class AppDatabase : RoomDatabase() {
                         OrganizacionSeed.listaOrganizaciones.forEach { organizacion ->
                             db.execSQL(
                                 """
-                                INSERT INTO organizaciones (
-                                    id, nombre, tipo, rubro, comuna, sitioWeb, publico, historial, eventoId
-                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                               INSERT INTO organizaciones (id, nombre, tipo, rubro, comuna, sitioWeb, publico, historial) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                                 """.trimIndent(),
                                 arrayOf(
                                     organizacion.id,
@@ -85,8 +83,7 @@ abstract class AppDatabase : RoomDatabase() {
                                     organizacion.comuna,
                                     organizacion.sitioWeb,
                                     organizacion.publico,
-                                    organizacion.historial,
-                                    organizacion.eventoId
+                                    organizacion.historial
                                 )
                             )
                         }

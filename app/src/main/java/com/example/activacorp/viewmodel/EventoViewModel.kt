@@ -26,10 +26,24 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
 
     val estado: StateFlow<EventoUiState> = _estado.asStateFlow()
     private val comunaDao = AppDatabase.getDatabase(app).ComunaDao()
+    private val organizacionDao = AppDatabase.getDatabase(app).OrganizacionDao()
 
     init {
         cargarEventos()
         cargarComuna()
+        cargarOrganizacion()
+    }
+
+    fun cargarOrganizacion() {
+        viewModelScope.launch {
+            organizacionDao.obtenerTodas()
+                .catch { e ->
+                    _estado.update { it.copy(mensajeError = "Error al cargar las organizaciones") }
+                }
+                .collect { lista ->
+                    _estado.update { it.copy(organizaciones = lista) }
+                }
+        }
     }
 
     private fun cargarComuna() {
@@ -99,6 +113,9 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
 
     fun onFechaTerminoChange(v: String) =
         _estado.update { it.copy(fechaTermino = v, mensajeError = null) }
+    fun onOrganizacionSeleccionada(id: Long) {
+        _estado.update { it.copy(organizacionId = id) }
+    }
 
     fun onDireccionChange(v: String) = _estado.update { it.copy(direccion = v) }
     fun onComunaChange(id: Long) = _estado.update { it.copy(comuna = id) }
@@ -131,6 +148,8 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
     }
 
     fun editar(evento: EventoEntity) {
+        cargarOrganizacion()
+        cargarEventos()
         val nombreDeComuna = _estado.value.comunas.firstOrNull { it.id == evento.comuna }?.nombre ?: ""
         _estado.update {
             it.copy(
@@ -155,6 +174,8 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
 
     // Limpiar Formulario si el usuario cancela la edicion
     fun cancelarEdicion() {
+        cargarOrganizacion()
+        cargarEventos()
         _estado.update {
             EventoUiState(
                 eventos = it.eventos,
@@ -235,6 +256,8 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
                         exitSave = true
                     )
                 }
+                cargarEventos()
+                cargarOrganizacion()
                 onExito()
             } catch (e: Exception) {
                 _estado.update { it.copy(mensajeError = "Error al procesar el evento: ${e.message}") }
@@ -263,5 +286,7 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
                 onResultado(false, "Error al guardar el evento: ${e.message}")
             }
         }
+        cargarOrganizacion()
+        cargarEventos()
     }
 }

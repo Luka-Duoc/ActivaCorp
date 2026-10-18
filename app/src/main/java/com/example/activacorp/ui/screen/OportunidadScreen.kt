@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CreateNewFolder
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material3.Card
@@ -92,6 +93,9 @@ fun OportunidadScreen(navController: NavController, viewModel: OportunidadViewMo
                     onEditar = {
                         viewModel.prepararEdicion(item)
                         navController.navigate("CreacionOportunidad")
+                    },
+                    onEliminar = {
+                        viewModel.eliminar(item)
                     }
                 )
             }
@@ -102,7 +106,13 @@ fun OportunidadScreen(navController: NavController, viewModel: OportunidadViewMo
 }
 
 @Composable
-fun OportunidadCard(oportunidad: OportunidadEntity, nombreEvento: String, nombreResponsable: String,onEditar:() -> Unit) {
+fun OportunidadCard(
+    oportunidad: OportunidadEntity,
+    nombreEvento: String,
+    nombreResponsable: String,
+    onEditar:() -> Unit,
+    onEliminar:() -> Unit
+) {
 
 
     Column(
@@ -137,6 +147,13 @@ fun OportunidadCard(oportunidad: OportunidadEntity, nombreEvento: String, nombre
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Editar Oportunidad",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                IconButton(onClick = onEliminar) { // Icono eliminar
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Eliminar Oportunidad",
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }

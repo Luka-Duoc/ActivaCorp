@@ -1,6 +1,7 @@
 package com.example.activacorp.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -15,6 +16,9 @@ interface OportunidadDao {
 
     @Update
     suspend fun actualizar(oportunidad: OportunidadEntity)
+
+    @Delete
+    suspend fun eliminar(oportunidad: OportunidadEntity)
 
     @Query("SELECT * FROM oportunidades")
     fun obtenerTodas(): Flow<List<OportunidadEntity>>

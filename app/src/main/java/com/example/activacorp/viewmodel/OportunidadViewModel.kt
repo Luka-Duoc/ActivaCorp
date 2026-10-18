@@ -148,6 +148,18 @@ class OportunidadViewModel(app: Application): AndroidViewModel(app) {
         }
     }
 
+    fun eliminar(oportunidad: OportunidadEntity, onDelete: () -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                dao.eliminar(oportunidad)
+                onDelete()
+                cargarOportunidades()
+            } catch (e: Exception) {
+                _estado.update { it.copy(mensajeError = "Error al eliminar la oportunidad") }
+            }
+        }
+    }
+
     fun guardarOportunidad(onExito: () -> Unit = {}) {
         val st = _estado.value
 

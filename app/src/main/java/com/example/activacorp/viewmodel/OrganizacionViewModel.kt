@@ -101,6 +101,7 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
     fun prepararEdicion(organizacion: OrganizacionEntity) {
         cargarComunas()
         cargarEventos()
+        cargarOrganizaciones()
         _estado.update {
             it.copy(
                 idEnEdicion = organizacion.id,

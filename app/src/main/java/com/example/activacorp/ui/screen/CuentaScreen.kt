@@ -748,8 +748,14 @@ fun CuentaScreen(
                             key = { it.id }
                         ) { organizacion ->
 
-                            val eventosAsociados = remember(estadoEvento.eventos, organizacion.id) {
+                            val eventosDeEstaOrg = remember(estadoEvento.eventos, organizacion.id) {
                                 estadoEvento.eventos.filter { it.organizacion == organizacion.id }
+                            }
+
+                            val eventosAsociados = remember(estadoEvento.eventos, organizacion.id, organizacion.eventoId) {
+                                estadoEvento.eventos.filter { evento ->
+                                    evento.id == organizacion.eventoId || evento.organizacion == organizacion.id
+                                }
                             }
 
                             Card(

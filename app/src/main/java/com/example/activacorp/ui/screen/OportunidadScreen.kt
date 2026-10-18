@@ -7,11 +7,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material3.Card
@@ -20,7 +18,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Label
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,14 +26,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.activacorp.data.local.entity.OportunidadEntity
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
-import androidx.room.util.TableInfo
 import com.example.activacorp.viewmodel.OportunidadViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,7 +65,7 @@ fun OportunidadScreen(navController: NavController, viewModel: OportunidadViewMo
                 }
                 // Redireccion crear oportunidad
                 FloatingActionButton(
-                    onClick = { navController.navigate("login") }
+                    onClick = { navController.navigate("CreacionOportunidad") }
                 ) {
                     Icon(Icons.Default.CreateNewFolder, contentDescription = "Crear Oportunidad")
                 }
@@ -80,7 +75,14 @@ fun OportunidadScreen(navController: NavController, viewModel: OportunidadViewMo
         innerPadding ->
         Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(innerPadding)) {
             estado.oportunidades.forEach { item ->
-                OportunidadCard(item)
+                // Busca el nombre del evento asociado usando el eventoId
+                val nombreEvento = estado.eventosDisponibles
+                    .find { it.id == item.eventoId }?.nombre ?: "Sin evento asignado"
+
+                OportunidadCard(
+                    oportunidad = item,
+                    nombreEvento = nombreEvento
+                )
             }
         }
     }
@@ -89,7 +91,7 @@ fun OportunidadScreen(navController: NavController, viewModel: OportunidadViewMo
 }
 
 @Composable
-fun OportunidadCard(oportunidad: OportunidadEntity) {
+fun OportunidadCard(oportunidad: OportunidadEntity, nombreEvento: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -121,6 +123,25 @@ fun OportunidadCard(oportunidad: OportunidadEntity) {
             }
 
             HorizontalDivider()
+            // Evento
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = "Evento Asociado",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = nombreEvento,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
 
             // Descripcion y Fuente de deteccion
             Column(

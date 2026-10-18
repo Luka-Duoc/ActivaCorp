@@ -1,10 +1,13 @@
 package com.example.activacorp.model
 
+import com.example.activacorp.data.local.entity.EventoEntity
 import com.example.activacorp.data.local.entity.OportunidadEntity
 
 data class OportunidadUiState(
     val oportunidades: List<OportunidadEntity> = emptyList(),
     val oportunidadIdEnEdicion: Long? = null,
+    val eventosDisponibles: List<EventoEntity> = emptyList(),
+    val eventoId: Long = 0L,
     val nombre: String = "",
     val tipo: TipoOportunidad = TipoOportunidad.EVENTO_CORPORATIVO,
     val descripcion: String = "",

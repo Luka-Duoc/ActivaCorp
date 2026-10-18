@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.activacorp.ui.screen.OportunidadScreen
 import com.example.activacorp.viewmodel.OportunidadViewModel
+import com.example.activacorp.ui.screen.crearOportunidades
 
 @Composable
 fun AppNavigation() {
@@ -62,6 +63,9 @@ fun AppNavigation() {
 
         composable("oportunidades") {
             OportunidadScreen(navController, OportunidadViewModel)
+        }
+        composable("CreacionOportunidad") {
+            crearOportunidades(navController, OportunidadViewModel)
         }
 
         composable("registrar") {

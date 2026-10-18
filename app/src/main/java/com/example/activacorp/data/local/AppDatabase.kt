@@ -18,6 +18,7 @@ import com.example.activacorp.data.local.entity.OrganizacionEntity
 import com.example.activacorp.data.local.entity.RegionEntity
 import com.example.activacorp.data.local.entity.UsuarioEntity
 import com.example.activacorp.data.local.seed.ComunaSeed
+import com.example.activacorp.data.local.seed.EventoSeed
 import com.example.activacorp.data.local.seed.OportunidadSeed
 import com.example.activacorp.data.local.seed.OrganizacionSeed
 import com.example.activacorp.data.local.seed.RegionSeed
@@ -31,7 +32,7 @@ import com.example.activacorp.data.local.seed.RegionSeed
         OrganizacionEntity::class,
         RegionEntity::class,
         ComunaEntity::class,
-    ], version = 1, exportSchema = false
+    ], version = 2, exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun UsuarioDao(): UsuarioDao
@@ -82,16 +83,43 @@ abstract class AppDatabase : RoomDatabase() {
                                 )
                             )
                         }
+                        EventoSeed.listaEventos.forEach { evento ->
+                            db.execSQL(
+                            """
+                                    INSERT INTO eventos (
+                                        id, nombre, tipo, fechaInicio, fechaTermino, horario,
+                                        direccion, comuna, organizacion, cantAsistentes,
+                                        requisitos, costosReferenciales, observaciones
+                                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                    """.trimIndent(),
+                                        arrayOf(
+                                            evento.id,
+                                            evento.nombre,
+                                            evento.tipo,
+                                            evento.fechaInicio,
+                                            evento.fechaTermino,
+                                            evento.horario,
+                                            evento.direccion,
+                                            evento.comuna,
+                                            evento.organizacion,
+                                            evento.cantAsistentes,
+                                            evento.requisitos,
+                                            evento.costosReferenciales,
+                                            evento.observaciones
+                                        )
+                                    )
+                                }
                         OportunidadSeed.listaOportunidades.forEach { oportunidad ->
                             db.execSQL(
                                 """
-                            INSERT INTO oportunidades (
-                                nombre, tipo, descripcion, fuente, fechaDeteccion, 
-                                responsable, prioridad, potencial, estado, 
-                                fechaActualizacion, observaciones
-                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                            """.trimIndent(),
-                                        arrayOf(
+                                    INSERT INTO oportunidades (
+                                        eventoId, nombre, tipo, descripcion, fuente, fechaDeteccion, 
+                                        responsable, prioridad, potencial, estado, 
+                                        fechaActualizacion, observaciones
+                                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                    """.trimIndent(),
+                                arrayOf(
+                                            1L, // Asociado al evento con id = 1
                                             oportunidad.nombre,
                                             oportunidad.tipo.name,
                                             oportunidad.descripcion,
@@ -103,9 +131,9 @@ abstract class AppDatabase : RoomDatabase() {
                                             oportunidad.estado.name,
                                             oportunidad.fechaActualizacion,
                                             oportunidad.observaciones
-                                        )
-                                    )
-                                }
+                                )
+                            )
+                        }
 
                         }
                 })

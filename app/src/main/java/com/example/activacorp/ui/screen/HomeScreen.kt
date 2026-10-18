@@ -1,6 +1,8 @@
 package com.example.activacorp.ui.screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,18 +21,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-
-val contenidos = listOf(
-    "Cada oportunidad cuenta",
-    "Descubre, organiza y gestiona nuevas oportunidades de activación corporativa desde un solo lugar."
-)
+import com.example.activacorp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
+    val contenidos = listOf(
+        "Cada oportunidad cuenta",
+        "Descubre, organiza y gestiona nuevas oportunidades de activación corporativa desde un solo lugar."
+    )
     val purpleColor = Color(0xFF800080)
     Scaffold(
         topBar = {
@@ -45,6 +49,7 @@ fun HomeScreen(navController: NavController) {
             )
         },
     ) { innerPadding ->
+        val image = painterResource(R.drawable.image)
         LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
@@ -52,6 +57,14 @@ fun HomeScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            item() {
+                Box(modifier = Modifier.padding(15.dp)) { Image(
+                    painter = image,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    alpha = 0.8F
+                ) }
+            }
             itemsIndexed(contenidos) { index, item ->
                 Row {
                     if (index == 0) {

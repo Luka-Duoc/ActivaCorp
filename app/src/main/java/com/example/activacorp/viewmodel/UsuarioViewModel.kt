@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
 
     private val dao = AppDatabase.getDatabase(app).UsuarioDao()
+
     private val _estado = MutableStateFlow(UsuarioUiState())
     private val usuarioRepository: UsuarioRepository = OfflineUsuarioRepository(dao)
     val estado: StateFlow<UsuarioUiState> = _estado

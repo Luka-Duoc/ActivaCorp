@@ -18,4 +18,14 @@ interface OportunidadDao {
 
     @Query("SELECT * FROM oportunidades")
     fun obtenerTodas(): Flow<List<OportunidadEntity>>
+
+    @Query("SELECT COUNT(*) from oportunidades where estado = 'CONTACTO_PENDIENTE'")
+    fun contarPendientes(): Flow<Int>
+
+    @Query("SELECT COUNT(*) from oportunidades where prioridad > 3")
+    fun contarPrioridadAlta(): Flow<Int>
+
+    @Query("SELECT COUNT(*) from oportunidades where estado = 'PARTICIPACION_CONFIRMADA'")
+    fun contarConfirmadas(): Flow<Int>
+
 }

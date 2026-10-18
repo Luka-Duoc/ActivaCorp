@@ -77,6 +77,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.activacorp.model.RolUsuario
 import com.example.activacorp.viewmodel.EventoViewModel
+import com.example.activacorp.viewmodel.OportunidadViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,10 +85,12 @@ import kotlinx.coroutines.launch
 fun CuentaScreen(
     viewModel: UsuarioViewModel,
     navController: NavController,
-    eventoViewModel: EventoViewModel = viewModel()
+    eventoViewModel: EventoViewModel = viewModel(),
+    oportunidadViewModel: OportunidadViewModel = viewModel()
 ) {
     val estado by viewModel.estado.collectAsState()
     val estadoEvento by eventoViewModel.estado.collectAsState()
+    val estadoOportunidad by oportunidadViewModel.estado.collectAsState()
     val darkPurple = Color(0xFF301934)
     val listaEventos = estadoEvento.eventos
 
@@ -462,7 +465,7 @@ fun CuentaScreen(
                                         verticalArrangement = Arrangement.Center
                                     ) {
                                         Text(
-                                            text = "--",
+                                            text = estadoOportunidad.cantPendientes.toString(),
                                             style = MaterialTheme.typography.headlineMedium,
                                             fontWeight = FontWeight.Bold,
                                             color = MaterialTheme.colorScheme.primary
@@ -492,7 +495,7 @@ fun CuentaScreen(
                                         verticalArrangement = Arrangement.Center
                                     ) {
                                         Text(
-                                            text = "--",
+                                            text = estadoOportunidad.cantPrioridadAlta.toString(),
                                             style = MaterialTheme.typography.headlineMedium,
                                             fontWeight = FontWeight.Bold,
                                             color = MaterialTheme.colorScheme.primary
@@ -522,7 +525,7 @@ fun CuentaScreen(
                                         verticalArrangement = Arrangement.Center
                                     ) {
                                         Text(
-                                            text = "--",
+                                            text = estadoOportunidad.cantConfirmadas.toString(),
                                             style = MaterialTheme.typography.headlineMedium,
                                             fontWeight = FontWeight.Bold,
                                             color = MaterialTheme.colorScheme.primary

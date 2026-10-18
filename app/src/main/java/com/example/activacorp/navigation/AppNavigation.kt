@@ -24,6 +24,7 @@ import com.example.activacorp.viewmodel.UsuarioViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import com.example.activacorp.ui.screen.OportunidadScreen
 
 @Composable
 fun AppNavigation() {
@@ -56,6 +57,11 @@ fun AppNavigation() {
         composable("home") {
             HomeScreen(navController)
         }
+
+        composable("oportunidades") {
+            OportunidadScreen(navController)
+        }
+
         composable("registrar") {
             RegistroScreen(navController,UsuarioViewModel)
         }

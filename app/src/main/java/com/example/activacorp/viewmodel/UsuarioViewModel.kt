@@ -77,7 +77,7 @@ class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
                     nombre = a.nombre.trim(),
                     correo = correo,
                     clave = a.clave,
-                    rol = rol.titulo
+                    rol = rol.name
                 )
             )
             _estado.update { UsuarioUiState() }

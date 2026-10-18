@@ -34,8 +34,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -68,10 +71,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.activacorp.model.RolUsuario
 import com.example.activacorp.viewmodel.EventoViewModel
 import kotlinx.coroutines.launch
 
@@ -88,6 +92,7 @@ fun CuentaScreen(
     val listaEventos = estadoEvento.eventos
 
     var expandido by remember { mutableStateOf(false) }
+    var claveVisible by remember { mutableStateOf(false) }
     var eventoSeleccionado by remember(listaEventos) {
         mutableStateOf(
             listaEventos.firstOrNull()?.nombre ?: "Sin eventos disponibles"
@@ -98,7 +103,8 @@ fun CuentaScreen(
         val coroutineScope = rememberCoroutineScope()
         TabRow(
             selectedTabIndex = pagerState.currentPage,
-            containerColor = darkPurple, contentColor = Color.White,
+            containerColor = darkPurple,
+            contentColor = Color.White,
             divider = {},
             indicator = { tabPositions ->
                 TabRowDefaults.Indicator(
@@ -106,21 +112,16 @@ fun CuentaScreen(
                     height = 2.dp,
                     color = MaterialTheme.colorScheme.scrim
                 )
-            }
-        ) {
-            Tab(
-                selected = pagerState.currentPage == 0,
-                text = { Text("Cuenta") },
-                onClick = {
-                    coroutineScope.launch {
-                        pagerState.animateScrollToPage(0)
-                    }
-                }, icon = {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Cuenta"
-                    )
-                })
+            }) {
+            Tab(selected = pagerState.currentPage == 0, text = { Text("Cuenta") }, onClick = {
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(0)
+                }
+            }, icon = {
+                Icon(
+                    imageVector = Icons.Default.Person, contentDescription = "Cuenta"
+                )
+            })
             Tab(
                 selected = pagerState.currentPage == 1,
                 text = {
@@ -132,29 +133,21 @@ fun CuentaScreen(
                     }
                 },
                 icon = { Icon(imageVector = Icons.Default.Event, contentDescription = "Eventos") })
-            Tab(
-                selected = pagerState.currentPage == 2,
-                text = {
-                    Text("Oportunidades")
-                },
-                onClick = {
-                    coroutineScope.launch {
-                        pagerState.animateScrollToPage(2)
-                    }
-                },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.Campaign,
-                        contentDescription = "Oportunidades"
-                    )
+            Tab(selected = pagerState.currentPage == 2, text = {
+                Text("Oportunidades")
+            }, onClick = {
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(2)
                 }
-            )
+            }, icon = {
+                Icon(
+                    imageVector = Icons.Default.Campaign, contentDescription = "Oportunidades"
+                )
+            })
         }
     }) { innerPadding ->
         HorizontalPager(
-            state = pagerState,
-            userScrollEnabled = false,
-            contentPadding = innerPadding
+            state = pagerState, userScrollEnabled = false, contentPadding = innerPadding
         ) { page ->
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -165,14 +158,14 @@ fun CuentaScreen(
                     0 -> Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.Black)
+                            .background(MaterialTheme.colorScheme.background)
                             .padding(24.dp)
                             .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         // Encabezado
                         Surface(
-                            shape = CircleShape, // Forma circular
+                            shape = CircleShape,
                             color = MaterialTheme.colorScheme.primaryContainer,
                             modifier = Modifier.size(80.dp)
                         ) {
@@ -187,56 +180,109 @@ fun CuentaScreen(
                         }
                         Spacer(modifier = Modifier.height(16.dp))
 
+                        val rolEnum = try {
+                            if (estado.rol.isNotBlank()) RolUsuario.valueOf(estado.rol.uppercase()) else null
+                        } catch (e: IllegalArgumentException) {
+                            null
+                        }
+
+                        // 2. Mostrar Nombre
                         Text(
-                            text = "Perfil de Usuario",
+                            text = estado.nombre.ifBlank { "Usuario Desconocido" },
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onBackground
                         )
+
+                        // 3. Mostrar el Título del Rol en lugar del texto crudo
+                        Text(
+                            text = rolEnum?.titulo ?: "Cargo no asignado",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+
+                        // 4. Mostrar la descripción debajo (Opcional pero recomendado)
+                        if (rolEnum != null) {
+                            Text(
+                                text = rolEnum.descripcion,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = Color.Gray
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Indicador visual de estado (activo/inactivo)
+                        SuggestionChip(
+                            onClick = { },
+                            label = { Text(if (estado.activo) "Cuenta Activa" else "Cuenta Inactiva") },
+                            colors = SuggestionChipDefaults.suggestionChipColors(
+                                containerColor = if (estado.activo) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer,
+                                labelColor = if (estado.activo) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
+                            ),
+                            icon = {
+                                Icon(
+                                    imageVector = if (estado.activo) Icons.Default.CheckCircle else Icons.Default.Cancel,
+                                    contentDescription = "Estado de la cuenta",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            })
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        //Datos del usuario
+                        // Datos del usuario
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp), // Redondear esquinas
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)) // Color de la carta
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
                         ) {
                             Column(
                                 modifier = Modifier.padding(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Text(
-                                    text = "Informacion Personal",
+                                    text = "Información de la Cuenta",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color.White
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
 
-                                HorizontalDivider(color = Color.DarkGray)
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
-                                // Nombre
+                                // ID del usuario formateado
                                 ItemDatoCuenta(
-                                    icono = Icons.Default.Person,
-                                    titulo = "Nombre",
-                                    valor = estado.nombre.ifBlank { "No registrado" }
+                                    icono = Icons.Default.Badge,
+                                    titulo = "ID de Empleado",
+                                    valor = "#${estado.id.toString().padStart(4, '0')}"
                                 )
 
                                 // Correo
                                 ItemDatoCuenta(
                                     icono = Icons.Default.Email,
-                                    titulo = "Correo Electronico",
-                                    valor = estado.correo.ifBlank { "No registrado" }
-                                )
+                                    titulo = "Correo Electrónico",
+                                    valor = estado.correo.ifBlank { "No registrado" })
 
+                                // Contraseña oculta
                                 ItemDatoCuenta(
-                                    icono = Icons.Default.Badge,
-                                    titulo = "Cargo asignado",
-                                    valor = estado.rol.ifBlank { "Cargo no asignado" }
-                                )
-
+                                    icono = Icons.Default.Lock,
+                                    titulo = "Contraseña",
+                                    valor = if (claveVisible) estado.clave else "••••••••",
+                                    trailingIcon = {
+                                        IconButton(onClick = { claveVisible = !claveVisible }) {
+                                            Icon(
+                                                imageVector = if (claveVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                                contentDescription = if (claveVisible) "Ocultar contraseña" else "Mostrar contraseña",
+                                                tint = Color.Gray
+                                            )
+                                        }
+                                    })
                             }
                         }
+
+                        Spacer(modifier = Modifier.weight(1f))
+
                         Button(
                             onClick = {
                                 // Limpiar el estado
@@ -249,11 +295,9 @@ fun CuentaScreen(
                                     } // Limpia todas las pantallas anteriores
                                     launchSingleTop = true
                                 }
-                            },
-                            colors = ButtonDefaults.buttonColors(
+                            }, colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.error
-                            ),
-                            modifier = Modifier.fillMaxWidth()
+                            ), modifier = Modifier.fillMaxWidth()
                         ) {
                             Text("Cerrar Sesión", color = Color.White)
                         }
@@ -323,29 +367,23 @@ fun CuentaScreen(
                                     modifier = Modifier.background(Color(0xFF2A2A2A))
                                 ) {
                                     if (listaEventos.isEmpty()) {
-                                        DropdownMenuItem(
-                                            text = {
-                                                Text(
-                                                    text = "No hay eventos registrados aún",
-                                                    color = Color.LightGray
-                                                )
-                                            },
-                                            onClick = { expandido = false }
-                                        )
+                                        DropdownMenuItem(text = {
+                                            Text(
+                                                text = "No hay eventos registrados aún",
+                                                color = Color.LightGray
+                                            )
+                                        }, onClick = { expandido = false })
                                     } else {
                                         listaEventos.forEach { evento ->
-                                            DropdownMenuItem(
-                                                text = {
-                                                    Text(
-                                                        text = "${evento.nombre} (${evento.fechaInicio})",
-                                                        color = Color.White
-                                                    )
-                                                },
-                                                onClick = {
-                                                    eventoSeleccionado = evento.nombre
-                                                    expandido = false
-                                                }
-                                            )
+                                            DropdownMenuItem(text = {
+                                                Text(
+                                                    text = "${evento.nombre} (${evento.fechaInicio})",
+                                                    color = Color.White
+                                                )
+                                            }, onClick = {
+                                                eventoSeleccionado = evento.nombre
+                                                expandido = false
+                                            })
                                         }
                                     }
                                 }
@@ -354,44 +392,38 @@ fun CuentaScreen(
                         Button(
                             onClick = {
                                 navController.navigate("eventos")
-                            },
-                            modifier = Modifier.fillMaxWidth()
+                            }, modifier = Modifier.fillMaxWidth()
                         ) {
                             Text("Crear Eventos")
                         }
                     }
 
-                    2 -> Scaffold(
-                        topBar = {
-                            TopAppBar(
-                                title = {
-                                    Text(text = "Hola, Ejecutivo")
-                                },
-                                actions = {
-                                    IconButton(onClick = { }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Notifications,
-                                            contentDescription = "Alertas"
-                                        )
-                                    }
-                                },
-                                colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.background
-                                )
-                            )
-                        },
-                        floatingActionButton = {
-                            FloatingActionButton(
-                                onClick = { navController.navigate("oportunidades") },
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
-                            ) {
+                    2 -> Scaffold(topBar = {
+                        TopAppBar(
+                            title = {
+                            Text(text = "Hola, Ejecutivo")
+                        }, actions = {
+                            IconButton(onClick = { }) {
                                 Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = "Registrar Nueva Oportunidad"
+                                    imageVector = Icons.Default.Notifications,
+                                    contentDescription = "Alertas"
                                 )
                             }
+                        }, colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.background
+                        )
+                        )
+                    }, floatingActionButton = {
+                        FloatingActionButton(
+                            onClick = { navController.navigate("oportunidades") },
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Registrar Nueva Oportunidad"
+                            )
                         }
-                    ) {  innerPadding ->
+                    }) { innerPadding ->
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -409,18 +441,25 @@ fun CuentaScreen(
                             Spacer(modifier = Modifier.height(12.dp))
 
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(IntrinsicSize.Max),
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Card(
-                                    modifier = Modifier.weight(1f),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     colors = CardDefaults.cardColors(
                                         containerColor = MaterialTheme.colorScheme.surfaceVariant
                                     )
                                 ) {
                                     Column(
-                                        modifier = Modifier.padding(12.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(12.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
                                     ) {
                                         Text(
                                             text = "--",
@@ -430,6 +469,7 @@ fun CuentaScreen(
                                         )
                                         Text(
                                             text = "Pendientes",
+                                            textAlign = TextAlign.Center,
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -437,14 +477,19 @@ fun CuentaScreen(
                                 }
 
                                 Card(
-                                    modifier = Modifier.weight(1f),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     colors = CardDefaults.cardColors(
                                         containerColor = MaterialTheme.colorScheme.surfaceVariant
                                     )
                                 ) {
                                     Column(
-                                        modifier = Modifier.padding(12.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(12.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
                                     ) {
                                         Text(
                                             text = "--",
@@ -454,6 +499,7 @@ fun CuentaScreen(
                                         )
                                         Text(
                                             text = "Prioridad Alta",
+                                            textAlign = TextAlign.Center,
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -461,14 +507,19 @@ fun CuentaScreen(
                                 }
 
                                 Card(
-                                    modifier = Modifier.weight(1f),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     colors = CardDefaults.cardColors(
                                         containerColor = MaterialTheme.colorScheme.surfaceVariant
                                     )
                                 ) {
                                     Column(
-                                        modifier = Modifier.padding(12.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(12.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
                                     ) {
                                         Text(
                                             text = "--",
@@ -478,6 +529,7 @@ fun CuentaScreen(
                                         )
                                         Text(
                                             text = "Confirmadas",
+                                            textAlign = TextAlign.Center,
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -508,7 +560,7 @@ fun CuentaScreen(
                                     ) {
                                         Column(modifier = Modifier.padding(16.dp)) {
                                             Text(
-                                                text = "Nombre del evento...",
+                                                text = "Nombre de oportunidad",
                                                 style = MaterialTheme.typography.titleSmall,
                                                 fontWeight = FontWeight.Bold,
                                                 maxLines = 1
@@ -561,30 +613,38 @@ fun CuentaScreen(
 private fun ItemDatoCuenta(
     icono: ImageVector,
     titulo: String,
-    valor: String
+    valor: String,
+    trailingIcon: @Composable (() -> Unit)? = null
 ) {
     Row(
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Icon(
-            imageVector = icono,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(24.dp)
-        )
-        Column {
-            Text(
-                text = titulo,
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.Gray
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                imageVector = icono,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
-            Text(
-                text = valor,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.White,
-                fontWeight = FontWeight.Medium
-            )
+            Column {
+                Text(
+                    text = titulo, style = MaterialTheme.typography.labelMedium, color = Color.Gray
+                )
+                Text(
+                    text = valor,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
+        if (trailingIcon != null) {
+            trailingIcon()
         }
     }
 }

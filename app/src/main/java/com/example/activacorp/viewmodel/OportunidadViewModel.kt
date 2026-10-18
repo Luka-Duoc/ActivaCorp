@@ -24,12 +24,32 @@ class OportunidadViewModel(app: Application): AndroidViewModel(app) {
     private val dao = AppDatabase.getDatabase(app).OportunidadDao()
     private val db = AppDatabase.getDatabase(app)
     private val eventoDao = db.EventoDao()
+    private val usuarioDao = db.UsuarioDao()
     private val _estado = MutableStateFlow(OportunidadUiState())
     val estado: StateFlow<OportunidadUiState> = _estado.asStateFlow()
 
     init {
         cargarOportunidades()
         cargarEventos()
+        cargarUsuarios()
+    }
+
+    fun cargarUsuarios() {
+        viewModelScope.launch {
+            usuarioDao.obtenerUsuarios()
+                .catch { e ->
+                    _estado.update { it.copy(mensajeError = "Error al cargar usuarios: ${e.message}") }
+                }
+                .collect { lista ->
+                    _estado.update {
+                        it.copy(
+                            usuariosDisponibles = lista,
+                            // Si aún no se ha seleccionado ninguno, selecciona el primero por defecto
+                            responsable = if (it.responsable == 0L && lista.isNotEmpty()) lista.first().id else it.responsable
+                        )
+                    }
+                }
+        }
     }
 
     private fun cargarEventos() {
@@ -67,14 +87,15 @@ class OportunidadViewModel(app: Application): AndroidViewModel(app) {
     fun onDescripcionChange(v: String) = _estado.update { it.copy(descripcion = v) }
     fun onFuenteChange(v: String) = _estado.update { it.copy(fuente = v) }
     fun onFechaDeteccionChange(v: String) = _estado.update { it.copy(fechaDeteccion = v, mensajeError = null) }
-    fun onResponsableChange(id: Long) = _estado.update { it.copy(responsable = id) }
     fun onPrioridadChange(v: String) = _estado.update { it.copy(prioridad = v.filter { ch -> ch.isDigit() }) }
     fun onPotencialChange(v: PotencialComercial) = _estado.update { it.copy(potencial = v) }
     fun onEstadoGestionChange(v: EstadoGestion) = _estado.update { it.copy(estado = v) }
     fun onObservacionesChange(v: String) = _estado.update { it.copy(observaciones = v) }
     fun onEventoIdChange(id: Long) = _estado.update { it.copy(eventoId = id) }
-
+    fun onResponsableChange(id: Long) { _estado.update { it.copy(responsable = id) } }
     fun prepararEdicion(oportunidad: OportunidadEntity) {
+        cargarEventos()
+        cargarUsuarios()
         _estado.update {
             it.copy(
                 oportunidadIdEnEdicion = oportunidad.id,
@@ -93,7 +114,6 @@ class OportunidadViewModel(app: Application): AndroidViewModel(app) {
                 mensajeError = null
             )
         }
-        cargarEventos()
     }
 
     fun cancelarEdicion() {
@@ -149,6 +169,7 @@ class OportunidadViewModel(app: Application): AndroidViewModel(app) {
                 }
                 onExito()
                 cargarEventos()
+                cargarUsuarios()
             } catch (e: Exception) {
                 _estado.update {
                     it.copy(mensajeError = "Error al guardar la oportunidad: ${e.message}")

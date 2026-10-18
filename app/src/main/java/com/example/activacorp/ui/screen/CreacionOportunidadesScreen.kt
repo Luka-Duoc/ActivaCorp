@@ -48,12 +48,17 @@ fun crearOportunidades(
 
     val estado by viewModel.estado.collectAsState()
 
+    val usuarioSeleccionado = estado.usuariosDisponibles
+        .find { it.id == estado.responsable }
+        ?.nombre ?: "Seleccionar responsable"
+
     var expandidoTipo by remember { mutableStateOf(false) }
     var expandidoPotencial by remember { mutableStateOf(false) }
     var expandidoEstado by remember { mutableStateOf(false) }
     var expandidoEvento by remember { mutableStateOf(false) }
     val eventoSeleccionado =
         estado.eventosDisponibles.find { it.id == estado.eventoId }?.nombre ?: "Seleccionar evento"
+    var expandidoResponsable by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -161,18 +166,43 @@ fun crearOportunidades(
                 singleLine = true
             )
 
-            // Id responsable
-            OutlinedTextField(
-                value = if (estado.responsable == 0L) "" else estado.responsable.toString(),
-                onValueChange = { valor ->
-                    val idLong = valor.filter { it.isDigit() }.toLongOrNull() ?: 0L
-                    viewModel.onResponsableChange(idLong)
-                },
-                label = { Text("ID Responsable") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+            // responsable
+            ExposedDropdownMenuBox(
+                expanded = expandidoResponsable,
+                onExpandedChange = { expandidoResponsable = it }
+            ) {
+                OutlinedTextField(
+                    value = usuarioSeleccionado,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Responsable") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandidoResponsable) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = expandidoResponsable,
+                    onDismissRequest = { expandidoResponsable = false }
+                ) {
+                    if (estado.usuariosDisponibles.isEmpty()) {
+                        DropdownMenuItem(
+                            text = { Text("No hay usuarios registrados") },
+                            onClick = { expandidoResponsable = false }
+                        )
+                    } else {
+                        estado.usuariosDisponibles.forEach { usuario ->
+                            DropdownMenuItem(
+                                text = { Text(usuario.nombre) },
+                                onClick = {
+                                    viewModel.onResponsableChange(usuario.id)
+                                    expandidoResponsable = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
 
             // Prioridad
             OutlinedTextField(

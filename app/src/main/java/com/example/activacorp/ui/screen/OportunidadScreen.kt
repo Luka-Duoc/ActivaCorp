@@ -41,7 +41,6 @@ import com.example.activacorp.viewmodel.OportunidadViewModel
 fun OportunidadScreen(navController: NavController, viewModel: OportunidadViewModel) {
 
     val estado by viewModel.estado.collectAsState()
-
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -77,12 +76,19 @@ fun OportunidadScreen(navController: NavController, viewModel: OportunidadViewMo
         innerPadding ->
         Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(innerPadding)) {
             estado.oportunidades.forEach { item ->
+
                 val nombreEvento = estado.eventosDisponibles
                     .find { it.id == item.eventoId }?.nombre ?: "Sin evento asignado"
+
+
+                val nombreResponsable = estado.usuariosDisponibles
+                    .find { it.id == item.responsable }
+                    ?.let { it.nombre } ?: "Sin asignar"
 
                 OportunidadCard(
                     oportunidad = item,
                     nombreEvento = nombreEvento,
+                    nombreResponsable = nombreResponsable,
                     onEditar = {
                         viewModel.prepararEdicion(item)
                         navController.navigate("CreacionOportunidad")
@@ -96,7 +102,9 @@ fun OportunidadScreen(navController: NavController, viewModel: OportunidadViewMo
 }
 
 @Composable
-fun OportunidadCard(oportunidad: OportunidadEntity, nombreEvento: String, onEditar:() -> Unit) {
+fun OportunidadCard(oportunidad: OportunidadEntity, nombreEvento: String, nombreResponsable: String,onEditar:() -> Unit) {
+
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -224,7 +232,7 @@ fun OportunidadCard(oportunidad: OportunidadEntity, nombreEvento: String, onEdit
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "${oportunidad.responsable}",
+                        text = nombreResponsable,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }

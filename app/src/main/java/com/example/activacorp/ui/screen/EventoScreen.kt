@@ -50,6 +50,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavController
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -65,7 +66,8 @@ fun formatearFechas(milisegundos: Long): String {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventoScreen(
-    viewModel: EventoViewModel
+    viewModel: EventoViewModel,
+    navController: NavController
 ) {
     val estado by viewModel.estado.collectAsState()
 
@@ -349,6 +351,12 @@ fun EventoScreen(
                                 onClick = { viewModel.guardarEvento() }
                             ) {
                                 Text(if (estado.eventoIdEnEdicion != null) "Actualizar Evento" else "Guardar Evento")
+                            }
+                            Button(
+                                onClick = { navController.navigate("cuenta") },
+                                modifier = Modifier.padding(8.dp)
+                            ) {
+                                Text( "Volver a la cuenta?")
                             }
                         }
                     }

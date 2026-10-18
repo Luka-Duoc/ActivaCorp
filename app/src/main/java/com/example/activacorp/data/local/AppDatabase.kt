@@ -18,6 +18,7 @@ import com.example.activacorp.data.local.entity.OrganizacionEntity
 import com.example.activacorp.data.local.entity.RegionEntity
 import com.example.activacorp.data.local.entity.UsuarioEntity
 import com.example.activacorp.data.local.seed.ComunaSeed
+import com.example.activacorp.data.local.seed.OportunidadSeed
 import com.example.activacorp.data.local.seed.OrganizacionSeed
 import com.example.activacorp.data.local.seed.RegionSeed
 
@@ -81,7 +82,32 @@ abstract class AppDatabase : RoomDatabase() {
                                 )
                             )
                         }
-                    }
+                        OportunidadSeed.listaOportunidades.forEach { oportunidad ->
+                            db.execSQL(
+                                """
+                            INSERT INTO oportunidades (
+                                nombre, tipo, descripcion, fuente, fechaDeteccion, 
+                                responsable, prioridad, potencial, estado, 
+                                fechaActualizacion, observaciones
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            """.trimIndent(),
+                                        arrayOf(
+                                            oportunidad.nombre,
+                                            oportunidad.tipo.name,
+                                            oportunidad.descripcion,
+                                            oportunidad.fuente,
+                                            oportunidad.fechaDeteccion,
+                                            oportunidad.responsable,
+                                            oportunidad.prioridad,
+                                            oportunidad.potencial.name,
+                                            oportunidad.estado.name,
+                                            oportunidad.fechaActualizacion,
+                                            oportunidad.observaciones
+                                        )
+                                    )
+                                }
+
+                        }
                 })
                     .fallbackToDestructiveMigration()
                     .build().also { INSTANCE = it }

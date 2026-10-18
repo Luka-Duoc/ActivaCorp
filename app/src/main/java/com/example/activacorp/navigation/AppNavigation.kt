@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.activacorp.ui.screen.OportunidadScreen
+import com.example.activacorp.viewmodel.OportunidadViewModel
 
 @Composable
 fun AppNavigation() {
@@ -34,6 +35,7 @@ fun AppNavigation() {
     val UsuarioViewModel: UsuarioViewModel = viewModel()
     val QrViewModel: QrViewModel = viewModel()
     val eventosViewModel: EventoViewModel = viewModel()
+    val OportunidadViewModel: OportunidadViewModel = viewModel()
 
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -52,14 +54,14 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = "oportunidades"
     ) {
         composable("home") {
             HomeScreen(navController)
         }
 
         composable("oportunidades") {
-            OportunidadScreen(navController)
+            OportunidadScreen(navController, OportunidadViewModel)
         }
 
         composable("registrar") {
@@ -85,7 +87,7 @@ fun AppNavigation() {
             )
         }
         composable("eventos") {
-            EventoScreen(eventosViewModel)
+            EventoScreen(eventosViewModel, navController)
         }
 
     }

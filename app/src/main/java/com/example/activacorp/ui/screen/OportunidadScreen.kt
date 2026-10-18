@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CreateNewFolder
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -18,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -48,7 +50,7 @@ fun OportunidadScreen(navController: NavController, viewModel: OportunidadViewMo
                     titleContentColor = Color.White,
                 ),
                 title = {
-                    Text("Oportunidades registradas")
+                    Text(if (estado.oportunidadIdEnEdicion != null) "Editar Oportunidad" else "Nueva Oportunidad")
                 }
             )
         },
@@ -75,13 +77,16 @@ fun OportunidadScreen(navController: NavController, viewModel: OportunidadViewMo
         innerPadding ->
         Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(innerPadding)) {
             estado.oportunidades.forEach { item ->
-                // Busca el nombre del evento asociado usando el eventoId
                 val nombreEvento = estado.eventosDisponibles
                     .find { it.id == item.eventoId }?.nombre ?: "Sin evento asignado"
 
                 OportunidadCard(
                     oportunidad = item,
-                    nombreEvento = nombreEvento
+                    nombreEvento = nombreEvento,
+                    onEditar = {
+                        viewModel.prepararEdicion(item)
+                        navController.navigate("CreacionOportunidad")
+                    }
                 )
             }
         }
@@ -91,7 +96,7 @@ fun OportunidadScreen(navController: NavController, viewModel: OportunidadViewMo
 }
 
 @Composable
-fun OportunidadCard(oportunidad: OportunidadEntity, nombreEvento: String) {
+fun OportunidadCard(oportunidad: OportunidadEntity, nombreEvento: String, onEditar:() -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -118,6 +123,13 @@ fun OportunidadCard(oportunidad: OportunidadEntity, nombreEvento: String) {
                         text = oportunidad.tipo.name,
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                IconButton(onClick = onEditar) { // Icono editar
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Editar Oportunidad",
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
             }

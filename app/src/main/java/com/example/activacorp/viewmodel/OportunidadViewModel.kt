@@ -93,6 +93,7 @@ class OportunidadViewModel(app: Application): AndroidViewModel(app) {
                 mensajeError = null
             )
         }
+        cargarEventos()
     }
 
     fun cancelarEdicion() {
@@ -147,6 +148,7 @@ class OportunidadViewModel(app: Application): AndroidViewModel(app) {
                     )
                 }
                 onExito()
+                cargarEventos()
             } catch (e: Exception) {
                 _estado.update {
                     it.copy(mensajeError = "Error al guardar la oportunidad: ${e.message}")

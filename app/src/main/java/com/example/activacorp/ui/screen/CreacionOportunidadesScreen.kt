@@ -52,7 +52,8 @@ fun crearOportunidades(
     var expandidoPotencial by remember { mutableStateOf(false) }
     var expandidoEstado by remember { mutableStateOf(false) }
     var expandidoEvento by remember { mutableStateOf(false) }
-    val eventoSeleccionado = estado.eventosDisponibles.find { it.id == estado.eventoId }?.nombre ?: "Seleccionar evento"
+    val eventoSeleccionado =
+        estado.eventosDisponibles.find { it.id == estado.eventoId }?.nombre ?: "Seleccionar evento"
 
     Scaffold(
         topBar = {
@@ -63,7 +64,10 @@ fun crearOportunidades(
                 ),
                 title = { Text("Nueva Oportunidad") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = {
+                        viewModel.cancelarEdicion()
+                        navController.popBackStack()
+                    }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Volver",
@@ -90,7 +94,7 @@ fun crearOportunidades(
                 )
             }
 
-           // Nombre
+            // Nombre
             OutlinedTextField(
                 value = estado.nombre,
                 onValueChange = { viewModel.onNombreChange(it) },
@@ -243,7 +247,7 @@ fun crearOportunidades(
                 }
             }
 
-                // Observaciones
+            // Observaciones
             OutlinedTextField(
                 value = estado.observaciones,
                 onValueChange = { viewModel.onObservacionesChange(it) },
@@ -303,9 +307,9 @@ fun crearOportunidades(
                     .fillMaxWidth()
                     .padding(vertical = 12.dp)
             ) {
-                Text("Guardar Oportunidad")
-            }
+                Text(if (estado.oportunidadIdEnEdicion != null) "Actualizar Oportunidad" else "Guardar Oportunidad")
             }
         }
 
     }
+}

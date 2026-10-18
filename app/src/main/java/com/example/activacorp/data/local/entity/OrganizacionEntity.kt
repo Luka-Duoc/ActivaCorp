@@ -27,7 +27,7 @@ data class OrganizacionEntity(
     val tipo: TipoOrganizacion,
     val rubro: String = "",
     val comuna: Long,
-    val sitioWeb: String = "",
+    val sitioWeb: String? = "",
     val publico: String = "",
     val historial: String = "",
 )

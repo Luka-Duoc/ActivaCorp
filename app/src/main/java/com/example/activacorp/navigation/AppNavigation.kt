@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.activacorp.ui.screen.CreacionOrganizacionScreen
 import com.example.activacorp.ui.screen.OportunidadScreen
+import com.example.activacorp.ui.screen.OrganizacionScreen
 import com.example.activacorp.viewmodel.OportunidadViewModel
 import com.example.activacorp.ui.screen.crearOportunidades
 import com.example.activacorp.viewmodel.OrganizacionViewModel
@@ -58,7 +59,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "CreacionOrganizacion"
+        startDestination = "home"
     ) {
         composable("home") {
             HomeScreen(navController)
@@ -98,6 +99,9 @@ fun AppNavigation() {
         }
         composable("CreacionOrganizacion") {
             CreacionOrganizacionScreen(navController, OrganizacionViewModel)
+        }
+        composable("organizacion") {
+            OrganizacionScreen(navController, OrganizacionViewModel)
         }
 
     }

@@ -2,7 +2,7 @@ package com.example.activacorp.model
 
 enum class RolUsuario(val titulo: String, val descripcion: String) {
     EJECUTIVO("Ejecutivo Comercial", "Gestion y Registro de oprtunidades"),
-    SUPERVISOR("Supervisor Comercial", "Supervicion y metricas del equipo"),
+    SUPERVISOR("Supervisor Comercial", "Supervision y metricas del equipo"),
     MARKETING("Marketing y comunicaciones", "Material de apoyo y logistico");
 
     companion object {

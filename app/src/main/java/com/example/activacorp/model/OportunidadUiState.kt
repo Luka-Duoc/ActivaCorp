@@ -22,5 +22,8 @@ data class OportunidadUiState(
     val fechaActualizacion: String = "",
     val observaciones: String = "",
     val mensajeError: String? = null,
-    val exitoGuardado: Boolean = false
+    val exitoGuardado: Boolean = false,
+    val cantPendientes: Int = 0,
+    val cantPrioridadAlta: Int = 0,
+    val cantConfirmadas: Int = 0
 )

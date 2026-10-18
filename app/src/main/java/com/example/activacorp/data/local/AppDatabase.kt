@@ -56,6 +56,8 @@ abstract class AppDatabase : RoomDatabase() {
                 ).addCallback(object : RoomDatabase.Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
+                        db.execSQL("PRAGMA foreign_keys = OFF;")
+
                         RegionSeed.listaRegiones.forEach { region ->
                             db.execSQL(
                                 "INSERT INTO regiones (id, nombre) VALUES (?, ?)",
@@ -70,70 +72,77 @@ abstract class AppDatabase : RoomDatabase() {
                         }
                         OrganizacionSeed.listaOrganizaciones.forEach { organizacion ->
                             db.execSQL(
-                                "INSERT INTO organizaciones (id, nombre, tipo, rubro, comuna, sitioWeb, publico, historial) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                                """
+                                INSERT INTO organizaciones (
+                                    id, nombre, tipo, rubro, comuna, sitioWeb, publico, historial, eventoId
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                """.trimIndent(),
                                 arrayOf(
                                     organizacion.id,
                                     organizacion.nombre,
-                                    organizacion.tipo,
+                                    organizacion.tipo.name,
                                     organizacion.rubro,
                                     organizacion.comuna,
                                     organizacion.sitioWeb,
                                     organizacion.publico,
-                                    organizacion.historial
+                                    organizacion.historial,
+                                    organizacion.eventoId
                                 )
                             )
                         }
                         EventoSeed.listaEventos.forEach { evento ->
                             db.execSQL(
-                            """
-                                    INSERT INTO eventos (
-                                        id, nombre, tipo, fechaInicio, fechaTermino, horario,
-                                        direccion, comuna, organizacion, cantAsistentes,
-                                        requisitos, costosReferenciales, observaciones
-                                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                                    """.trimIndent(),
-                                        arrayOf(
-                                            evento.id,
-                                            evento.nombre,
-                                            evento.tipo,
-                                            evento.fechaInicio,
-                                            evento.fechaTermino,
-                                            evento.horario,
-                                            evento.direccion,
-                                            evento.comuna,
-                                            evento.organizacion,
-                                            evento.cantAsistentes,
-                                            evento.requisitos,
-                                            evento.costosReferenciales,
-                                            evento.observaciones
-                                        )
-                                    )
-                                }
-                        OportunidadSeed.listaOportunidades.forEach { oportunidad ->
-                            db.execSQL(
                                 """
-                                    INSERT INTO oportunidades (
-                                        eventoId, nombre, tipo, descripcion, fuente, fechaDeteccion, 
-                                        responsable, prioridad, potencial, estado, 
-                                        fechaActualizacion, observaciones
-                                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                                    """.trimIndent(),
+                                INSERT INTO eventos (
+                                    id, nombre, tipo, fechaInicio, fechaTermino, horario,
+                                    direccion, comuna, organizacion, cantAsistentes,
+                                    requisitos, costosReferenciales, observaciones
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                """.trimIndent(),
                                 arrayOf(
-                                            1L, // Asociado al evento con id = 1
-                                            oportunidad.nombre,
-                                            oportunidad.tipo.name,
-                                            oportunidad.descripcion,
-                                            oportunidad.fuente,
-                                            oportunidad.fechaDeteccion,
-                                            oportunidad.responsable,
-                                            oportunidad.prioridad,
-                                            oportunidad.potencial.name,
-                                            oportunidad.estado.name,
-                                            oportunidad.fechaActualizacion,
-                                            oportunidad.observaciones
+                                    evento.id,
+                                    evento.nombre,
+                                    evento.tipo,
+                                    evento.fechaInicio,
+                                    evento.fechaTermino,
+                                    evento.horario,
+                                    evento.direccion,
+                                    evento.comuna,
+                                    evento.organizacion,
+                                    evento.cantAsistentes,
+                                    evento.requisitos,
+                                    evento.costosReferenciales,
+                                    evento.observaciones
                                 )
                             )
                         }
+                        OportunidadSeed.listaOportunidades.forEach { oportunidad ->
+                            db.execSQL(
+                                """
+                                INSERT INTO oportunidades (
+                                    eventoId, nombre, tipo, descripcion, fuente, fechaDeteccion, 
+                                    responsable, prioridad, potencial, estado, 
+                                    fechaActualizacion, observaciones
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                """.trimIndent(),
+                                arrayOf(
+                                    1L,
+                                    oportunidad.nombre,
+                                    oportunidad.tipo.name,
+                                    oportunidad.descripcion,
+                                    oportunidad.fuente,
+                                    oportunidad.fechaDeteccion,
+                                    oportunidad.responsable,
+                                    oportunidad.prioridad,
+                                    oportunidad.potencial.name,
+                                    oportunidad.estado.name,
+                                    oportunidad.fechaActualizacion,
+                                    oportunidad.observaciones
+                                )
+                            )
+                        }
+
+                        db.execSQL("PRAGMA foreign_keys = ON;")
 
                         }
                 })

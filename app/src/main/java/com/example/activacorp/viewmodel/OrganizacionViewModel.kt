@@ -20,6 +20,7 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
     private val db = AppDatabase.getDatabase(app)
     private val dao = db.OrganizacionDao()
     private val ComunaDao = db.ComunaDao()
+    private val eventoDao = db.EventoDao()
 
     private val _estado = MutableStateFlow(OrganizacionUiState())
     val estado: StateFlow<OrganizacionUiState> = _estado.asStateFlow()
@@ -27,6 +28,7 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
     init {
         cargarOrganizaciones()
         cargarComunas()
+        cargarEventos()
     }
 
     fun cargarOrganizaciones() {
@@ -58,6 +60,23 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun cargarEventos() {
+        viewModelScope.launch {
+            eventoDao.obtenerTodos()
+                .catch { e ->
+                    _estado.update { it.copy(mensajeError = "Error al cargar los eventos: ${e.message}") }
+                }
+                .collect { lista ->
+                    _estado.update {
+                        it.copy(
+                            listaEventos = lista,
+                            eventoId = if (it.eventoId == 0L && lista.isNotEmpty()) lista.first().id else it.eventoId
+                        )
+                    }
+                }
+        }
+    }
+
     fun eliminarOrganizacion(organizacion: OrganizacionEntity) {
         viewModelScope.launch {
             try {
@@ -73,6 +92,7 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
     fun onTipoChange(valor: TipoOrganizacion) = _estado.update { it.copy(tipo = valor) }
     fun onRubroChange(valor: String) = _estado.update { it.copy(rubro = valor) }
     fun onComunaChange(id: Long) = _estado.update { it.copy(comunaId = id) }
+    fun onEventoChange(id: Long) = _estado.update { it.copy(eventoId = id) }
     fun onSitioWebChange(valor: String) = _estado.update { it.copy(sitioWeb = valor) }
     fun onPublicoChange(valor: String) = _estado.update { it.copy(publico = valor) }
     fun onHistorialChange(valor: String) = _estado.update { it.copy(historial = valor) }
@@ -80,6 +100,7 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
 
     fun prepararEdicion(organizacion: OrganizacionEntity) {
         cargarComunas()
+        cargarEventos()
         _estado.update {
             it.copy(
                 idEnEdicion = organizacion.id,
@@ -87,6 +108,7 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
                 tipo = organizacion.tipo,
                 rubro = organizacion.rubro,
                 comunaId = organizacion.comuna,
+                eventoId = organizacion.eventoId,
                 sitioWeb = organizacion.sitioWeb ?: "",
                 publico = organizacion.publico,
                 historial = organizacion.historial,
@@ -103,6 +125,7 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
                 tipo = TipoOrganizacion.EMPRESA,
                 rubro = "",
                 comunaId = it.comunas.firstOrNull()?.id ?: 0L,
+                eventoId = it.listaEventos.firstOrNull()?.id ?: 0L,
                 sitioWeb = "",
                 publico = "",
                 historial = "",
@@ -134,6 +157,11 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
             return
         }
 
+        if (st.eventoId == 0L) {
+            _estado.update { it.copy(mensajeError = "Debe seleccionar un evento asociado") }
+            return
+        }
+
         val entidad = OrganizacionEntity(
             id = st.idEnEdicion ?: 0L,
             nombre = st.nombre.trim(),
@@ -142,7 +170,8 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
             comuna = st.comunaId,
             sitioWeb = st.sitioWeb?.trim()?.ifEmpty { null },
             publico = st.publico.trim(),
-            historial = st.historial.trim()
+            historial = st.historial.trim(),
+            eventoId = st.eventoId
         )
 
         viewModelScope.launch {
@@ -155,6 +184,7 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
                 resetFormulario()
                 cargarOrganizaciones()
                 cargarComunas()
+                cargarEventos()
                 onExito()
             } catch (e: Exception) {
                 _estado.update { it.copy(mensajeError = "Error al guardar: ${e.message}") }

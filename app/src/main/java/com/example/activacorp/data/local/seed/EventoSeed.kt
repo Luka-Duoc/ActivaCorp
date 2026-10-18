@@ -12,7 +12,7 @@ object EventoSeed {
             fechaTermino = "2026-11-12",
             horario = "09:00 - 18:00",
             direccion = "Av. Las Condes 12450",
-            comuna = 1L, // Asegúrate de que el id 1 exista en comunas
+            comuna = 1L,
             organizacion = 1L,
             cantAsistentes = 450,
             requisitos = "Stands modulares, credencial de expositor y acreditación previa.",

@@ -20,4 +20,8 @@ interface OrganizacionDao {
 
     @Query("SELECT * FROM organizaciones")
     fun obtenerTodas(): Flow<List<OrganizacionEntity>>
+
+    @Delete
+    suspend fun eliminar(organizacion: OrganizacionEntity)
+
 }

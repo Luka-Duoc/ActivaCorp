@@ -22,7 +22,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -37,6 +39,8 @@ import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Lock
@@ -465,14 +469,13 @@ fun CuentaScreen(
 
                             Row(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(IntrinsicSize.Max),
+                                    .fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Card(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .fillMaxHeight(),
+                                        .height(110.dp),
                                     colors = CardDefaults.cardColors(
                                         containerColor = MaterialTheme.colorScheme.surfaceVariant
                                     )
@@ -502,7 +505,7 @@ fun CuentaScreen(
                                 Card(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .fillMaxHeight(),
+                                        .height(110.dp),
                                     colors = CardDefaults.cardColors(
                                         containerColor = MaterialTheme.colorScheme.surfaceVariant
                                     )
@@ -532,7 +535,7 @@ fun CuentaScreen(
                                 Card(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .fillMaxHeight(),
+                                        .height(110.dp),
                                     colors = CardDefaults.cardColors(
                                         containerColor = MaterialTheme.colorScheme.surfaceVariant
                                     )
@@ -626,48 +629,57 @@ fun CuentaScreen(
                         }
                     }
 
-                    3 -> Column(
+                    3 -> LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
                             .background(MaterialTheme.colorScheme.background)
-                            .padding(16.dp)
-                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 16.dp),
+                        contentPadding = PaddingValues(
+                            top = 16.dp,
+                            bottom = 80.dp
+                        )
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Organizaciones",
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            IconButton(
-                                onClick = { navController.navigate("CreacionOrganizacion") },
-                                modifier = Modifier.background(
-                                    MaterialTheme.colorScheme.primaryContainer,
-                                    CircleShape
-                                )
+                        item {
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = "Agregar Organización",
-                                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                Text(
+                                    text = "Organizaciones",
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
                                 )
+                                IconButton(
+                                    onClick = { navController.navigate("CreacionOrganizacion") },
+                                    modifier = Modifier.background(
+                                        MaterialTheme.colorScheme.primaryContainer,
+                                        CircleShape
+                                    )
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = "Agregar Organización",
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
                             }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Explora las organizaciones, sus eventos y oportunidades asociadas.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
                         }
 
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Explora las organizaciones, sus eventos y oportunidades asociadas.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        estadoOrganizacion.organizaciones.forEach { organizacion ->
+                        items(
+                            items = estadoOrganizacion.organizaciones,
+                            key = { it.id }
+                        ) { organizacion ->
 
                             val eventosAsociados = remember(estadoEvento.eventos, organizacion.id) {
                                 estadoEvento.eventos.filter { it.organizacion == organizacion.id }
@@ -678,42 +690,73 @@ fun CuentaScreen(
                                     .fillMaxWidth()
                                     .padding(bottom = 16.dp),
                                 shape = RoundedCornerShape(16.dp),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant) // Usando color del tema
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
-                                    // Título y Tipo
+
+                                    // Título, Tipo y Botones
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
+                                        verticalAlignment = Alignment.Top
                                     ) {
-                                        Text(
-                                            text = organizacion.nombre,
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                            modifier = Modifier.weight(1f).padding(end = 8.dp),
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                        SuggestionChip(
-                                            onClick = {},
-                                            label = {
-                                                Text(
-                                                    organizacion.tipo.name,
-                                                    style = MaterialTheme.typography.labelSmall,
-                                                    maxLines = 1
+                                        Column(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .padding(end = 8.dp)
+                                        ) {
+                                            Text(
+                                                text = organizacion.nombre,
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            SuggestionChip(
+                                                onClick = {},
+                                                label = {
+                                                    Text(
+                                                        organizacion.tipo.name.replace(
+                                                            "_",
+                                                            " "
+                                                        ), maxLines = 1
+                                                    )
+                                                }
+                                            )
+                                        }
+
+                                        Row {
+                                            IconButton(
+                                                onClick = {
+                                                    organizacionViewModel.prepararEdicion(
+                                                        organizacion
+                                                    )
+                                                    navController.navigate("CreacionOrganizacion")
+                                                }
+                                            ) {
+                                                Icon(
+                                                    Icons.Default.Edit,
+                                                    contentDescription = "Editar",
+                                                    tint = MaterialTheme.colorScheme.primary
                                                 )
                                             }
-                                        )
+                                            IconButton(
+                                                onClick = {
+                                                    organizacionViewModel.eliminarOrganizacion(
+                                                        organizacion
+                                                    )
+                                                }
+                                            ) {
+                                                Icon(
+                                                    Icons.Default.Delete,
+                                                    contentDescription = "Eliminar",
+                                                    tint = MaterialTheme.colorScheme.error
+                                                )
+                                            }
+                                        }
                                     }
-
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = "Rubro: ${organizacion.rubro}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
 
                                     Spacer(modifier = Modifier.height(12.dp))
                                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -737,8 +780,13 @@ fun CuentaScreen(
                                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                             eventosAsociados.forEach { evento ->
 
-                                                val cantidadOportunidades =
+                                                // LÓGICA MEMOIZADA: Solo recuenta si cambian las oportunidades
+                                                val cantidadOportunidades = remember(
+                                                    estadoOportunidad.oportunidades,
+                                                    evento.id
+                                                ) {
                                                     estadoOportunidad.oportunidades.count { it.eventoId == evento.id }
+                                                }
 
                                                 Row(
                                                     modifier = Modifier
@@ -790,7 +838,6 @@ fun CuentaScreen(
                                 }
                             }
                         }
-                        Spacer(modifier = Modifier.height(80.dp))
                     }
                 }
 

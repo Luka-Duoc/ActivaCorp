@@ -58,6 +58,17 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun eliminarOrganizacion(organizacion: OrganizacionEntity) {
+        viewModelScope.launch {
+            try {
+                dao.eliminar(organizacion)
+                cargarOrganizaciones() // Recarga la lista en la UI
+            } catch (e: Exception) {
+                _estado.update { it.copy(mensajeError = "Error al eliminar: ${e.message}") }
+            }
+        }
+    }
+
     fun onNombreChange(valor: String) = _estado.update { it.copy(nombre = valor, mensajeError = null) }
     fun onTipoChange(valor: TipoOrganizacion) = _estado.update { it.copy(tipo = valor) }
     fun onRubroChange(valor: String) = _estado.update { it.copy(rubro = valor) }

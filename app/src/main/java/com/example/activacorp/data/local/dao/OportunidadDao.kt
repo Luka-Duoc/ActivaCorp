@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.activacorp.data.local.entity.OportunidadEntity
+import com.example.activacorp.model.OportunidadConOrganizacion
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -31,5 +32,8 @@ interface OportunidadDao {
 
     @Query("SELECT COUNT(*) from oportunidades where estado = 'PARTICIPACION_CONFIRMADA'")
     fun contarConfirmadas(): Flow<Int>
+
+    @Query("select o.nombre as nombreOportunidad, org.nombre as nombreOrganizacion from oportunidades o join eventos e on o.eventoId = e.id join organizaciones org on org.id = e.organizacion where o.prioridad = 5")
+    fun obtenerOpPrioridadAlta(): Flow<List<OportunidadConOrganizacion>>
 
 }

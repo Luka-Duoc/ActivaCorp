@@ -424,7 +424,7 @@ fun CuentaScreen(
                             }
 
                             Text(
-                                text = "Selecciona un evento para ver su descripción",
+                                text = "Lista de eventos registrados",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.LightGray
                             )
@@ -642,38 +642,54 @@ fun CuentaScreen(
 
                             LazyRow(
                                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                contentPadding = (innerPadding)
+                                contentPadding = PaddingValues(bottom = 16.dp)
                             ) {
-                                items(3) { index ->
-                                    Card(
-                                        modifier = Modifier.width(220.dp),
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                if (estadoOportunidad.oportunidadesAltas.isEmpty()) {
+                                    item {
+                                        Text(
+                                            text = "No hay oportunidades de prioridad alta en este momento.",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = Color.Gray,
+                                            modifier = Modifier.padding(top = 8.dp)
                                         )
-                                    ) {
-                                        Column(modifier = Modifier.padding(16.dp)) {
-                                            Text(
-                                                text = "Nombre de oportunidad",
-                                                style = MaterialTheme.typography.titleSmall,
-                                                fontWeight = FontWeight.Bold,
-                                                maxLines = 1
+                                    }
+                                } else {
+                                    items(
+                                        items = estadoOportunidad.oportunidadesAltas,
+                                        key = { it.nombreOportunidad + it.nombreOrganizacion }
+                                    ) { oppAlta ->
+                                        Card(
+                                            modifier = Modifier.width(220.dp),
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = MaterialTheme.colorScheme.surfaceVariant
                                             )
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Text(
-                                                text = "Organización asociada",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                maxLines = 1,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                            Spacer(modifier = Modifier.height(12.dp))
-                                            SuggestionChip(
-                                                onClick = { },
-                                                label = { Text("Prioridad Alta") },
-                                                colors = SuggestionChipDefaults.suggestionChipColors(
-                                                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                                                    labelColor = MaterialTheme.colorScheme.onErrorContainer
+                                        ) {
+                                            Column(modifier = Modifier.padding(16.dp)) {
+                                                Text(
+                                                    text = oppAlta.nombreOportunidad,
+                                                    style = MaterialTheme.typography.titleSmall,
+                                                    fontWeight = FontWeight.Bold,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
                                                 )
-                                            )
+                                                Spacer(modifier = Modifier.height(4.dp))
+                                                Text(
+                                                    text = oppAlta.nombreOrganizacion,
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                                Spacer(modifier = Modifier.height(12.dp))
+                                                SuggestionChip(
+                                                    onClick = { },
+                                                    label = { Text("Prioridad Alta") },
+                                                    colors = SuggestionChipDefaults.suggestionChipColors(
+                                                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                                                        labelColor = MaterialTheme.colorScheme.onErrorContainer
+                                                    )
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -851,7 +867,6 @@ fun CuentaScreen(
                                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                             eventosAsociados.forEach { evento ->
 
-                                                // LÓGICA MEMOIZADA: Solo recuenta si cambian las oportunidades
                                                 val cantidadOportunidades = remember(
                                                     estadoOportunidad.oportunidades,
                                                     evento.id

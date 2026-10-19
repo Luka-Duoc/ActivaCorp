@@ -137,11 +137,6 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
             return
         }
 
-        if (st.eventoId == 0L) {
-            _estado.update { it.copy(mensajeError = "Debe seleccionar un evento asociado") }
-            return
-        }
-
         val entidad = OrganizacionEntity(
             id = st.idEnEdicion ?: 0L,
             nombre = st.nombre.trim(),

@@ -140,17 +140,5 @@ fun RegistroScreen(
         ) {
             Text("¿Ya tienes cuenta? Inicia sesión aquí")
         }
-
-
-        TextButton(
-            onClick = {navController.navigate("qrCamara")},
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-                contentColor = Color.Black
-            )
-        ) {
-            Text("Escanear qr")
-        }
     }
 }

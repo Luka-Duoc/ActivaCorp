@@ -395,6 +395,17 @@ fun CuentaScreen(
                                 }
                             )
                         }
+                        // Escaner qr
+                        TextButton(
+                            onClick = {navController.navigate("qrCamara")},
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White,
+                                contentColor = Color.Black
+                            )
+                        ) {
+                            Text("Escanear qr")
+                        }
                     }
 
                     1 -> Card(

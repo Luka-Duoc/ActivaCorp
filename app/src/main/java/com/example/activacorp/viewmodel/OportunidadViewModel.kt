@@ -35,6 +35,7 @@ class OportunidadViewModel(app: Application): AndroidViewModel(app) {
         contarPendientes()
         contarPrioridadAlta()
         contarConfirmadas()
+        obtenerOpPrioridadAlta()
     }
 
     fun cargarUsuarios() {
@@ -104,6 +105,14 @@ class OportunidadViewModel(app: Application): AndroidViewModel(app) {
             dao.contarConfirmadas().catch { e->
                 _estado.update { it.copy(mensajeError = "Error al cargar: ${e.message}")}
             }.collect { cantidad -> _estado.update{ it.copy(cantConfirmadas = cantidad)} }
+        }
+    }
+
+    private fun obtenerOpPrioridadAlta() {
+        viewModelScope.launch {
+            dao.obtenerOpPrioridadAlta().catch { e->
+                _estado.update { it.copy(mensajeError =  "Error al cargar: ${e.message}")}
+            }.collect { oportunidades -> _estado.update { it.copy(oportunidadesAltas = oportunidades) }}
         }
     }
 

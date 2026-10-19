@@ -97,21 +97,8 @@ fun CuentaScreen(
     oportunidadViewModel: OportunidadViewModel = viewModel(),
     organizacionViewModel: OrganizacionViewModel = viewModel()
 ) {
-    var mostrarDialogoEliminar by remember { mutableStateOf(false) } // Confirmar Eliminacion
-    val estado by viewModel.estado.collectAsState()
-    val estadoEvento by eventoViewModel.estado.collectAsState()
-    val estadoOportunidad by oportunidadViewModel.estado.collectAsState()
-    val estadoOrganizacion by organizacionViewModel.estado.collectAsState()
-    val darkPurple = Color(0xFF301934)
-    val listaEventos = estadoEvento.eventos
 
-    var expandido by remember { mutableStateOf(false) }
-    var claveVisible by remember { mutableStateOf(false) }
-    var eventoSeleccionado by remember(listaEventos) {
-        mutableStateOf(
-            listaEventos.firstOrNull()?.nombre ?: "Sin eventos disponibles"
-        )
-    }
+    val darkPurple = Color(0xFF301934)
     val pagerState = rememberPagerState(pageCount = { 4 })
     Scaffold(bottomBar = {
         val coroutineScope = rememberCoroutineScope()
@@ -184,759 +171,11 @@ fun CuentaScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 when (page) {
-                    0 -> Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.background)
-                            .padding(24.dp)
-                            .verticalScroll(rememberScrollState()),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        // Encabezado
-                        Surface(
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            modifier = Modifier.size(80.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Avatar de usuario",
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier
-                                    .padding(16.dp)
-                                    .fillMaxSize()
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        val rolEnum = try {
-                            if (estado.rol.isNotBlank()) RolUsuario.valueOf(estado.rol.uppercase()) else null
-                        } catch (e: IllegalArgumentException) {
-                            null
-                        }
-
-                        // 2. Mostrar Nombre
-                        Text(
-                            text = estado.nombre.ifBlank { "Usuario Desconocido" },
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-
-                        // 3. Mostrar el Título del Rol en lugar del texto crudo
-                        Text(
-                            text = rolEnum?.titulo ?: "Cargo no asignado",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-
-                        // 4. Mostrar la descripción debajo (Opcional pero recomendado)
-                        if (rolEnum != null) {
-                            Text(
-                                text = rolEnum.descripcion,
-                                style = MaterialTheme.typography.labelMedium,
-                                color = Color.Gray
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        // Indicador visual de estado (activo/inactivo)
-                        SuggestionChip(
-                            onClick = { },
-                            label = { Text(if (estado.activo) "Cuenta Activa" else "Cuenta Inactiva") },
-                            colors = SuggestionChipDefaults.suggestionChipColors(
-                                containerColor = if (estado.activo) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer,
-                                labelColor = if (estado.activo) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
-                            ),
-                            icon = {
-                                Icon(
-                                    imageVector = if (estado.activo) Icons.Default.CheckCircle else Icons.Default.Cancel,
-                                    contentDescription = "Estado de la cuenta",
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            })
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        // Datos del usuario
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                Text(
-                                    text = "Información de la Cuenta",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-
-                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-                                // ID del usuario formateado
-                                ItemDatoCuenta(
-                                    icono = Icons.Default.Badge,
-                                    titulo = "ID de Empleado",
-                                    valor = "#${estado.id.toString().padStart(4, '0')}"
-                                )
-
-                                // Correo
-                                ItemDatoCuenta(
-                                    icono = Icons.Default.Email,
-                                    titulo = "Correo Electrónico",
-                                    valor = estado.correo.ifBlank { "No registrado" })
-
-                                // Contraseña oculta
-                                ItemDatoCuenta(
-                                    icono = Icons.Default.Lock,
-                                    titulo = "Contraseña",
-                                    valor = if (claveVisible) estado.clave else "••••••••",
-                                    trailingIcon = {
-                                        IconButton(onClick = { claveVisible = !claveVisible }) {
-                                            Icon(
-                                                imageVector = if (claveVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                                contentDescription = if (claveVisible) "Ocultar contraseña" else "Mostrar contraseña",
-                                                tint = Color.Gray
-                                            )
-                                        }
-                                    })
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        Button(
-                            onClick = {
-                                // Limpiar el estado
-                                viewModel.cerrarSesion()
-
-                                // Navegar a IniciarScreen
-                                navController.navigate("login") {
-                                    popUpTo(0) {
-                                        inclusive = true
-                                    } // Limpia todas las pantallas anteriores
-                                    launchSingleTop = true
-                                }
-                            }, colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.error
-                            ), modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Cerrar Sesión", color = Color.White)
-                        }
-
-                        // Eliminar cuenta
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        OutlinedButton(
-                            onClick = { mostrarDialogoEliminar = true },
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = MaterialTheme.colorScheme.error
-                            ),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Borrar Cuenta",
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Borrar Cuenta", color = MaterialTheme.colorScheme.error)
-                        }
-
-                        if (mostrarDialogoEliminar) {
-                            AlertDialog(
-                                onDismissRequest = { mostrarDialogoEliminar = false },
-                                title = { Text("¿Eliminar cuenta?") },
-                                text = {
-                                    Text("Esta acción es permanente y se borrarán todos tus datos asociados. ¿Estás seguro de que deseas continuar?")
-                                },
-                                confirmButton = {
-                                    Button(
-                                        onClick = {
-                                            mostrarDialogoEliminar = false
-                                            val entidadUsuario = UsuarioEntity(
-                                                id = estado.id,
-                                                nombre = estado.nombre,
-                                                correo = estado.correo,
-                                                clave = estado.clave,
-                                                rol = estado.rol
-                                            )
-                                            viewModel.eliminar(
-                                                usuario = entidadUsuario,
-                                                onEliminar = {
-                                                    viewModel.cerrarSesion()
-                                                    navController.navigate("login") {
-                                                        popUpTo(0) { inclusive = true }
-                                                        launchSingleTop = true
-                                                    }
-                                                }
-                                            )
-                                        },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.error
-                                        )
-                                    ) {
-                                        Text("Eliminar definitivamente", color = Color.White)
-                                    }
-                                },
-                                dismissButton = {
-                                    OutlinedButton(onClick = { mostrarDialogoEliminar = false }) {
-                                        Text("Cancelar")
-                                    }
-                                }
-                            )
-                        }
-                        // Scanner QR
-                        TextButton(
-                            onClick = {navController.navigate("qrCamara")},
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White,
-                                contentColor = Color.Black
-                            )
-                        ) {
-                            Text("Escanear qr")
-                        }
-                    }
-
-                    1 -> Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Event,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "Eventos y oportunidades",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color.White
-                                )
-                            }
-
-                            Text(
-                                text = "Lista de eventos registrados",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.LightGray
-                            )
-                            ExposedDropdownMenuBox(
-                                expanded = expandido,
-                                onExpandedChange = { expandido = !expandido },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                OutlinedTextField(
-                                    value = eventoSeleccionado,
-                                    onValueChange = {},
-                                    readOnly = true,
-                                    trailingIcon = {
-                                        ExposedDropdownMenuDefaults.TrailingIcon(
-                                            expanded = expandido
-                                        )
-                                    },
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedTextColor = Color.White,
-                                        unfocusedTextColor = Color.White,
-                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                        unfocusedBorderColor = Color.Gray,
-                                        focusedContainerColor = Color(0xFF2A2A2A),
-                                        unfocusedContainerColor = Color(0xFF2A2A2A)
-                                    ),
-                                    modifier = Modifier
-                                        .menuAnchor()
-                                        .fillMaxWidth()
-                                )
-
-                                ExposedDropdownMenu(
-                                    expanded = expandido,
-                                    onDismissRequest = { expandido = false },
-                                    modifier = Modifier.background(Color(0xFF2A2A2A))
-                                ) {
-                                    if (listaEventos.isEmpty()) {
-                                        DropdownMenuItem(text = {
-                                            Text(
-                                                text = "No hay eventos registrados aún",
-                                                color = Color.LightGray
-                                            )
-                                        }, onClick = { expandido = false })
-                                    } else {
-                                        listaEventos.forEach { evento ->
-                                            DropdownMenuItem(text = {
-                                                Text(
-                                                    text = "${evento.nombre} (${evento.fechaInicio})",
-                                                    color = Color.White
-                                                )
-                                            }, onClick = {
-                                                eventoSeleccionado = evento.nombre
-                                                expandido = false
-                                            })
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        Button(
-                            onClick = {
-                                navController.navigate("eventos")
-                            }, modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Crear Eventos")
-                        }
-                    }
-
-                    2 -> Scaffold(topBar = {
-                        TopAppBar(
-                            title = {
-                                Text(text = "Hola, Ejecutivo")
-                            }, actions = {
-                                IconButton(onClick = { }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Notifications,
-                                        contentDescription = "Alertas"
-                                    )
-                                }
-                            }, colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.background
-                            )
-                        )
-                    }, floatingActionButton = {
-                        FloatingActionButton(
-                            onClick = { navController.navigate("oportunidades") },
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Registrar Nueva Oportunidad"
-                            )
-                        }
-                    }) { innerPadding ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding)
-                                .padding(horizontal = 16.dp)
-                        ) {
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "Resumen de Gestión",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                Card(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(110.dp),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                                    )
-                                ) {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(12.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        Text(
-                                            text = estadoOportunidad.cantPendientes.toString(),
-                                            style = MaterialTheme.typography.headlineMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                        Text(
-                                            text = "Pendientes",
-                                            textAlign = TextAlign.Center,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-
-                                Card(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(110.dp),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                                    )
-                                ) {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(12.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        Text(
-                                            text = estadoOportunidad.cantPrioridadAlta.toString(),
-                                            style = MaterialTheme.typography.headlineMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                        Text(
-                                            text = "Prioridad Alta",
-                                            textAlign = TextAlign.Center,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-
-                                Card(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(110.dp),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                                    )
-                                ) {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(12.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        Text(
-                                            text = estadoOportunidad.cantConfirmadas.toString(),
-                                            style = MaterialTheme.typography.headlineMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                        Text(
-                                            text = "Confirmadas",
-                                            textAlign = TextAlign.Center,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(32.dp))
-
-                            Text(
-                                text = "Requieren tu atención",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            LazyRow(
-                                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                contentPadding = PaddingValues(bottom = 16.dp)
-                            ) {
-                                if (estadoOportunidad.oportunidadesAltas.isEmpty()) {
-                                    item {
-                                        Text(
-                                            text = "No hay oportunidades de prioridad alta en este momento.",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = Color.Gray,
-                                            modifier = Modifier.padding(top = 8.dp)
-                                        )
-                                    }
-                                } else {
-                                    items(
-                                        items = estadoOportunidad.oportunidadesAltas,
-                                        key = { it.nombreOportunidad + it.nombreOrganizacion }
-                                    ) { oppAlta ->
-                                        Card(
-                                            modifier = Modifier.width(220.dp),
-                                            colors = CardDefaults.cardColors(
-                                                containerColor = MaterialTheme.colorScheme.surfaceVariant
-                                            )
-                                        ) {
-                                            Column(modifier = Modifier.padding(16.dp)) {
-                                                Text(
-                                                    text = oppAlta.nombreOportunidad,
-                                                    style = MaterialTheme.typography.titleSmall,
-                                                    fontWeight = FontWeight.Bold,
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis
-                                                )
-                                                Spacer(modifier = Modifier.height(4.dp))
-                                                Text(
-                                                    text = oppAlta.nombreOrganizacion,
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis,
-                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                                )
-                                                Spacer(modifier = Modifier.height(12.dp))
-                                                SuggestionChip(
-                                                    onClick = { },
-                                                    label = { Text("Prioridad Alta") },
-                                                    colors = SuggestionChipDefaults.suggestionChipColors(
-                                                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                                                        labelColor = MaterialTheme.colorScheme.onErrorContainer
-                                                    )
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            Button(
-                                onClick = { navController.navigate("oportunidades") },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 16.dp),
-                                shape = MaterialTheme.shapes.medium
-                            ) {
-                                Text(
-                                    text = "Ver todas las oportunidades",
-                                    modifier = Modifier.padding(vertical = 8.dp)
-                                )
-                            }
-                        }
-                    }
-
-                    3 -> LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.background)
-                            .padding(horizontal = 16.dp),
-                        contentPadding = PaddingValues(
-                            top = 16.dp,
-                            bottom = 80.dp
-                        )
-                    ) {
-                        item {
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "Organizaciones",
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                                IconButton(
-                                    onClick = { navController.navigate("CreacionOrganizacion") },
-                                    modifier = Modifier.background(
-                                        MaterialTheme.colorScheme.primaryContainer,
-                                        CircleShape
-                                    )
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = "Agregar Organización",
-                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Explora las organizaciones, sus eventos y oportunidades asociadas.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.Gray
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-
-                        items(
-                            items = estadoOrganizacion.organizaciones,
-                            key = { it.id }
-                        ) { organizacion ->
-
-
-                            val eventosAsociados = remember(estadoEvento.eventos, organizacion.id) {
-                                println("DEBUG_EVENTOS: Org ID actual: ${organizacion.id} | Total eventos: ${estadoEvento.eventos.size}")
-                                estadoEvento.eventos.forEach {
-                                    println("DEBUG_EVENTOS: Evento ${it.nombre} pertenece a org: ${it.organizacion}")
-                                }
-                                estadoEvento.eventos.filter { it.organizacion == organizacion.id }
-                            }
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 16.dp),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                            ) {
-                                Column(modifier = Modifier.padding(16.dp)) {
-
-                                    // Título, Tipo y Botones
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.Top
-                                    ) {
-                                        Column(
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .padding(end = 8.dp)
-                                        ) {
-                                            Text(
-                                                text = organizacion.nombre,
-                                                style = MaterialTheme.typography.titleMedium,
-                                                fontWeight = FontWeight.Bold,
-                                                color = MaterialTheme.colorScheme.onSurface,
-                                                maxLines = 2,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            SuggestionChip(
-                                                onClick = {},
-                                                label = {
-                                                    Text(
-                                                        organizacion.tipo.name.replace(
-                                                            "_",
-                                                            " "
-                                                        ), maxLines = 1
-                                                    )
-                                                }
-                                            )
-                                        }
-
-                                        Row {
-                                            IconButton(
-                                                onClick = {
-                                                    organizacionViewModel.prepararEdicion(
-                                                        organizacion
-                                                    )
-                                                    navController.navigate("CreacionOrganizacion")
-                                                }
-                                            ) {
-                                                Icon(
-                                                    Icons.Default.Edit,
-                                                    contentDescription = "Editar",
-                                                    tint = MaterialTheme.colorScheme.primary
-                                                )
-                                            }
-                                            IconButton(
-                                                onClick = {
-                                                    organizacionViewModel.eliminarOrganizacion(
-                                                        organizacion
-                                                    )
-                                                }
-                                            ) {
-                                                Icon(
-                                                    Icons.Default.Delete,
-                                                    contentDescription = "Eliminar",
-                                                    tint = MaterialTheme.colorScheme.error
-                                                )
-                                            }
-                                        }
-                                    }
-
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                                    Spacer(modifier = Modifier.height(12.dp))
-
-                                    Text(
-                                        text = "Eventos Activos (${eventosAsociados.size})",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-
-                                    if (eventosAsociados.isEmpty()) {
-                                        Text(
-                                            text = "No hay eventos registrados para esta organización.",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = Color.Gray
-                                        )
-                                    } else {
-                                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                            eventosAsociados.forEach { evento ->
-
-                                                val cantidadOportunidades = remember(
-                                                    estadoOportunidad.oportunidades,
-                                                    evento.id
-                                                ) {
-                                                    estadoOportunidad.oportunidades.count { it.eventoId == evento.id }
-                                                }
-
-                                                Row(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .background(
-                                                            MaterialTheme.colorScheme.surface,
-                                                            RoundedCornerShape(8.dp)
-                                                        )
-                                                        .padding(12.dp),
-                                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                                    verticalAlignment = Alignment.CenterVertically
-                                                ) {
-                                                    Column(modifier = Modifier.weight(1f)) {
-                                                        Text(
-                                                            text = evento.nombre,
-                                                            style = MaterialTheme.typography.bodyMedium,
-                                                            fontWeight = FontWeight.Medium,
-                                                            color = MaterialTheme.colorScheme.onSurface
-                                                        )
-                                                        Text(
-                                                            text = evento.fechaInicio,
-                                                            style = MaterialTheme.typography.labelSmall,
-                                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                                        )
-                                                    }
-
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .background(
-                                                                if (cantidadOportunidades > 0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                                                                RoundedCornerShape(8.dp)
-                                                            )
-                                                            .padding(
-                                                                horizontal = 8.dp,
-                                                                vertical = 4.dp
-                                                            )
-                                                    ) {
-                                                        Text(
-                                                            text = "$cantidadOportunidades Op.",
-                                                            style = MaterialTheme.typography.labelSmall,
-                                                            color = if (cantidadOportunidades > 0) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                                                            fontWeight = FontWeight.SemiBold
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    0 -> tabCuenta(viewModel, navController)
+                    1 -> tabEventos(navController, eventoViewModel)
+                    2 -> tabOportunidades(oportunidadViewModel, navController)
+                    3 -> tabOrganizaciones(navController, eventoViewModel, oportunidadViewModel, organizacionViewModel)
                 }
-
             }
         }
     }
@@ -978,6 +217,797 @@ private fun ItemDatoCuenta(
         }
         if (trailingIcon != null) {
             trailingIcon()
+        }
+    }
+}
+
+@Composable
+fun tabCuenta(
+    viewModel: UsuarioViewModel,
+    navController: NavController
+) {
+    var claveVisible by remember { mutableStateOf(false) }
+    var mostrarDialogoEliminar by remember { mutableStateOf(false) } // Confirmar Eliminacion
+    val estado by viewModel.estado.collectAsState()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Encabezado
+        Surface(
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primaryContainer,
+            modifier = Modifier.size(80.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = "Avatar de usuario",
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxSize()
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        val rolEnum = try {
+            if (estado.rol.isNotBlank()) RolUsuario.valueOf(estado.rol.uppercase()) else null
+        } catch (e: IllegalArgumentException) {
+            null
+        }
+
+        // 2. Mostrar Nombre
+        Text(
+            text = estado.nombre.ifBlank { "Usuario Desconocido" },
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+
+        // 3. Mostrar el Título del Rol en lugar del texto crudo
+        Text(
+            text = rolEnum?.titulo ?: "Cargo no asignado",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        // 4. Mostrar la descripción debajo (Opcional pero recomendado)
+        if (rolEnum != null) {
+            Text(
+                text = rolEnum.descripcion,
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.Gray
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Indicador visual de estado (activo/inactivo)
+        SuggestionChip(
+            onClick = { },
+            label = { Text(if (estado.activo) "Cuenta Activa" else "Cuenta Inactiva") },
+            colors = SuggestionChipDefaults.suggestionChipColors(
+                containerColor = if (estado.activo) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer,
+                labelColor = if (estado.activo) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
+            ),
+            icon = {
+                Icon(
+                    imageVector = if (estado.activo) Icons.Default.CheckCircle else Icons.Default.Cancel,
+                    contentDescription = "Estado de la cuenta",
+                    modifier = Modifier.size(16.dp)
+                )
+            })
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Datos del usuario
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = "Información de la Cuenta",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+                // ID del usuario formateado
+                ItemDatoCuenta(
+                    icono = Icons.Default.Badge,
+                    titulo = "ID de Empleado",
+                    valor = "#${estado.id.toString().padStart(4, '0')}"
+                )
+
+                // Correo
+                ItemDatoCuenta(
+                    icono = Icons.Default.Email,
+                    titulo = "Correo Electrónico",
+                    valor = estado.correo.ifBlank { "No registrado" })
+
+                // Contraseña oculta
+                ItemDatoCuenta(
+                    icono = Icons.Default.Lock,
+                    titulo = "Contraseña",
+                    valor = if (claveVisible) estado.clave else "••••••••",
+                    trailingIcon = {
+                        IconButton(onClick = { claveVisible = !claveVisible }) {
+                            Icon(
+                                imageVector = if (claveVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = if (claveVisible) "Ocultar contraseña" else "Mostrar contraseña",
+                                tint = Color.Gray
+                            )
+                        }
+                    })
+            }
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Button(
+            onClick = {
+                // Limpiar el estado
+                viewModel.cerrarSesion()
+
+                // Navegar a IniciarScreen
+                navController.navigate("login") {
+                    popUpTo(0) {
+                        inclusive = true
+                    } // Limpia todas las pantallas anteriores
+                    launchSingleTop = true
+                }
+            }, colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error
+            ), modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Cerrar Sesión", color = Color.White)
+        }
+
+        // Eliminar cuenta
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedButton(
+            onClick = { mostrarDialogoEliminar = true },
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.error
+            ),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = "Borrar Cuenta",
+                tint = MaterialTheme.colorScheme.error
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Borrar Cuenta", color = MaterialTheme.colorScheme.error)
+        }
+
+        if (mostrarDialogoEliminar) {
+            AlertDialog(
+                onDismissRequest = { mostrarDialogoEliminar = false },
+                title = { Text("¿Eliminar cuenta?") },
+                text = {
+                    Text("Esta acción es permanente y se borrarán todos tus datos asociados. ¿Estás seguro de que deseas continuar?")
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            mostrarDialogoEliminar = false
+                            val entidadUsuario = UsuarioEntity(
+                                id = estado.id,
+                                nombre = estado.nombre,
+                                correo = estado.correo,
+                                clave = estado.clave,
+                                rol = estado.rol
+                            )
+                            viewModel.eliminar(
+                                usuario = entidadUsuario,
+                                onEliminar = {
+                                    viewModel.cerrarSesion()
+                                    navController.navigate("login") {
+                                        popUpTo(0) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            )
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text("Eliminar definitivamente", color = Color.White)
+                    }
+                },
+                dismissButton = {
+                    OutlinedButton(onClick = { mostrarDialogoEliminar = false }) {
+                        Text("Cancelar")
+                    }
+                }
+            )
+        }
+        // Scanner QR
+        TextButton(
+            onClick = { navController.navigate("qrCamara") },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.Black
+            )
+        ) {
+            Text("Escanear qr")
+        }
+    }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun tabEventos(
+    navController: NavController,
+    eventoViewModel: EventoViewModel = viewModel()
+) {
+    val estadoEvento by eventoViewModel.estado.collectAsState()
+    val listaEventos = estadoEvento.eventos
+    var expandido by remember { mutableStateOf(false) }
+    var eventoSeleccionado by remember(listaEventos) {
+        mutableStateOf(
+            listaEventos.firstOrNull()?.nombre ?: "Sin eventos disponibles"
+        )
+    }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Event,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "Eventos y oportunidades",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
+                )
+            }
+
+            Text(
+                text = "Lista de eventos registrados",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.LightGray
+            )
+            ExposedDropdownMenuBox(
+                expanded = expandido,
+                onExpandedChange = { expandido = !expandido },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedTextField(
+                    value = eventoSeleccionado,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = expandido
+                        )
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = Color.Gray,
+                        focusedContainerColor = Color(0xFF2A2A2A),
+                        unfocusedContainerColor = Color(0xFF2A2A2A)
+                    ),
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expandido,
+                    onDismissRequest = { expandido = false },
+                    modifier = Modifier.background(Color(0xFF2A2A2A))
+                ) {
+                    if (listaEventos.isEmpty()) {
+                        DropdownMenuItem(text = {
+                            Text(
+                                text = "No hay eventos registrados aún",
+                                color = Color.LightGray
+                            )
+                        }, onClick = { expandido = false })
+                    } else {
+                        listaEventos.forEach { evento ->
+                            DropdownMenuItem(text = {
+                                Text(
+                                    text = "${evento.nombre} (${evento.fechaInicio})",
+                                    color = Color.White
+                                )
+                            }, onClick = {
+                                eventoSeleccionado = evento.nombre
+                                expandido = false
+                            })
+                        }
+                    }
+                }
+            }
+        }
+        Button(
+            onClick = {
+                navController.navigate("eventos")
+            }, modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Crear Eventos")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun tabOportunidades(oportunidadViewModel: OportunidadViewModel = viewModel(), navController: NavController) {
+    val estadoOportunidad by oportunidadViewModel.estado.collectAsState()
+    Scaffold(topBar = {
+        TopAppBar(
+            title = {
+                Text(text = "Hola, Ejecutivo")
+            }, actions = {
+                IconButton(onClick = { }) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Alertas"
+                    )
+                }
+            }, colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background
+            )
+        )
+    }, floatingActionButton = {
+        FloatingActionButton(
+            onClick = { navController.navigate("oportunidades") },
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Registrar Nueva Oportunidad"
+            )
+        }
+    }) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp)
+        ) {
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Resumen de Gestión",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(110.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = estadoOportunidad.cantPendientes.toString(),
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Pendientes",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(110.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = estadoOportunidad.cantPrioridadAlta.toString(),
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Prioridad Alta",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(110.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = estadoOportunidad.cantConfirmadas.toString(),
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Confirmadas",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = "Requieren tu atención",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
+                if (estadoOportunidad.oportunidadesAltas.isEmpty()) {
+                    item {
+                        Text(
+                            text = "No hay oportunidades de prioridad alta en este momento.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+                } else {
+                    items(
+                        items = estadoOportunidad.oportunidadesAltas,
+                        key = { it.nombreOportunidad + it.nombreOrganizacion }
+                    ) { oppAlta ->
+                        Card(
+                            modifier = Modifier.width(220.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    text = oppAlta.nombreOportunidad,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = oppAlta.nombreOrganizacion,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                SuggestionChip(
+                                    onClick = { },
+                                    label = { Text("Prioridad Alta") },
+                                    colors = SuggestionChipDefaults.suggestionChipColors(
+                                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                                        labelColor = MaterialTheme.colorScheme.onErrorContainer
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = { navController.navigate("oportunidades") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Text(
+                    text = "Ver todas las oportunidades",
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun tabOrganizaciones(navController: NavController,
+                      eventoViewModel: EventoViewModel = viewModel(),
+                      oportunidadViewModel: OportunidadViewModel = viewModel(),
+                      organizacionViewModel: OrganizacionViewModel = viewModel()) {
+    val estadoOrganizacion by organizacionViewModel.estado.collectAsState()
+    val estadoEvento by eventoViewModel.estado.collectAsState()
+    val estadoOportunidad by oportunidadViewModel.estado.collectAsState()
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 16.dp),
+        contentPadding = PaddingValues(
+            top = 16.dp,
+            bottom = 80.dp
+        )
+    ) {
+        item {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Organizaciones",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                IconButton(
+                    onClick = { navController.navigate("CreacionOrganizacion") },
+                    modifier = Modifier.background(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        CircleShape
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Agregar Organización",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Explora las organizaciones, sus eventos y oportunidades asociadas.",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        items(
+            items = estadoOrganizacion.organizaciones,
+            key = { it.id }
+        ) { organizacion ->
+
+
+            val eventosAsociados = remember(estadoEvento.eventos, organizacion.id) {
+                println("DEBUG_EVENTOS: Org ID actual: ${organizacion.id} | Total eventos: ${estadoEvento.eventos.size}")
+                estadoEvento.eventos.forEach {
+                    println("DEBUG_EVENTOS: Evento ${it.nombre} pertenece a org: ${it.organizacion}")
+                }
+                estadoEvento.eventos.filter { it.organizacion == organizacion.id }
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+
+                    // Título, Tipo y Botones
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 8.dp)
+                        ) {
+                            Text(
+                                text = organizacion.nombre,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            SuggestionChip(
+                                onClick = {},
+                                label = {
+                                    Text(
+                                        organizacion.tipo.name.replace(
+                                            "_",
+                                            " "
+                                        ), maxLines = 1
+                                    )
+                                }
+                            )
+                        }
+
+                        Row {
+                            IconButton(
+                                onClick = {
+                                    organizacionViewModel.prepararEdicion(
+                                        organizacion
+                                    )
+                                    navController.navigate("CreacionOrganizacion")
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Default.Edit,
+                                    contentDescription = "Editar",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            IconButton(
+                                onClick = {
+                                    organizacionViewModel.eliminarOrganizacion(
+                                        organizacion
+                                    )
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Eliminar",
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "Eventos Activos (${eventosAsociados.size})",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (eventosAsociados.isEmpty()) {
+                        Text(
+                            text = "No hay eventos registrados para esta organización.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            eventosAsociados.forEach { evento ->
+
+                                val cantidadOportunidades = remember(
+                                    estadoOportunidad.oportunidades,
+                                    evento.id
+                                ) {
+                                    estadoOportunidad.oportunidades.count { it.eventoId == evento.id }
+                                }
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(
+                                            MaterialTheme.colorScheme.surface,
+                                            RoundedCornerShape(8.dp)
+                                        )
+                                        .padding(12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = evento.nombre,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Medium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text(
+                                            text = evento.fechaInicio,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+
+                                    Box(
+                                        modifier = Modifier
+                                            .background(
+                                                if (cantidadOportunidades > 0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+                                                RoundedCornerShape(8.dp)
+                                            )
+                                            .padding(
+                                                horizontal = 8.dp,
+                                                vertical = 4.dp
+                                            )
+                                    ) {
+                                        Text(
+                                            text = "$cantidadOportunidades Op.",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = if (cantidadOportunidades > 0) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

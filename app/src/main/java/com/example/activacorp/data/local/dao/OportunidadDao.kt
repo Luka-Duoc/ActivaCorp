@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.activacorp.data.local.entity.OportunidadEntity
+import com.example.activacorp.model.OportunidadConEjecutivo
 import com.example.activacorp.model.OportunidadConOrganizacion
 import kotlinx.coroutines.flow.Flow
 
@@ -35,5 +36,8 @@ interface OportunidadDao {
 
     @Query("select o.nombre as nombreOportunidad, org.nombre as nombreOrganizacion from oportunidades o join eventos e on o.eventoId = e.id join organizaciones org on org.id = e.organizacion where o.prioridad = 5")
     fun obtenerOpPrioridadAlta(): Flow<List<OportunidadConOrganizacion>>
+
+    @Query("select o.nombre, o.tipo, o.descripcion, o.fechaDeteccion from oportunidades o join usuarios u on u.id = o.responsable where o.responsable = :usuario")
+    fun obtenerOportunidadesPorUsuario(usuario: Long): Flow<List<OportunidadConEjecutivo>>
 
 }

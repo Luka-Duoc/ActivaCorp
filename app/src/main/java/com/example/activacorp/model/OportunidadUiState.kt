@@ -26,5 +26,6 @@ data class OportunidadUiState(
     val cantPendientes: Int = 0,
     val cantPrioridadAlta: Int = 0,
     val cantConfirmadas: Int = 0,
-    val oportunidadesAltas: List<OportunidadConOrganizacion> = emptyList()
+    val oportunidadesAltas: List<OportunidadConOrganizacion> = emptyList(),
+    val oportunidadUsuario: List<OportunidadConEjecutivo> = emptyList()
 )

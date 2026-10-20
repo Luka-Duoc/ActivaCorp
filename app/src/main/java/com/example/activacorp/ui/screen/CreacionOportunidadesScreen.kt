@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.activacorp.model.EstadoGestion
 import com.example.activacorp.model.PotencialComercial
@@ -103,7 +104,7 @@ fun crearOportunidades(
             OutlinedTextField(
                 value = estado.nombre,
                 onValueChange = { viewModel.onNombreChange(it) },
-                label = { Text("Nombre de la oprtunidad") },
+                label = { Text("Nombre de la oportunidad") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )

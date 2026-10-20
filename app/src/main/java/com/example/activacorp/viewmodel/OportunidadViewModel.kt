@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class OportunidadViewModel(app: Application): AndroidViewModel(app) {
+class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
 
     private val dao = AppDatabase.getDatabase(app).OportunidadDao()
     private val db = AppDatabase.getDatabase(app)
@@ -36,6 +36,7 @@ class OportunidadViewModel(app: Application): AndroidViewModel(app) {
         contarPrioridadAlta()
         contarConfirmadas()
         obtenerOpPrioridadAlta()
+        obtenerOportunidadesPorUsuario()
     }
 
     fun cargarUsuarios() {
@@ -87,32 +88,48 @@ class OportunidadViewModel(app: Application): AndroidViewModel(app) {
 
     private fun contarPendientes() {
         viewModelScope.launch {
-            dao.contarPendientes().catch { e->
-                _estado.update { it.copy(mensajeError = "Error al cargar: ${e.message}")}
-        }.collect { cantidad -> _estado.update { it.copy(cantPendientes = cantidad)} } }
+            dao.contarPendientes().catch { e ->
+                _estado.update { it.copy(mensajeError = "Error al cargar: ${e.message}") }
+            }.collect { cantidad -> _estado.update { it.copy(cantPendientes = cantidad) } }
+        }
     }
 
     private fun contarPrioridadAlta() {
         viewModelScope.launch {
-            dao.contarPrioridadAlta().catch { e->
-                _estado.update { it.copy(mensajeError = "Error al cargar: ${e.message}")}
-            }.collect { cantidad -> _estado.update { it.copy(cantPrioridadAlta = cantidad)} }
+            dao.contarPrioridadAlta().catch { e ->
+                _estado.update { it.copy(mensajeError = "Error al cargar: ${e.message}") }
+            }.collect { cantidad -> _estado.update { it.copy(cantPrioridadAlta = cantidad) } }
         }
     }
 
     private fun contarConfirmadas() {
         viewModelScope.launch {
-            dao.contarConfirmadas().catch { e->
-                _estado.update { it.copy(mensajeError = "Error al cargar: ${e.message}")}
-            }.collect { cantidad -> _estado.update{ it.copy(cantConfirmadas = cantidad)} }
+            dao.contarConfirmadas().catch { e ->
+                _estado.update { it.copy(mensajeError = "Error al cargar: ${e.message}") }
+            }.collect { cantidad -> _estado.update { it.copy(cantConfirmadas = cantidad) } }
         }
     }
 
     private fun obtenerOpPrioridadAlta() {
         viewModelScope.launch {
-            dao.obtenerOpPrioridadAlta().catch { e->
-                _estado.update { it.copy(mensajeError =  "Error al cargar: ${e.message}")}
-            }.collect { oportunidades -> _estado.update { it.copy(oportunidadesAltas = oportunidades) }}
+            dao.obtenerOpPrioridadAlta().catch { e ->
+                _estado.update { it.copy(mensajeError = "Error al cargar: ${e.message}") }
+            }
+                .collect { oportunidades -> _estado.update { it.copy(oportunidadesAltas = oportunidades) } }
+        }
+    }
+
+
+    fun obtenerOportunidadesPorUsuario(responsable: Long = 0) {
+
+        viewModelScope.launch {
+            dao.obtenerOportunidadesPorUsuario(responsable).catch { e ->
+                _estado.update { it.copy(mensajeError = "Error al cargar :${e.message}") }
+            }.collect { oportunidadesUsuario ->
+                _estado.update {
+                    it.copy(oportunidadUsuario = oportunidadesUsuario)
+                }
+            }
         }
     }
 
@@ -121,13 +138,20 @@ class OportunidadViewModel(app: Application): AndroidViewModel(app) {
     fun onTipoChange(v: TipoOportunidad) = _estado.update { it.copy(tipo = v) }
     fun onDescripcionChange(v: String) = _estado.update { it.copy(descripcion = v) }
     fun onFuenteChange(v: String) = _estado.update { it.copy(fuente = v) }
-    fun onFechaDeteccionChange(v: String) = _estado.update { it.copy(fechaDeteccion = v, mensajeError = null) }
-    fun onPrioridadChange(v: String) = _estado.update { it.copy(prioridad = v.filter { ch -> ch.isDigit() }) }
+    fun onFechaDeteccionChange(v: String) =
+        _estado.update { it.copy(fechaDeteccion = v, mensajeError = null) }
+
+    fun onPrioridadChange(v: String) =
+        _estado.update { it.copy(prioridad = v.filter { ch -> ch.isDigit() }) }
+
     fun onPotencialChange(v: PotencialComercial) = _estado.update { it.copy(potencial = v) }
     fun onEstadoGestionChange(v: EstadoGestion) = _estado.update { it.copy(estado = v) }
     fun onObservacionesChange(v: String) = _estado.update { it.copy(observaciones = v) }
     fun onEventoIdChange(id: Long) = _estado.update { it.copy(eventoId = id) }
-    fun onResponsableChange(id: Long) { _estado.update { it.copy(responsable = id) } }
+    fun onResponsableChange(id: Long) {
+        _estado.update { it.copy(responsable = id) }
+    }
+
     fun prepararEdicion(oportunidad: OportunidadEntity) {
         cargarEventos()
         cargarUsuarios()

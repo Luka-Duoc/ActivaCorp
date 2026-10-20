@@ -11,7 +11,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,7 +29,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -78,11 +79,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.activacorp.data.local.entity.UsuarioEntity
+import com.example.activacorp.model.EstadoGestion
+import com.example.activacorp.model.PotencialComercial
 import com.example.activacorp.model.RolUsuario
+import com.example.activacorp.model.TipoOportunidad
 import com.example.activacorp.viewmodel.EventoViewModel
 import com.example.activacorp.viewmodel.OportunidadViewModel
 import com.example.activacorp.viewmodel.OrganizacionViewModel
@@ -97,6 +105,12 @@ fun CuentaScreen(
     oportunidadViewModel: OportunidadViewModel = viewModel(),
     organizacionViewModel: OrganizacionViewModel = viewModel()
 ) {
+    val estadoGlobal by viewModel.estado.collectAsState() // control de estado para el renderizado dinamico.
+    val rolEnum = try {
+        if (estadoGlobal.rol.isNotBlank()) RolUsuario.valueOf(estadoGlobal.rol.uppercase()) else null
+    } catch (e: IllegalArgumentException) {
+        null
+    }
 
     val darkPurple = Color(0xFF301934)
     val pagerState = rememberPagerState(pageCount = { 4 })
@@ -173,8 +187,11 @@ fun CuentaScreen(
                 when (page) {
                     0 -> tabCuenta(viewModel, navController)
                     1 -> tabEventos(navController, eventoViewModel)
-                    2 -> tabOportunidades(oportunidadViewModel, navController)
-                    3 -> tabOrganizaciones(navController, eventoViewModel, oportunidadViewModel, organizacionViewModel)
+                    2 -> tabOportunidades(oportunidadViewModel, navController, rolEnum?.titulo ?: "Sin rol", estadoGlobal.id)
+                    3 -> tabOrganizaciones(navController,
+                        eventoViewModel,
+                        oportunidadViewModel,
+                        organizacionViewModel, rolEnum?.titulo ?: "Sin rol")
                 }
             }
         }
@@ -509,7 +526,7 @@ fun tabEventos(
                     onValueChange = {},
                     readOnly = true,
                     trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(
+                        TrailingIcon(
                             expanded = expandido
                         )
                     },
@@ -566,7 +583,8 @@ fun tabEventos(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun tabOportunidades(oportunidadViewModel: OportunidadViewModel = viewModel(), navController: NavController) {
+fun tabOportunidades(oportunidadViewModel: OportunidadViewModel = viewModel(),
+                     navController: NavController, rol: String, id: Long) {
     val estadoOportunidad by oportunidadViewModel.estado.collectAsState()
     Scaffold(topBar = {
         TopAppBar(
@@ -583,16 +601,6 @@ fun tabOportunidades(oportunidadViewModel: OportunidadViewModel = viewModel(), n
                 containerColor = MaterialTheme.colorScheme.background
             )
         )
-    }, floatingActionButton = {
-        FloatingActionButton(
-            onClick = { navController.navigate("oportunidades") },
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Registrar Nueva Oportunidad"
-            )
-        }
     }) { innerPadding ->
         Column(
             modifier = Modifier
@@ -726,7 +734,7 @@ fun tabOportunidades(oportunidadViewModel: OportunidadViewModel = viewModel(), n
                             text = "No hay oportunidades de prioridad alta en este momento.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Gray,
-                            modifier = Modifier.padding(top = 8.dp)
+                            modifier = Modifier.padding(top = 8.dp).weight(1f)
                         )
                     }
                 } else {
@@ -745,14 +753,14 @@ fun tabOportunidades(oportunidadViewModel: OportunidadViewModel = viewModel(), n
                                     text = oppAlta.nombreOportunidad,
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold,
-                                    maxLines = 1,
+                                    maxLines = 3,
                                     overflow = TextOverflow.Ellipsis
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = oppAlta.nombreOrganizacion,
                                     style = MaterialTheme.typography.bodySmall,
-                                    maxLines = 1,
+                                    maxLines = 3,
                                     overflow = TextOverflow.Ellipsis,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -773,18 +781,28 @@ fun tabOportunidades(oportunidadViewModel: OportunidadViewModel = viewModel(), n
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Button(
+            if (rol.equals("EJECUTIVO COMERCIAL", ignoreCase = true)) {
+                modalOportunidades(
+                    { oportunidadesAsignadas(oportunidadViewModel, id) }
+                )
+            }
+            else if (rol.equals("SUPERVISOR COMERCIAL", ignoreCase = true)) {
+                Button(
                 onClick = { navController.navigate("oportunidades") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
                 shape = MaterialTheme.shapes.medium
-            ) {
-                Text(
-                    text = "Ver todas las oportunidades",
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
+                ) {
+                    Text(
+                        text = "Ver todas las oportunidades",
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
             }
+
+
+
         }
     }
 }
@@ -793,7 +811,7 @@ fun tabOportunidades(oportunidadViewModel: OportunidadViewModel = viewModel(), n
 fun tabOrganizaciones(navController: NavController,
                       eventoViewModel: EventoViewModel = viewModel(),
                       oportunidadViewModel: OportunidadViewModel = viewModel(),
-                      organizacionViewModel: OrganizacionViewModel = viewModel()) {
+                      organizacionViewModel: OrganizacionViewModel = viewModel(), rol: String) {
     val estadoOrganizacion by organizacionViewModel.estado.collectAsState()
     val estadoEvento by eventoViewModel.estado.collectAsState()
     val estadoOportunidad by oportunidadViewModel.estado.collectAsState()
@@ -820,18 +838,20 @@ fun tabOrganizaciones(navController: NavController,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
-                IconButton(
-                    onClick = { navController.navigate("CreacionOrganizacion") },
-                    modifier = Modifier.background(
-                        MaterialTheme.colorScheme.primaryContainer,
-                        CircleShape
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Agregar Organización",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                if (rol == "Supervisor Comercial") {
+                    IconButton(
+                        onClick = { navController.navigate("CreacionOrganizacion") },
+                        modifier = Modifier.background(
+                            MaterialTheme.colorScheme.primaryContainer,
+                            CircleShape
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Agregar Organización",
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
                 }
             }
 
@@ -1006,6 +1026,84 @@ fun tabOrganizaciones(navController: NavController,
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun modalOportunidades(contenido: @Composable () -> Unit) {
+    var showBottomSheet by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
+
+    Column(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Button(onClick = { showBottomSheet = true }) {
+            Text("Ver oportunidades asignadas")
+        }
+    }
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            sheetState = sheetState
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                contenido()
+                Spacer(modifier = Modifier.fillMaxHeight())
+                Button(onClick = { showBottomSheet = false }) {
+                    Text("Cerrar")
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun oportunidadesAsignadas(viewModel: OportunidadViewModel, id: Long) {
+    val estadoOportunidades = viewModel.estado.collectAsState()
+    viewModel.obtenerOportunidadesPorUsuario(id)
+    val oportunidades = estadoOportunidades.value.oportunidadUsuario
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(oportunidades) { op ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF7B1FA2),
+                    contentColor = Color(0xFFededed)
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = op.nombre,
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = op.tipo,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Color(0xFFE1BEE7)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = op.descripcion,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
                 }
             }
         }

@@ -12,6 +12,12 @@ import androidx.compose.runtime.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
+import com.example.activacorp.ui.theme.BackgroundDark
+import com.example.activacorp.ui.theme.PurpleAccent
+import com.example.activacorp.ui.theme.PurplePrimary
+import com.example.activacorp.ui.theme.SurfaceDark
+import com.example.activacorp.ui.theme.TextGray
+import com.example.activacorp.ui.theme.TextWhite
 import com.example.activacorp.utils.CameraPermissionHelper
 import com.example.activacorp.viewmodel.QrViewModel
 
@@ -36,11 +42,15 @@ class MainActivity : ComponentActivity() {
     }
 
     private val ColoresApp = darkColorScheme(
-        primary = Color(0XFF6750A4),
-        onPrimary = Color.White,
-        background = Color(0XFF121212),
-        surface = Color(0XFF1E1E1E),
-        onSurface = Color.White,
+        primary = PurplePrimary,
+        secondary = PurpleAccent,
+        background = BackgroundDark,
+        surface = SurfaceDark,
+        onPrimary = TextWhite,
+        onSecondary = TextWhite,
+        onBackground = TextWhite,
+        onSurface = TextWhite,
+        onSurfaceVariant = TextGray,
         error = Color(0XFFB3261E)
     )
 

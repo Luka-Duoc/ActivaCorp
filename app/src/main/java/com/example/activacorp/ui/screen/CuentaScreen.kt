@@ -26,10 +26,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -106,9 +104,6 @@ private val itemsMenu = listOf(
 fun CuentaScreen(
     viewModel: UsuarioViewModel,
     navController: NavController,
-    eventoViewModel: EventoViewModel = viewModel(),
-    oportunidadViewModel: OportunidadViewModel = viewModel(),
-    organizacionViewModel: OrganizacionViewModel = viewModel()
 ) {
     val estadoGlobal by viewModel.estado.collectAsState() // control de estado para el renderizado dinamico.
 
@@ -241,14 +236,15 @@ fun tabCuenta(
     var claveVisible by remember { mutableStateOf(false) }
     var mostrarDialogoEliminar by remember { mutableStateOf(false) } // Confirmar Eliminacion
     val estado by viewModel.estado.collectAsState()
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+
+    val rolEnum = remember(estado.rol) {
+        try {
+            if (estado.rol.isNotBlank()) RolUsuario.valueOf(estado.rol.uppercase()) else null
+        } catch (e: IllegalArgumentException) {
+            null
+        }
+    }
+
         // Encabezado
         Surface(
             shape = CircleShape,
@@ -265,12 +261,6 @@ fun tabCuenta(
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
-
-        val rolEnum = try {
-            if (estado.rol.isNotBlank()) RolUsuario.valueOf(estado.rol.uppercase()) else null
-        } catch (e: IllegalArgumentException) {
-            null
-        }
 
         // 2. Mostrar Nombre
         Text(
@@ -317,160 +307,161 @@ fun tabCuenta(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Datos del usuario
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp) // Espaciado más compacto
+        ) {
+            Text(
+                text = "Información de la Cuenta",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    text = "Información de la Cuenta",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
 
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
-                // ID del usuario formateado
-                ItemDatoCuenta(
-                    icono = Icons.Default.Badge,
-                    titulo = "ID de Empleado",
-                    valor = "#${estado.id.toString().padStart(4, '0')}"
-                )
-
-                // Correo
-                ItemDatoCuenta(
-                    icono = Icons.Default.Email,
-                    titulo = "Correo Electrónico",
-                    valor = estado.correo.ifBlank { "No registrado" })
-
-                // Contraseña oculta
-                ItemDatoCuenta(
-                    icono = Icons.Default.Lock,
-                    titulo = "Contraseña",
-                    valor = if (claveVisible) estado.clave else "••••••••",
-                    trailingIcon = {
-                        IconButton(onClick = { claveVisible = !claveVisible }) {
-                            Icon(
-                                imageVector = if (claveVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = if (claveVisible) "Ocultar contraseña" else "Mostrar contraseña",
-                                tint = Color.Gray
-                            )
-                        }
-                    })
-            }
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Button(
-            onClick = {
-                // Limpiar el estado
-                viewModel.cerrarSesion()
-
-                // Navegar a IniciarScreen
-                navController.navigate("login") {
-                    popUpTo(0) {
-                        inclusive = true
-                    } // Limpia todas las pantallas anteriores
-                    launchSingleTop = true
-                }
-            }, colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.error
-            ), modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Cerrar Sesión", color = Color.White)
-        }
-
-        // Eliminar cuenta
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedButton(
-            onClick = { mostrarDialogoEliminar = true },
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.error
-            ),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Icon(
-                imageVector = Icons.Default.Delete,
-                contentDescription = "Borrar Cuenta",
-                tint = MaterialTheme.colorScheme.error
+            // ID del usuario formateado
+            ItemDatoCuenta(
+                icono = Icons.Default.Badge,
+                titulo = "ID de Empleado",
+                valor = "#${estado.id.toString().padStart(4, '0')}"
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Borrar Cuenta", color = MaterialTheme.colorScheme.error)
-        }
 
-        if (mostrarDialogoEliminar) {
-            AlertDialog(
-                onDismissRequest = { mostrarDialogoEliminar = false },
-                title = { Text("¿Eliminar cuenta?") },
-                text = {
-                    Text("Esta acción es permanente y se borrarán todos tus datos asociados. ¿Estás seguro de que deseas continuar?")
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            mostrarDialogoEliminar = false
-                            val entidadUsuario = UsuarioEntity(
-                                id = estado.id,
-                                nombre = estado.nombre,
-                                correo = estado.correo,
-                                clave = estado.clave,
-                                rol = estado.rol
-                            )
-                            viewModel.eliminar(
-                                usuario = entidadUsuario,
-                                onEliminar = {
-                                    viewModel.cerrarSesion()
-                                    navController.navigate("login") {
-                                        popUpTo(0) { inclusive = true }
-                                        launchSingleTop = true
-                                    }
-                                }
-                            )
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error
+            // Correo
+            ItemDatoCuenta(
+                icono = Icons.Default.Email,
+                titulo = "Correo Electrónico",
+                valor = estado.correo.ifBlank { "No registrado" }
+            )
+
+            // Contraseña oculta
+            ItemDatoCuenta(
+                icono = Icons.Default.Lock,
+                titulo = "Contraseña",
+                valor = if (claveVisible) estado.clave else "••••••••",
+                trailingIcon = {
+                    IconButton(onClick = { claveVisible = !claveVisible }) {
+                        Icon(
+                            imageVector = if (claveVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            contentDescription = if (claveVisible) "Ocultar contraseña" else "Mostrar contraseña",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                    ) {
-                        Text("Eliminar definitivamente", color = Color.White)
-                    }
-                },
-                dismissButton = {
-                    OutlinedButton(onClick = { mostrarDialogoEliminar = false }) {
-                        Text("Cancelar")
                     }
                 }
             )
-        }
-        // Scanner QR
-        TextButton(
-            onClick = { navController.navigate("qrCamara") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-                contentColor = Color.Black
-            )
-        ) {
-            Text("Escanear qr")
         }
     }
 
+    Spacer(modifier = Modifier.height(16.dp))
+
+    // Boton Escáner QR
+    OutlinedButton(
+        onClick = { navController.navigate("qrCamara") },
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Text("Escanear Código QR")
+    }
+
+    // Botón Cerrar Sesion
+    Button(
+        onClick = {
+            viewModel.cerrarSesion()
+            navController.navigate("login") {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
+        },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.error,
+            contentColor = MaterialTheme.colorScheme.onError
+        ),
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Text("Cerrar Sesión")
+    }
+
+    // Boton Borrar Cuenta
+    OutlinedButton(
+        onClick = { mostrarDialogoEliminar = true },
+        colors = ButtonDefaults.outlinedButtonColors(
+            contentColor = MaterialTheme.colorScheme.error
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Icon(
+            imageVector = Icons.Default.Delete,
+            contentDescription = "Borrar Cuenta",
+            tint = MaterialTheme.colorScheme.error
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text("Borrar Cuenta")
+    }
+
+
+    if (mostrarDialogoEliminar) {
+        AlertDialog(
+            onDismissRequest = { mostrarDialogoEliminar = false },
+            title = { Text("¿Eliminar cuenta?") },
+            text = {
+                Text("Esta acción es permanente y se borrarán todos tus datos asociados. ¿Estás seguro de que deseas continuar?")
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        mostrarDialogoEliminar = false
+                        val entidadUsuario = UsuarioEntity(
+                            id = estado.id,
+                            nombre = estado.nombre,
+                            correo = estado.correo,
+                            clave = estado.clave,
+                            rol = estado.rol
+                        )
+                        viewModel.eliminar(
+                            usuario = entidadUsuario,
+                            onEliminar = {
+                                viewModel.cerrarSesion()
+                                navController.navigate("login") {
+                                    popUpTo(0) { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            }
+                        )
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    )
+                ) {
+                    Text("Eliminar definitivamente", color = Color.White)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { mostrarDialogoEliminar = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun tabEventos(
     navController: NavController,
-    eventoViewModel: EventoViewModel = viewModel()
+    eventoViewModel: EventoViewModel
 ) {
     val estadoEvento by eventoViewModel.estado.collectAsState()
     val listaEventos = estadoEvento.eventos
@@ -480,107 +471,129 @@ fun tabEventos(
             listaEventos.firstOrNull()?.nombre ?: "Sin eventos disponibles"
         )
     }
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Event,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = "Eventos y oportunidades",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White
-                )
-            }
-
-            Text(
-                text = "Lista de eventos registrados",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.LightGray
-            )
-            ExposedDropdownMenuBox(
-                expanded = expandido,
-                onExpandedChange = { expandido = !expandido },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedTextField(
-                    value = eventoSeleccionado,
-                    onValueChange = {},
-                    readOnly = true,
-                    trailingIcon = {
-                        TrailingIcon(
-                            expanded = expandido
-                        )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = Color.Gray,
-                        focusedContainerColor = Color(0xFF2A2A2A),
-                        unfocusedContainerColor = Color(0xFF2A2A2A)
-                    ),
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
-                )
-
-                ExposedDropdownMenu(
-                    expanded = expandido,
-                    onDismissRequest = { expandido = false },
-                    modifier = Modifier.background(Color(0xFF2A2A2A))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    if (listaEventos.isEmpty()) {
-                        DropdownMenuItem(text = {
-                            Text(
-                                text = "No hay eventos registrados aún",
-                                color = Color.LightGray
+                    Icon(
+                        imageVector = Icons.Default.Event,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "Eventos y oportunidades",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                }
+
+                Text(
+                    text = "Lista de eventos registrados",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.LightGray
+                )
+                ExposedDropdownMenuBox(
+                    expanded = expandido,
+                    onExpandedChange = { expandido = !expandido },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = eventoSeleccionado,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = {
+                            TrailingIcon(
+                                expanded = expandido
                             )
-                        }, onClick = { expandido = false })
-                    } else {
-                        listaEventos.forEach { evento ->
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = expandido,
+                        onDismissRequest = { expandido = false },
+                        modifier = Modifier.background(MaterialTheme.colorScheme.surface)
+                    ) {
+                        if (listaEventos.isEmpty()) {
                             DropdownMenuItem(text = {
                                 Text(
-                                    text = "${evento.nombre} (${evento.fechaInicio})",
-                                    color = Color.White
+                                    text = "No hay eventos registrados aún",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                            }, onClick = {
-                                eventoSeleccionado = evento.nombre
-                                expandido = false
-                            })
+                            }, onClick = { expandido = false })
+                        } else {
+                            listaEventos.forEach { evento ->
+                                DropdownMenuItem(text = {
+                                    Text(
+                                        text = "${evento.nombre} (${evento.fechaInicio})",
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }, onClick = {
+                                    eventoSeleccionado = evento.nombre
+                                    expandido = false
+                                })
+                            }
                         }
                     }
                 }
             }
-        }
-        Button(
-            onClick = {
-                navController.navigate("eventos")
-            }, modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Crear Eventos")
+            Button(
+                onClick = {
+                    navController.navigate("eventos")
+                }, modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Crear Eventos")
+            }
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun tabOportunidades(oportunidadViewModel: OportunidadViewModel = viewModel(),
-                     navController: NavController, rol: String, id: Long) {
+fun tabOportunidades(
+    oportunidadViewModel: OportunidadViewModel,
+    navController: NavController,
+    rol: String,
+    id: Long
+    ) {
+
     val estadoOportunidad by oportunidadViewModel.estado.collectAsState()
+
+    // Validacion de roles
+    val esEjecutivo = remember(rol) {
+        rol.equals("EJECUTIVO COMERCIAL", ignoreCase = true)
+    }
+    val esSupervisor = remember(rol) {
+        rol.equals("SUPERVISOR COMERCIAL", ignoreCase = true)
+    }
     Scaffold(topBar = {
         TopAppBar(
             title = {
@@ -614,99 +627,24 @@ fun tabOportunidades(oportunidadViewModel: OportunidadViewModel = viewModel(),
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Card(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(110.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = estadoOportunidad.cantPendientes.toString(),
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Pendientes",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                Card(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(110.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = estadoOportunidad.cantPrioridadAlta.toString(),
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Prioridad Alta",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                Card(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(110.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = estadoOportunidad.cantConfirmadas.toString(),
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Confirmadas",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
+                cardResumenGestion(
+                    cantidad = estadoOportunidad.cantPendientes,
+                    etiqueta = "Pendientes",
+                    modifier = Modifier.weight(1f)
+                )
+                cardResumenGestion(
+                    cantidad = estadoOportunidad.cantPrioridadAlta,
+                    etiqueta = "Prioridad Alta",
+                    modifier = Modifier.weight(1f)
+                )
+                cardResumenGestion(
+                    cantidad = estadoOportunidad.cantConfirmadas,
+                    etiqueta = "Confirmadas",
+                    modifier = Modifier.weight(1f)
+                )
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -720,6 +658,7 @@ fun tabOportunidades(oportunidadViewModel: OportunidadViewModel = viewModel(),
             Spacer(modifier = Modifier.height(12.dp))
 
             LazyRow(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
@@ -728,8 +667,7 @@ fun tabOportunidades(oportunidadViewModel: OportunidadViewModel = viewModel(),
                         Text(
                             text = "No hay oportunidades de prioridad alta en este momento.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(top = 8.dp).weight(1f)
+                            color = Color.Gray
                         )
                     }
                 } else {
@@ -776,12 +714,13 @@ fun tabOportunidades(oportunidadViewModel: OportunidadViewModel = viewModel(),
 
             Spacer(modifier = Modifier.weight(1f))
 
-            if (rol.equals("EJECUTIVO COMERCIAL", ignoreCase = true)) {
-                modalOportunidades(
-                    { oportunidadesAsignadas(oportunidadViewModel, id) }
-                )
+            if (esEjecutivo) {
+                modalOportunidades {
+                    oportunidadesAsignadas(oportunidadViewModel, id)
             }
-            else if (rol.equals("SUPERVISOR COMERCIAL", ignoreCase = true)) {
+
+            }
+            else if (esSupervisor) {
                 Button(
                 onClick = { navController.navigate("oportunidades") },
                 modifier = Modifier
@@ -803,11 +742,47 @@ fun tabOportunidades(oportunidadViewModel: OportunidadViewModel = viewModel(),
 }
 
 @Composable
+fun cardResumenGestion(
+    cantidad: Int,
+    etiqueta: String,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.height(110.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = cantidad.toString(),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = etiqueta,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
 fun tabOrganizaciones(
     navController: NavController,
-    eventoViewModel: EventoViewModel = viewModel(),
-    oportunidadViewModel: OportunidadViewModel = viewModel(),
-    organizacionViewModel: OrganizacionViewModel = viewModel(),
+    eventoViewModel: EventoViewModel,
+    oportunidadViewModel: OportunidadViewModel,
+    organizacionViewModel: OrganizacionViewModel,
     rol: String
     ) {
     val estadoOrganizacion by organizacionViewModel.estado.collectAsState()

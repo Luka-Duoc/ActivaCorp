@@ -79,10 +79,7 @@ fun AppNavigation() {
             IniciarScreen(navController, UsuarioViewModel)
         }
         composable("cuenta") {
-            CuentaScreen(UsuarioViewModel, navController,
-                eventoViewModel = eventosViewModel,
-                oportunidadViewModel = OportunidadViewModel,
-                organizacionViewModel = OrganizacionViewModel)
+            CuentaScreen(UsuarioViewModel, navController)
         }
         composable("qrCamara") {
             QrScannerScreen(

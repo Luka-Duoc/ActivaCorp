@@ -77,7 +77,6 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.activacorp.data.local.entity.UsuarioEntity
 import com.example.activacorp.model.RolUsuario
@@ -469,7 +468,8 @@ fun tabEventos(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -490,7 +490,7 @@ fun tabEventos(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "Eventos y oportunidades",
+                        text = "Eventos",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White
@@ -563,6 +563,14 @@ fun tabEventos(
                 }, modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Crear Eventos")
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Button(
+                onClick = {
+                    navController.navigate("vistaEventos")
+                }, modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Ver todos los Eventos")
             }
         }
     }

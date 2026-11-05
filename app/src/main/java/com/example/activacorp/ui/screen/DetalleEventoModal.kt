@@ -7,23 +7,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Close
+
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,34 +28,30 @@ import com.example.activacorp.data.local.entity.EventoEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetalleEvento(
+fun EventoCard(
     evento: EventoEntity,
-    onDismiss: () -> Unit,
     comunas: List<ComunaEntity>,
-    onEliminar: (EventoEntity) -> Unit,
-    onEditar: (EventoEntity) -> Unit
+    onEditar: () -> Unit,
+    onEliminar: () -> Unit
 ) {
     val nombreComuna = comunas.firstOrNull { it.id == evento.comuna }?.nombre ?: "Comuna no especificada"
 
-
-    // Ventana inferior para mostrar los detalles del evento
-    ModalBottomSheet(
-        onDismiss
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 12.dp)
+            .padding(bottom = 12.dp)
     ) {
-        Column(
-           modifier = Modifier
-               .fillMaxWidth()
-               .padding(horizontal = 20.dp, vertical = 12.dp)
-               .padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+        Card(
+            modifier = Modifier.padding(all = 16.dp)
         ) {
             Row(
                 modifier = Modifier
+                    .padding(all = 20.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Titulo y Tipo de evento
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
@@ -71,115 +60,144 @@ fun DetalleEvento(
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
-                    if (evento.tipo.isNotBlank()) {
-                        Text(
-                            text = evento.tipo,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
+                    Text(
+                        text = evento.tipo,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
-                IconButton(onClick = onDismiss) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Cerrar")
-                }
-            }
-            HorizontalDivider()
-
-            // Fechas
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    Icons.Default.CalendarMonth, contentDescription = null, tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "${evento.fechaInicio} al ${evento.fechaTermino} de ${evento.horario.ifBlank { "Sin horario" }}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            // Cortos
-            if (evento.direccion.isNotBlank()) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                IconButton(onClick = onEditar) {
                     Icon(
-                        Icons.Default.LocationOn,
-                        contentDescription = null,
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Editar Evento",
                         tint = MaterialTheme.colorScheme.primary
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Ubicacion: ${evento.direccion} | Comuna: ${nombreComuna}",
-                        style = MaterialTheme.typography.bodyMedium
+                }
+                IconButton(onClick = onEliminar) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Eliminar Evento",
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
             }
-                // Asistentes y cortos
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.People, contentDescription = null, tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Aforo: ${evento.cantAsistentes} | Costo Ref: ${evento.costosReferenciales}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
 
-                // Evento
-                if (evento.requisitos.isNotBlank()) {
+            HorizontalDivider()
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = "Fecha Evento",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "${evento.fechaInicio} al ${evento.fechaTermino} de ${evento.horario}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            // Requisitos y Observaciones y Ubicacion
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ){
+                // Requisitos
+                Column {
                     Text(
-                        text = "Requisitos:",
-                        fontWeight = FontWeight.SemiBold
+                        text = "Requisitos",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
                     )
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = evento.requisitos,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
 
-                // Observaciones
-                if (evento.observaciones.isNotBlank()) {
+                //Observaciones
+                Column {
                     Text(
-                        text = "Observaciones:",
-                        fontWeight = FontWeight.SemiBold
+                        text = "Observaciones",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
                     )
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = evento.observaciones,
                         style = MaterialTheme.typography.bodyMedium
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
+                    )
+                }
 
-            // Eliminar
-            OutlinedButton(
-                onClick = {onEliminar(evento)},
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
-                ),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Eliminar Evento")
+                // Ubicación
+                Column {
+                    Text(
+                        text = "Ubicación",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "${evento.direccion} | Comuna: ${nombreComuna}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
 
-            // Editar
-            Button(
-                onClick = { onEditar(evento) },
-                modifier = Modifier.fillMaxWidth()
+            // Aforo y Costo
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(Icons.Default.Edit, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Editar Evento")
+                // Aforo
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = "Aforo",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = evento.cantAsistentes.toString(),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                //Costo
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = "Costo",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = evento.costosReferenciales.toString(),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
         }
     }

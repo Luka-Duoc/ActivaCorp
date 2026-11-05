@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.activacorp.ui.screen.CreacionOrganizacionScreen
 import com.example.activacorp.ui.screen.OportunidadScreen
 import com.example.activacorp.ui.screen.OrganizacionScreen
+import com.example.activacorp.ui.screen.VistaEventoCard
 import com.example.activacorp.viewmodel.OportunidadViewModel
 import com.example.activacorp.ui.screen.crearOportunidades
 import com.example.activacorp.viewmodel.OrganizacionViewModel
@@ -103,6 +104,10 @@ fun AppNavigation() {
         composable("eventos") {
             EventoScreen(eventosViewModel, navController)
         }
+        composable("vistaEventos") {
+            VistaEventoCard(navController = navController, viewModel = eventosViewModel)
+        }
+
         composable("CreacionOrganizacion") {
             CreacionOrganizacionScreen(navController, OrganizacionViewModel)
         }

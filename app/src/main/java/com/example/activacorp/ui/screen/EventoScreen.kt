@@ -12,29 +12,33 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Event
-import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -44,7 +48,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.example.activacorp.data.local.entity.EventoEntity
 import com.example.activacorp.viewmodel.EventoViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -78,7 +81,6 @@ fun EventoScreen(
     // Almacenan la fecha
     val datePickerStateInicio = rememberDatePickerState()
     val datePickerStateTermino = rememberDatePickerState()
-    var eventoSeleccionadoParaDetalle by remember { mutableStateOf<EventoEntity?>(null) }
 
     var expandidoOrganizacion by remember { mutableStateOf(false) }
 
@@ -124,12 +126,9 @@ fun EventoScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Text(
-                            text = "Registrar nuevo Evento",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
+                        Text(if (estado.eventoIdEnEdicion != null) "Actualizar Evento" else "Guardar Evento",
+                            style = MaterialTheme.typography.labelMedium
                         )
-
                         // Divizor
                         HorizontalDivider()
 
@@ -413,38 +412,6 @@ fun EventoScreen(
                     }
                 }
             }
-
-        // Titulo seccion de listado
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Eventos registrados (${estado.eventos.size})",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-
-        // Renderizado condicional
-
-        if (estado.eventos.isEmpty()) {
-            item {
-                Text(
-                    text = "No hay eventos registrados.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        } else {
-            items(
-                items = estado.eventos,
-                key = { it.id }
-            ) { evento ->
-                ItemEventoCard(
-                    evento = evento,
-                    onClick = { eventoSeleccionadoParaDetalle = it }
-                )
-            }
-        }
     }
 
     // Dialogo Fecha Inicio
@@ -499,98 +466,68 @@ fun EventoScreen(
         }
     }
 
-    eventoSeleccionadoParaDetalle?.let { evento ->
-        DetalleEvento(
-            evento = evento,
-            comunas = estado.comunas,
-            onDismiss = { eventoSeleccionadoParaDetalle = null },
-            onEliminar = { e ->
-                viewModel.eliminarEvento(e) {
-                    eventoSeleccionadoParaDetalle = null
-                }
-            },
-            onEditar = { ev ->
-                viewModel.editar(ev)
-                eventoSeleccionadoParaDetalle = null // Cierra el modal para que el usuario vea el formulario para editar
-            }
-        )
-    }
-
 }
 
 
+
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ItemEventoCard(evento: EventoEntity, onClick: (EventoEntity) -> Unit) {
+fun VistaEventoCard(
+    navController: NavController,
+    viewModel: EventoViewModel
+) {
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick(evento) },
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            // Columna de titulo de evento
+    val estado by viewModel.estado.collectAsState()
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = androidx.compose.ui.graphics.Color.Black,
+                    titleContentColor = androidx.compose.ui.graphics.Color.White,
+                ),
+                title = {
+                    Text( if(estado.eventoIdEnEdicion != null) "Editar Evento" else "Nuevo Evento" )
+                }
+            )
+        },
+        floatingActionButton = {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.Event,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = evento.nombre,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            // Fechas
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CalendarMonth,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "${evento.fechaInicio} al ${evento.fechaTermino}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            // Si hay direccion se muestra un icono con la direccion
-
-            if (evento.direccion.isNotBlank()) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                FloatingActionButton(
+                    onClick = { navController.navigate("cuenta") }
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = evento.direccion,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Icon(Icons.Default.Replay, contentDescription = "Volver atras")
+                }
+
+                // Redireccion crear Evento
+                FloatingActionButton(
+                    onClick = { navController.navigate("eventos") }
+                ) {
+                    Icon(Icons.Default.CreateNewFolder, contentDescription = "Crear Evento")
                 }
             }
-
-            if (evento.observaciones.isNotBlank()) {
-                Text(
-                    text = evento.observaciones,
-                    style = MaterialTheme.typography.bodyMedium
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(innerPadding)
+        ) {
+            estado.eventos.forEach { item ->
+                EventoCard(
+                    evento = item,
+                    comunas = estado.comunas,
+                    onEditar = {
+                        viewModel.editar(item)
+                        navController.navigate("eventos")
+                    },
+                    onEliminar = {
+                        viewModel.eliminarEvento(item)
+                    }
                 )
             }
         }

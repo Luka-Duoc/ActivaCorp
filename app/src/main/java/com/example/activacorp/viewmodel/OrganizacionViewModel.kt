@@ -3,10 +3,10 @@ package com.example.activacorp.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.activacorp.data.local.AppDatabase
-import com.example.activacorp.data.local.dao.ComunaDao
 import com.example.activacorp.data.local.entity.OrganizacionEntity
+import com.example.activacorp.data.repository.OfflineOrganizacionRepository
+import com.example.activacorp.data.repository.OrganizacionRepository
 import com.example.activacorp.model.OrganizacionUiState
 import com.example.activacorp.model.TipoOrganizacion
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +18,8 @@ import kotlinx.coroutines.launch
 
 class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
     private val db = AppDatabase.getDatabase(app)
-    private val dao = db.OrganizacionDao()
+
+    private val organizacionRepository: OrganizacionRepository = OfflineOrganizacionRepository(db.OrganizacionDao())
     private val ComunaDao = db.ComunaDao()
 
     private val _estado = MutableStateFlow(OrganizacionUiState())
@@ -31,7 +32,7 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
 
     fun cargarOrganizaciones() {
         viewModelScope.launch {
-            dao.obtenerTodas()
+            organizacionRepository.obtenerTodas()
                 .catch { e ->
                     _estado.update { it.copy(mensajeError = "Error al cargar las organizaciones") }
                 }
@@ -45,13 +46,17 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             ComunaDao.obtenerTodas()
                 .catch { e ->
-                    _estado.update { it.copy(mensajeError = "Error al cargar las comunas") }
+                    _estado.update { it.copy(mensajeError = "Error al cargar las comunas: ${e.message}") }
                 }
                 .collect { lista ->
                     _estado.update {
                         it.copy(
                             comunas = lista,
-                            comunaId = if (it.comunaId == 0L && lista.isNotEmpty()) lista.first().id else it.comunaId
+                            comunaId = if (it.idEnEdicion == null && it.comunaId == 0L && lista.isNotEmpty()) {
+                                lista.first().id
+                            } else {
+                                it.comunaId
+                            }
                         )
                     }
                 }
@@ -61,8 +66,7 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
     fun eliminarOrganizacion(organizacion: OrganizacionEntity) {
         viewModelScope.launch {
             try {
-                dao.eliminar(organizacion)
-                cargarOrganizaciones() // Recarga la lista en la UI
+                organizacionRepository.eliminar(organizacion)
             } catch (e: Exception) {
                 _estado.update { it.copy(mensajeError = "Error al eliminar: ${e.message}") }
             }
@@ -73,15 +77,12 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
     fun onTipoChange(valor: TipoOrganizacion) = _estado.update { it.copy(tipo = valor) }
     fun onRubroChange(valor: String) = _estado.update { it.copy(rubro = valor) }
     fun onComunaChange(id: Long) = _estado.update { it.copy(comunaId = id) }
-    fun onEventoChange(id: Long) = _estado.update { it.copy(eventoId = id) }
     fun onSitioWebChange(valor: String) = _estado.update { it.copy(sitioWeb = valor) }
     fun onPublicoChange(valor: String) = _estado.update { it.copy(publico = valor) }
     fun onHistorialChange(valor: String) = _estado.update { it.copy(historial = valor) }
 
 
     fun prepararEdicion(organizacion: OrganizacionEntity) {
-        cargarComunas()
-        cargarOrganizaciones()
         _estado.update {
             it.copy(
                 idEnEdicion = organizacion.id,
@@ -151,13 +152,11 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             try {
                 if (st.idEnEdicion != null) {
-                    dao.actualizar(entidad)
+                    organizacionRepository.actualizar(entidad)
                 } else {
-                    dao.insertar(listOf(entidad))
+                    organizacionRepository.insertar(listOf(entidad))
                 }
                 resetFormulario()
-                cargarOrganizaciones()
-                cargarComunas()
                 onExito()
             } catch (e: Exception) {
                 _estado.update { it.copy(mensajeError = "Error al guardar: ${e.message}") }

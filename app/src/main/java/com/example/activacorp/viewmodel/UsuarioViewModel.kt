@@ -17,10 +17,8 @@ import kotlinx.coroutines.launch
 
 class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
 
-    private val dao = AppDatabase.getDatabase(app).UsuarioDao()
-
     private val _estado = MutableStateFlow(UsuarioUiState())
-    private val usuarioRepository: UsuarioRepository = OfflineUsuarioRepository(dao)
+    private val usuarioRepository: UsuarioRepository = OfflineUsuarioRepository(AppDatabase.getDatabase(app).UsuarioDao())
     val estado: StateFlow<UsuarioUiState> = _estado
 
     fun onNombreChange(valor: String) {
@@ -98,7 +96,7 @@ class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
         }
 
         viewModelScope.launch {
-            val usuarioEncontrado = dao.login(correoActual, claveActual)
+            val usuarioEncontrado = usuarioRepository.login(correoActual, claveActual)
             if (usuarioEncontrado != null) {
                 _estado.update {
                     it.copy(
@@ -131,7 +129,7 @@ class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
     fun eliminar(usuario: UsuarioEntity, onEliminar: () -> Unit = {}) {
         viewModelScope.launch {
             try {
-                dao.eliminar(usuario)
+                usuarioRepository.eliminarUsuario(usuario)
                 onEliminar()
             } catch (e: Exception) {
                 _estado.update {

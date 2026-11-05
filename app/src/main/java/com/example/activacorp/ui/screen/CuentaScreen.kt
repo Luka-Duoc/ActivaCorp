@@ -104,6 +104,9 @@ private val itemsMenu = listOf(
 fun CuentaScreen(
     viewModel: UsuarioViewModel,
     navController: NavController,
+    eventoViewModel: EventoViewModel,
+    oportunidadViewModel: OportunidadViewModel,
+    organizacionViewModel: OrganizacionViewModel
 ) {
     val estadoGlobal by viewModel.estado.collectAsState() // control de estado para el renderizado dinamico.
 
@@ -162,26 +165,15 @@ fun CuentaScreen(
             ) {
                 when (page) {
                     0 -> tabCuenta(viewModel, navController)
-                    1 -> {
-                        val eventoViewModel: EventoViewModel = viewModel()
-                        tabEventos(navController, eventoViewModel)
-                    }
-                    2 -> {
-                        val oportunidadViewModel: OportunidadViewModel = viewModel()
-                        tabOportunidades(oportunidadViewModel, navController, rolEnum, estadoGlobal.id)
-                    }
-                    3 -> {
-                        val eventoViewModel: EventoViewModel = viewModel()
-                        val oportunidadViewModel: OportunidadViewModel = viewModel()
-                        val organizacionViewModel: OrganizacionViewModel = viewModel()
-                        tabOrganizaciones(
-                            navController,
-                            eventoViewModel,
-                            oportunidadViewModel,
-                            organizacionViewModel,
-                            rolEnum
-                        )
-                    }
+                    1 -> tabEventos(navController, eventoViewModel)
+                    2 -> tabOportunidades(oportunidadViewModel, navController, rolEnum, estadoGlobal.id)
+                    3 -> tabOrganizaciones(
+                        navController,
+                        eventoViewModel,
+                        oportunidadViewModel,
+                        organizacionViewModel,
+                        rolEnum
+                    )
                 }
             }
         }

@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.activacorp.data.local.AppDatabase
 import com.example.activacorp.data.local.entity.ComunaEntity
 import com.example.activacorp.data.local.entity.EventoEntity
+import com.example.activacorp.data.repository.EventoRepository
+import com.example.activacorp.data.repository.OfflineEventoRepository
 import com.example.activacorp.model.EventoQr
 import com.example.activacorp.model.EventoUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,13 +22,14 @@ import java.util.Locale
 
 class EventoViewModel(app: Application): AndroidViewModel(app) {
 
-    private val dao = AppDatabase.getDatabase(app).EventoDao()
+    private val db = AppDatabase.getDatabase(app)
+    private val eventoRepository: EventoRepository = OfflineEventoRepository(db.EventoDao())
 
     private val _estado = MutableStateFlow(EventoUiState())
 
     val estado: StateFlow<EventoUiState> = _estado.asStateFlow()
-    private val comunaDao = AppDatabase.getDatabase(app).ComunaDao()
-    private val organizacionDao = AppDatabase.getDatabase(app).OrganizacionDao()
+    private val comunaDao = db.ComunaDao()
+    private val organizacionDao = db.OrganizacionDao()
 
     init {
         cargarEventos()
@@ -38,7 +41,7 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
         viewModelScope.launch {
             organizacionDao.obtenerTodas()
                 .catch { e ->
-                    _estado.update { it.copy(mensajeError = "Error al cargar las organizaciones") }
+                    _estado.update { it.copy(mensajeError = "Error al cargar las organizaciones: ${e.message}") }
                 }
                 .collect { lista ->
                     _estado.update { it.copy(organizaciones = lista) }
@@ -52,9 +55,16 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
                 _estado.update { actual ->
                     actual.copy(
                         comunas = lista,
-                        // Asigna la primera si no hay ninguna seleccionada
-                        comuna = if (actual.comuna == 0L) lista.firstOrNull()?.id ?: 1L else actual.comuna,
-                        comunaSeleccionada = if (actual.comunaSeleccionada.isBlank()) lista.firstOrNull()?.nombre ?: "" else actual.comunaSeleccionada
+                        comuna = if (actual.eventoIdEnEdicion == null && actual.comuna == 0L) {
+                            lista.firstOrNull()?.id ?: 1L
+                        } else {
+                            actual.comuna
+                        },
+                        comunaSeleccionada = if (actual.eventoIdEnEdicion == null && actual.comunaSeleccionada.isBlank()) {
+                            lista.firstOrNull()?.nombre ?: ""
+                        } else {
+                            actual.comunaSeleccionada
+                        }
                     )
                 }
             }
@@ -98,7 +108,7 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
 
     private fun cargarEventos() {
         viewModelScope.launch {
-            dao.obtenerTodos()
+            eventoRepository.obtenerTodos()
                 .catch { e -> _estado.update { it.copy(mensajeError = e.message) } }
                 .collect { lista ->
                     _estado.update { it.copy(eventos = lista) }
@@ -118,8 +128,6 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
     }
 
     fun onDireccionChange(v: String) = _estado.update { it.copy(direccion = v) }
-    fun onComunaChange(id: Long) = _estado.update { it.copy(comuna = id) }
-    fun onOrganizacionChange(id: Long) = _estado.update { it.copy(organizacion = id) }
     fun onCantAsistentesChange(v: String) =
         _estado.update { it.copy(cantAsistentes = v.filter { ch -> ch.isDigit() }) }
 
@@ -128,6 +136,10 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
 
     fun onRequisitosChange(v: String) = _estado.update { it.copy(requisitos = v) }
     fun onObservacionesChange(v: String) = _estado.update { it.copy(observaciones = v) }
+
+    fun onOrganizacionChange(id: Long) {
+        _estado.update { it.copy(organizacion = id) }
+    }
 
     fun onHorarioChange(v: String) {
         val filtrado = v.filter { it.isDigit() || it == ':' }
@@ -139,7 +151,7 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
     fun eliminarEvento(evento: EventoEntity, onExito: () -> Unit = {}) {
         viewModelScope.launch {
             try {
-                dao.eliminar(evento)
+                eventoRepository.eliminar(evento)
                 onExito()
             } catch (e: Exception) {
                 _estado.update { it.copy(mensajeError = "Error al eliminar el evento: ${e.message}") }
@@ -148,8 +160,6 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
     }
 
     fun editar(evento: EventoEntity) {
-        cargarOrganizacion()
-        cargarEventos()
         val nombreDeComuna = _estado.value.comunas.firstOrNull { it.id == evento.comuna }?.nombre ?: ""
         _estado.update {
             it.copy(
@@ -174,16 +184,7 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
 
     // Limpiar Formulario si el usuario cancela la edicion
     fun cancelarEdicion() {
-        cargarOrganizacion()
-        cargarEventos()
-        _estado.update {
-            EventoUiState(
-                eventos = it.eventos,
-                comunas = it.comunas,
-                comuna = it.comunas.firstOrNull()?.id ?: 1L,
-                comunaSeleccionada = it.comunas.firstOrNull()?.nombre ?: ""
-            )
-        }
+        limpiarFormulario()
     }
 
     // Guardar y editar
@@ -241,23 +242,13 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
                     observaciones = st.observaciones.trim()
                 )
                 if (st.eventoIdEnEdicion != null) {
-                    dao.actualizar(eventoAProcesar)
+                    eventoRepository.actualizar(eventoAProcesar)
                 } else {
-                    dao.insertar(eventoAProcesar)
+                    eventoRepository.insertar(eventoAProcesar)
                 }
 
                 // Resetea el formulario tras guardar o actualizar
-                _estado.update { actual ->
-                    EventoUiState(
-                        eventos = actual.eventos,
-                        comunas = actual.comunas,
-                        comuna = actual.comunas.firstOrNull()?.id ?: 1L,
-                        comunaSeleccionada = actual.comunas.firstOrNull()?.nombre ?: "",
-                        exitSave = true
-                    )
-                }
-                cargarEventos()
-                cargarOrganizacion()
+                limpiarFormulario(exitSave = true)
                 onExito()
             } catch (e: Exception) {
                 _estado.update { it.copy(mensajeError = "Error al procesar el evento: ${e.message}") }
@@ -280,13 +271,40 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
 
         viewModelScope.launch {
             try {
-                dao.insertar(evento)
+                eventoRepository.insertar(evento)
                 onResultado(true, "¡Evento '${evento.nombre}' registrado con éxito!")
             } catch (e: Exception) {
                 onResultado(false, "Error al guardar el evento: ${e.message}")
             }
         }
-        cargarOrganizacion()
-        cargarEventos()
+    }
+    private fun limpiarFormulario(exitSave: Boolean = false) {
+        _estado.update { actual ->
+            actual.copy(
+                // 1. Conservar las listas existentes en memoria
+                organizaciones = actual.organizaciones,
+                eventos = actual.eventos,
+                comunas = actual.comunas,
+
+                // 2. Limpiar solo los campos del formulario
+                eventoIdEnEdicion = null,
+                nombre = "",
+                tipo = "",
+                fechaInicio = "",
+                fechaTermino = "",
+                horario = "",
+                direccion = "",
+                comuna = actual.comunas.firstOrNull()?.id ?: 1L,
+                comunaSeleccionada = actual.comunas.firstOrNull()?.nombre ?: "",
+                organizacion = 0L,
+                organizacionId = 0L,
+                cantAsistentes = "",
+                costosReferenciales = "",
+                requisitos = "",
+                observaciones = "",
+                mensajeError = null,
+                exitSave = exitSave
+            )
+        }
     }
 }

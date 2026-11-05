@@ -68,7 +68,12 @@ fun crearOportunidades(
                     containerColor = Color.Black,
                     titleContentColor = Color.White
                 ),
-                title = { Text("Nueva Oportunidad") },
+                title = {
+                    Text(
+                        if (estado.oportunidadIdEnEdicion != null) "Editar Oportunidad"
+                        else "Nueva Oportunidad"
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = {
                         viewModel.cancelarEdicion()

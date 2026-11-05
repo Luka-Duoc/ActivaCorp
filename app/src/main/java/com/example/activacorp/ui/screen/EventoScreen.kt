@@ -83,7 +83,7 @@ fun EventoScreen(
     var expandidoOrganizacion by remember { mutableStateOf(false) }
 
     val organizacionSeleccionadaNombre = estado.organizaciones
-        .find { it.id == estado.organizacionId }?.nombre ?: "Seleccionar organización *"
+        .find { it.id == estado.organizacion }?.nombre ?: "Seleccionar organización *"
 
     val listaTipo = listOf(
         "Feria de Emprendimiento",
@@ -354,14 +354,17 @@ fun EventoScreen(
                                 if (estado.organizaciones.isEmpty()) {
                                     DropdownMenuItem(
                                         text = { Text("No hay organizaciones registradas") },
-                                        onClick = { expandidoOrganizacion = false }
+                                        onClick = {
+                                            viewModel.cargarOrganizacion()
+                                            expandidoOrganizacion = false
+                                        }
                                     )
                                 } else {
                                     estado.organizaciones.forEach { orgItem ->
                                         DropdownMenuItem(
                                             text = { Text(orgItem.nombre) },
                                             onClick = {
-                                                viewModel.onOrganizacionSeleccionada(orgItem.id)
+                                                viewModel.onOrganizacionChange(orgItem.id)
                                                 expandidoOrganizacion = false
                                             }
                                         )

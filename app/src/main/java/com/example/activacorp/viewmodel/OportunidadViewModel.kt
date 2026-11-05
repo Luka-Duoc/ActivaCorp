@@ -5,6 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.activacorp.data.local.AppDatabase
 import com.example.activacorp.data.local.entity.OportunidadEntity
+import com.example.activacorp.data.repository.OfflineOportunidadRepository
+import com.example.activacorp.data.repository.OportunidadRepository
 import com.example.activacorp.model.EstadoGestion
 import com.example.activacorp.model.OportunidadUiState
 import com.example.activacorp.model.PotencialComercial
@@ -21,8 +23,8 @@ import java.util.Locale
 
 class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
 
-    private val dao = AppDatabase.getDatabase(app).OportunidadDao()
     private val db = AppDatabase.getDatabase(app)
+    private val oportunidadRepository: OportunidadRepository = OfflineOportunidadRepository(db.OportunidadDao())
     private val eventoDao = db.EventoDao()
     private val usuarioDao = db.UsuarioDao()
     private val _estado = MutableStateFlow(OportunidadUiState())
@@ -49,8 +51,11 @@ class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
                     _estado.update {
                         it.copy(
                             usuariosDisponibles = lista,
-                            // Si aún no se ha seleccionado ninguno, selecciona el primero por defecto
-                            responsable = if (it.responsable == 0L && lista.isNotEmpty()) lista.first().id else it.responsable
+                            responsable = if (it.oportunidadIdEnEdicion == null && it.responsable == 0L && lista.isNotEmpty()) {
+                                lista.first().id
+                            } else {
+                                it.responsable
+                            }
                         )
                     }
                 }
@@ -67,7 +72,11 @@ class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
                     _estado.update {
                         it.copy(
                             eventosDisponibles = listaEventos,
-                            eventoId = if (it.eventoId == 0L && listaEventos.isNotEmpty()) listaEventos.first().id else it.eventoId
+                            eventoId = if (it.oportunidadIdEnEdicion == null && it.eventoId == 0L && listaEventos.isNotEmpty()) {
+                                listaEventos.first().id
+                            } else {
+                                it.eventoId
+                            }
                         )
                     }
                 }
@@ -76,7 +85,7 @@ class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun cargarOportunidades() {
         viewModelScope.launch {
-            dao.obtenerTodas()
+            oportunidadRepository.obtenerTodas()
                 .catch { e ->
                     _estado.update { it.copy(mensajeError = "Error al cargar: ${e.message}") }
                 }
@@ -88,15 +97,19 @@ class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun contarPendientes() {
         viewModelScope.launch {
-            dao.contarPendientes().catch { e ->
-                _estado.update { it.copy(mensajeError = "Error al cargar: ${e.message}") }
-            }.collect { cantidad -> _estado.update { it.copy(cantPendientes = cantidad) } }
+            oportunidadRepository.contarPendientes()
+                .catch { e ->
+                    _estado.update { it.copy(mensajeError = "Error al cargar: ${e.message}") }
+                }
+                .collect { cantidad ->
+                    _estado.update { it.copy(cantPendientes = cantidad) }
+                }
         }
     }
 
     private fun contarPrioridadAlta() {
         viewModelScope.launch {
-            dao.contarPrioridadAlta().catch { e ->
+            oportunidadRepository.contarPrioridadAlta().catch { e ->
                 _estado.update { it.copy(mensajeError = "Error al cargar: ${e.message}") }
             }.collect { cantidad -> _estado.update { it.copy(cantPrioridadAlta = cantidad) } }
         }
@@ -104,7 +117,7 @@ class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun contarConfirmadas() {
         viewModelScope.launch {
-            dao.contarConfirmadas().catch { e ->
+            oportunidadRepository.contarConfirmadas().catch { e ->
                 _estado.update { it.copy(mensajeError = "Error al cargar: ${e.message}") }
             }.collect { cantidad -> _estado.update { it.copy(cantConfirmadas = cantidad) } }
         }
@@ -112,7 +125,7 @@ class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun obtenerOpPrioridadAlta() {
         viewModelScope.launch {
-            dao.obtenerOpPrioridadAlta().catch { e ->
+            oportunidadRepository.obtenerOpPrioridadAlta().catch { e ->
                 _estado.update { it.copy(mensajeError = "Error al cargar: ${e.message}") }
             }
                 .collect { oportunidades -> _estado.update { it.copy(oportunidadesAltas = oportunidades) } }
@@ -123,7 +136,7 @@ class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
     fun obtenerOportunidadesPorUsuario(responsable: Long = 0) {
 
         viewModelScope.launch {
-            dao.obtenerOportunidadesPorUsuario(responsable).catch { e ->
+            oportunidadRepository.obtenerOportunidadesPorUsuario(responsable).catch { e ->
                 _estado.update { it.copy(mensajeError = "Error al cargar :${e.message}") }
             }.collect { oportunidadesUsuario ->
                 _estado.update {
@@ -153,8 +166,6 @@ class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun prepararEdicion(oportunidad: OportunidadEntity) {
-        cargarEventos()
-        cargarUsuarios()
         _estado.update {
             it.copy(
                 oportunidadIdEnEdicion = oportunidad.id,
@@ -170,25 +181,23 @@ class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
                 estado = oportunidad.estado,
                 fechaActualizacion = oportunidad.fechaActualizacion,
                 observaciones = oportunidad.observaciones,
+                exitoGuardado = false,
                 mensajeError = null
             )
         }
     }
 
     fun cancelarEdicion() {
-        _estado.update {
-            OportunidadUiState(oportunidades = it.oportunidades)
-        }
+        limpiarFormulario()
     }
 
     fun eliminar(oportunidad: OportunidadEntity, onDelete: () -> Unit = {}) {
         viewModelScope.launch {
             try {
-                dao.eliminar(oportunidad)
+                oportunidadRepository.eliminarOportunidad(oportunidad)
                 onDelete()
-                cargarOportunidades()
             } catch (e: Exception) {
-                _estado.update { it.copy(mensajeError = "Error al eliminar la oportunidad") }
+                _estado.update { it.copy(mensajeError = "Error al eliminar la oportunidad ${e.message}") }
             }
         }
     }
@@ -228,19 +237,24 @@ class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
                 )
 
                 if (st.oportunidadIdEnEdicion != null) {
-                    dao.actualizar(oportunidadAProcesar)
+                    oportunidadRepository.actualizarOportunidad(oportunidadAProcesar)
                 } else {
-                    dao.insertar(listOf(oportunidadAProcesar))
+                    oportunidadRepository.insertarOportunidades(listOf(oportunidadAProcesar))
                 }
                 _estado.update {
-                    OportunidadUiState(
-                        oportunidades = it.oportunidades,
-                        exitoGuardado = true
+                    it.copy(
+                        oportunidadIdEnEdicion = null,
+                        nombre = "",
+                        descripcion = "",
+                        fuente = "",
+                        fechaDeteccion = "",
+                        observaciones = "",
+                        exitoGuardado = true,
+                        mensajeError = null
                     )
                 }
+
                 onExito()
-                cargarEventos()
-                cargarUsuarios()
             } catch (e: Exception) {
                 _estado.update {
                     it.copy(mensajeError = "Error al guardar la oportunidad: ${e.message}")
@@ -248,6 +262,20 @@ class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
 
+    }
+
+    private fun limpiarFormulario() {
+        _estado.update {
+            it.copy(
+                oportunidadIdEnEdicion = null,
+                nombre = "",
+                descripcion = "",
+                fuente = "",
+                fechaDeteccion = "",
+                observaciones = "",
+                mensajeError = null
+            )
+        }
     }
 
 }

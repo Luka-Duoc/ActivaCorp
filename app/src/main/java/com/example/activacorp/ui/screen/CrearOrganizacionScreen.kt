@@ -47,13 +47,8 @@ fun CreacionOrganizacionScreen(
     var expandidoTipo by remember { mutableStateOf(false) }
     var expandidoComuna by remember { mutableStateOf(false) }
 
-    var expandidoEvento by remember { mutableStateOf(false) }
-
     val comunaSeleccionada = estado.comunas
         .find { it.id == estado.comunaId }?.nombre ?: "Seleccionar comuna"
-
-    val eventoSeleccionado = estado.listaEventos
-        .find { it.id == estado.eventoId }?.nombre ?: "Seleccionar evento"
 
     Scaffold(
         topBar = {
@@ -69,8 +64,9 @@ fun CreacionOrganizacionScreen(
                     IconButton(
                         onClick = {
                             viewModel.resetFormulario()
-                            navController.navigate("cuenta")
-                        }) {
+                            navController.popBackStack()
+                        }
+                    ) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Volver",
@@ -104,6 +100,7 @@ fun CreacionOrganizacionScreen(
                 onExpandedChange = { expandidoTipo = it }
             ) {
                 OutlinedTextField(
+                    readOnly = true,
                     value = estado.tipo.name,
                     onValueChange = {},
                     label = { Text("Tipo de organizacion") },

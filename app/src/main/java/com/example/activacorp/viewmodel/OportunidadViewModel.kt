@@ -1,12 +1,11 @@
 package com.example.activacorp.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.activacorp.data.local.AppDatabase
 import com.example.activacorp.data.local.entity.OportunidadEntity
-import com.example.activacorp.data.repository.OfflineOportunidadRepository
+import com.example.activacorp.data.repository.EventoRepository
 import com.example.activacorp.data.repository.OportunidadRepository
+import com.example.activacorp.data.repository.UsuarioRepository
 import com.example.activacorp.model.EstadoGestion
 import com.example.activacorp.model.OportunidadUiState
 import com.example.activacorp.model.PotencialComercial
@@ -21,12 +20,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
+class OportunidadViewModel(
+    private val oportunidadRepository: OportunidadRepository,
+    private val eventoRepository: EventoRepository,
+    private val usuarioRepository: UsuarioRepository
+) : ViewModel() {
 
-    private val db = AppDatabase.getDatabase(app)
-    private val oportunidadRepository: OportunidadRepository = OfflineOportunidadRepository(db.OportunidadDao())
-    private val eventoDao = db.EventoDao()
-    private val usuarioDao = db.UsuarioDao()
     private val _estado = MutableStateFlow(OportunidadUiState())
     val estado: StateFlow<OportunidadUiState> = _estado.asStateFlow()
 
@@ -43,7 +42,7 @@ class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
 
     fun cargarUsuarios() {
         viewModelScope.launch {
-            usuarioDao.obtenerUsuarios()
+            usuarioRepository.obtenerUsuarios()
                 .catch { e ->
                     _estado.update { it.copy(mensajeError = "Error al cargar usuarios: ${e.message}") }
                 }
@@ -64,7 +63,7 @@ class OportunidadViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun cargarEventos() {
         viewModelScope.launch {
-            eventoDao.obtenerTodos()
+            eventoRepository.obtenerTodos()
                 .catch { e ->
                     _estado.update { it.copy(mensajeError = "Error al cargar eventos: ${e.message}") }
                 }

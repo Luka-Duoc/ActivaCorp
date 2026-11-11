@@ -1,13 +1,13 @@
 package com.example.activacorp.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.activacorp.data.local.AppDatabase
 import com.example.activacorp.data.local.entity.ComunaEntity
 import com.example.activacorp.data.local.entity.EventoEntity
+import com.example.activacorp.data.repository.ComunaRepository
 import com.example.activacorp.data.repository.EventoRepository
-import com.example.activacorp.data.repository.OfflineEventoRepository
+import com.example.activacorp.data.repository.OrganizacionRepository
 import com.example.activacorp.model.EventoQr
 import com.example.activacorp.model.EventoUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,16 +20,15 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class EventoViewModel(app: Application): AndroidViewModel(app) {
-
-    private val db = AppDatabase.getDatabase(app)
-    private val eventoRepository: EventoRepository = OfflineEventoRepository(db.EventoDao())
+class EventoViewModel(
+    private val eventoRepository: EventoRepository,
+    private val comunaRepository: ComunaRepository,
+    private val organizacionRepository: OrganizacionRepository
+): ViewModel() {
 
     private val _estado = MutableStateFlow(EventoUiState())
 
     val estado: StateFlow<EventoUiState> = _estado.asStateFlow()
-    private val comunaDao = db.ComunaDao()
-    private val organizacionDao = db.OrganizacionDao()
 
     init {
         cargarEventos()
@@ -39,7 +38,7 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
 
     fun cargarOrganizacion() {
         viewModelScope.launch {
-            organizacionDao.obtenerTodas()
+            organizacionRepository.obtenerTodas()
                 .catch { e ->
                     _estado.update { it.copy(mensajeError = "Error al cargar las organizaciones: ${e.message}") }
                 }
@@ -51,7 +50,7 @@ class EventoViewModel(app: Application): AndroidViewModel(app) {
 
     private fun cargarComuna() {
         viewModelScope.launch {
-            comunaDao.obtenerTodas().collect { lista ->
+            comunaRepository.obtenerTodas().collect { lista ->
                 _estado.update { actual ->
                     actual.copy(
                         comunas = lista,

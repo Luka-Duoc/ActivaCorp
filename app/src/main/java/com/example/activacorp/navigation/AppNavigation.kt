@@ -24,6 +24,7 @@ import com.example.activacorp.viewmodel.UsuarioViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import com.example.activacorp.data.local.AppDataContainer
 import com.example.activacorp.ui.screen.CreacionOrganizacionScreen
 import com.example.activacorp.ui.screen.OportunidadScreen
 import com.example.activacorp.ui.screen.OrganizacionScreen
@@ -37,11 +38,36 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val context = LocalContext.current
 
-    val UsuarioViewModel: UsuarioViewModel = viewModel()
+    // Instanciar las dependencias
+    val container = remember { AppDataContainer(context.applicationContext) }
+
+    // Instanciar los viewModel inicializando los repository
+    val usuarioViewModel: UsuarioViewModel = viewModel {
+        UsuarioViewModel(
+            usuarioRepository = container.usuarioRepository
+        )
+    }
     val QrViewModel: QrViewModel = viewModel()
-    val eventosViewModel: EventoViewModel = viewModel()
-    val OportunidadViewModel: OportunidadViewModel = viewModel()
-    val OrganizacionViewModel: OrganizacionViewModel = viewModel()
+    val eventosViewModel: EventoViewModel = viewModel {
+        EventoViewModel(
+            eventoRepository = container.eventoRepository,
+            comunaRepository = container.comunaRepository,
+            organizacionRepository = container.organizacionRepository
+        )
+    }
+    val oportunidadViewModel: OportunidadViewModel = viewModel {
+        OportunidadViewModel(
+            oportunidadRepository = container.oportunidadRepository,
+            usuarioRepository = container.usuarioRepository,
+            eventoRepository = container.eventoRepository
+        )
+    }
+    val organizacionViewModel: OrganizacionViewModel = viewModel {
+        OrganizacionViewModel(
+            organizacionRepository = container.organizacionRepository,
+            comunaRepository = container.comunaRepository
+        )
+    }
 
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -67,25 +93,25 @@ fun AppNavigation() {
         }
 
         composable("oportunidades") {
-            OportunidadScreen(navController, OportunidadViewModel)
+            OportunidadScreen(navController, oportunidadViewModel)
         }
         composable("CreacionOportunidad") {
-            crearOportunidades(navController, OportunidadViewModel)
+            crearOportunidades(navController, oportunidadViewModel)
         }
 
         composable("registrar") {
-            RegistroScreen(navController,UsuarioViewModel)
+            RegistroScreen(navController,usuarioViewModel)
         }
         composable("login") {
-            IniciarScreen(navController, UsuarioViewModel)
+            IniciarScreen(navController, usuarioViewModel)
         }
         composable("cuenta") {
             CuentaScreen(
-                UsuarioViewModel,
+                usuarioViewModel,
                 navController,
                 eventoViewModel = eventosViewModel,
-                oportunidadViewModel = OportunidadViewModel,
-                organizacionViewModel = OrganizacionViewModel
+                oportunidadViewModel = oportunidadViewModel,
+                organizacionViewModel = organizacionViewModel
             )
         }
         composable("qrCamara") {
@@ -109,10 +135,10 @@ fun AppNavigation() {
         }
 
         composable("CreacionOrganizacion") {
-            CreacionOrganizacionScreen(navController, OrganizacionViewModel)
+            CreacionOrganizacionScreen(navController, organizacionViewModel)
         }
         composable("organizacion") {
-            OrganizacionScreen(navController, OrganizacionViewModel)
+            OrganizacionScreen(navController, organizacionViewModel)
         }
 
     }

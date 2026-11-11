@@ -1,11 +1,9 @@
 package com.example.activacorp.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.activacorp.data.local.AppDatabase
 import com.example.activacorp.data.local.entity.UsuarioEntity
-import com.example.activacorp.data.repository.OfflineUsuarioRepository
 import com.example.activacorp.data.repository.UsuarioRepository
 import com.example.activacorp.model.RolUsuario
 import com.example.activacorp.model.UsuarioErrores
@@ -15,10 +13,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class UsuarioViewModel(app: Application) : AndroidViewModel(app) {
+class UsuarioViewModel(
+    private val usuarioRepository: UsuarioRepository
+) : ViewModel() {
 
     private val _estado = MutableStateFlow(UsuarioUiState())
-    private val usuarioRepository: UsuarioRepository = OfflineUsuarioRepository(AppDatabase.getDatabase(app).UsuarioDao())
+
     val estado: StateFlow<UsuarioUiState> = _estado
 
     fun onNombreChange(valor: String) {

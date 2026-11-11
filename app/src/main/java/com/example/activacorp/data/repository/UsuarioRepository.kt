@@ -4,6 +4,8 @@ import com.example.activacorp.data.local.entity.UsuarioEntity
 import kotlinx.coroutines.flow.Flow
 
 interface UsuarioRepository {
+
+    fun obtenerUsuarios(): Flow<List<UsuarioEntity>>
     suspend fun insertarUsuario(usuario: UsuarioEntity)
     suspend fun actualizarUsuario(usuario: UsuarioEntity)
     suspend fun eliminarUsuario(usuario: UsuarioEntity)

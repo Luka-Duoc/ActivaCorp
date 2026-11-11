@@ -1,11 +1,9 @@
 package com.example.activacorp.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.activacorp.data.local.AppDatabase
 import com.example.activacorp.data.local.entity.OrganizacionEntity
-import com.example.activacorp.data.repository.OfflineOrganizacionRepository
+import com.example.activacorp.data.repository.ComunaRepository
 import com.example.activacorp.data.repository.OrganizacionRepository
 import com.example.activacorp.model.OrganizacionUiState
 import com.example.activacorp.model.TipoOrganizacion
@@ -16,11 +14,10 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
-    private val db = AppDatabase.getDatabase(app)
-
-    private val organizacionRepository: OrganizacionRepository = OfflineOrganizacionRepository(db.OrganizacionDao())
-    private val ComunaDao = db.ComunaDao()
+class OrganizacionViewModel(
+    private val organizacionRepository: OrganizacionRepository,
+    private val comunaRepository: ComunaRepository
+) : ViewModel() {
 
     private val _estado = MutableStateFlow(OrganizacionUiState())
     val estado: StateFlow<OrganizacionUiState> = _estado.asStateFlow()
@@ -44,7 +41,7 @@ class OrganizacionViewModel(app: Application) : AndroidViewModel(app) {
 
     fun cargarComunas() {
         viewModelScope.launch {
-            ComunaDao.obtenerTodas()
+            comunaRepository.obtenerTodas()
                 .catch { e ->
                     _estado.update { it.copy(mensajeError = "Error al cargar las comunas: ${e.message}") }
                 }

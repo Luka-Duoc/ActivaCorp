@@ -3,6 +3,7 @@ package com.example.activacorp.data.repository
 import com.example.activacorp.data.repository.UsuarioRepository
 import com.example.activacorp.data.local.dao.UsuarioDao
 import com.example.activacorp.data.local.entity.UsuarioEntity
+import kotlinx.coroutines.flow.Flow
 
 class OfflineUsuarioRepository(private val usuarioDao: UsuarioDao) : UsuarioRepository {
     override suspend fun insertarUsuario(usuario: UsuarioEntity) = usuarioDao.insertar(usuario)
@@ -11,4 +12,5 @@ class OfflineUsuarioRepository(private val usuarioDao: UsuarioDao) : UsuarioRepo
     override suspend fun limpiarSesion() { usuarioDao.cerrarSesion() }
     override suspend fun buscarCorreo(correo: String): UsuarioEntity? = usuarioDao.buscarCorreo(correo)
     override suspend fun login(correo: String, clave: String): UsuarioEntity? = usuarioDao.login(correo, clave)
+    override fun obtenerUsuarios(): Flow<List<UsuarioEntity>> = usuarioDao.obtenerUsuarios()
 }

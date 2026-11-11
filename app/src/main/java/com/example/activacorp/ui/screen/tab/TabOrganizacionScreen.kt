@@ -175,29 +175,33 @@ fun tabOrganizaciones(
                             }
 
                             Row {
-                                IconButton(
-                                    onClick = {
-                                        organizacionViewModel.prepararEdicion(organizacion)
-                                        navController.navigate("CreacionOrganizacion")
+                                if (esSupervisor) {
+                                    IconButton(
+                                        onClick = {
+                                            organizacionViewModel.prepararEdicion(organizacion)
+                                            navController.navigate("CreacionOrganizacion")
+                                        }
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Edit,
+                                            contentDescription = "Editar",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
                                     }
-                                ) {
-                                    Icon(
-                                        Icons.Default.Edit,
-                                        contentDescription = "Editar",
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                                IconButton(
-                                    onClick = {
-                                        organizacionViewModel.eliminarOrganizacion(organizacion)
+                                    IconButton(
+                                        onClick = {
+                                            organizacionViewModel.eliminarOrganizacion(organizacion)
+                                        }
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Delete,
+                                            contentDescription = "Eliminar",
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
                                     }
-                                ) {
-                                    Icon(
-                                        Icons.Default.Delete,
-                                        contentDescription = "Eliminar",
-                                        tint = MaterialTheme.colorScheme.error
-                                    )
+
                                 }
+
                             }
                         }
 

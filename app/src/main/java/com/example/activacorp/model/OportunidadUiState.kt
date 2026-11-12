@@ -21,11 +21,18 @@ data class OportunidadUiState(
     val estado: EstadoGestion = EstadoGestion.EVENTO_IDENTIFICADO,
     val fechaActualizacion: String = "",
     val observaciones: String = "",
-    val mensajeError: String? = null,
     val exitoGuardado: Boolean = false,
     val cantPendientes: Int = 0,
     val cantPrioridadAlta: Int = 0,
     val cantConfirmadas: Int = 0,
     val oportunidadesAltas: List<OportunidadConOrganizacion> = emptyList(),
-    val oportunidadUsuario: List<OportunidadConEjecutivo> = emptyList()
+    val oportunidadUsuario: List<OportunidadConEjecutivo> = emptyList(),
+
+    // Errores
+    val errorNombre: String? = null,
+    val errorDescripcion: String? = null,
+    val errorFechaDeteccion: String? = null,
+    val errorPrioridad: String? = null,
+    val errorFuente: String? = null,
+    val mensajeError: String? = null,
 )

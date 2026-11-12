@@ -146,15 +146,14 @@ class OportunidadViewModel(
     }
 
 
-    fun onNombreChange(v: String) = _estado.update { it.copy(nombre = v, mensajeError = null) }
+    fun onNombreChange(v: String) = _estado.update { it.copy(nombre = v, errorNombre = null) }
+    fun onDescripcionChange(v: String) = _estado.update { it.copy(descripcion = v, errorDescripcion = null) }
+    fun onFechaDeteccionChange(v: String) = _estado.update { it.copy(fechaDeteccion = v, errorFechaDeteccion = null) }
+    fun onPrioridadChange(v: String) = _estado.update {
+        it.copy(prioridad = v.filter { ch -> ch.isDigit() }, errorPrioridad = null)
+    }
     fun onTipoChange(v: TipoOportunidad) = _estado.update { it.copy(tipo = v) }
-    fun onDescripcionChange(v: String) = _estado.update { it.copy(descripcion = v) }
-    fun onFuenteChange(v: String) = _estado.update { it.copy(fuente = v) }
-    fun onFechaDeteccionChange(v: String) =
-        _estado.update { it.copy(fechaDeteccion = v, mensajeError = null) }
-
-    fun onPrioridadChange(v: String) =
-        _estado.update { it.copy(prioridad = v.filter { ch -> ch.isDigit() }) }
+    fun onFuenteChange(v: String) = _estado.update { it.copy(fuente = v, errorFuente = null) }
 
     fun onPotencialChange(v: PotencialComercial) = _estado.update { it.copy(potencial = v) }
     fun onEstadoGestionChange(v: EstadoGestion) = _estado.update { it.copy(estado = v) }
@@ -181,6 +180,11 @@ class OportunidadViewModel(
                 fechaActualizacion = oportunidad.fechaActualizacion,
                 observaciones = oportunidad.observaciones,
                 exitoGuardado = false,
+                errorNombre = null,
+                errorDescripcion = null,
+                errorFechaDeteccion = null,
+                errorPrioridad = null,
+                errorFuente = null,
                 mensajeError = null
             )
         }
@@ -204,13 +208,23 @@ class OportunidadViewModel(
     fun guardarOportunidad(onExito: () -> Unit = {}) {
         val st = _estado.value
 
-        if (st.nombre.isBlank() || st.descripcion.isBlank()) {
-            _estado.update { it.copy(mensajeError = "El nombre y/o la descripcion de la oportunidad no puede estar en blanco") }
-            return
-        }
+        val errNombre = if (st.nombre.isBlank()) "El nombre de la oportunidad es obligatorio" else null
+        val errDesc = if (st.descripcion.isBlank()) "La descripción no puede estar vacía" else null
+        val errFecha = if (st.fechaDeteccion.isBlank()) "La fecha de detección es obligatoria" else null
+        val prioridadNum = st.prioridad.toIntOrNull()
+        val errPrioridad = if (prioridadNum == null || prioridadNum !in 1..5) "Ingresa un nivel entre 1 y 5" else null
+        val errFuente = if (st.fuente.isBlank()) "La fuente de deteccion no puede estar vacia" else null
 
-        if (st.fechaDeteccion.isBlank()) {
-            _estado.update { it.copy(mensajeError = "La fecha de deteccion es obligatoria") }
+        if (errNombre != null || errDesc != null || errFecha != null || errPrioridad != null || errFecha != null) {
+            _estado.update {
+                it.copy(
+                    errorNombre = errNombre,
+                    errorDescripcion = errDesc,
+                    errorFechaDeteccion = errFecha,
+                    errorPrioridad = errPrioridad,
+                    errorFuente = errFuente
+                )
+            }
             return
         }
 
@@ -247,8 +261,14 @@ class OportunidadViewModel(
                         descripcion = "",
                         fuente = "",
                         fechaDeteccion = "",
+                        prioridad = "1",
                         observaciones = "",
                         exitoGuardado = true,
+                        errorNombre = null,
+                        errorDescripcion = null,
+                        errorFechaDeteccion = null,
+                        errorPrioridad = null,
+                        errorFuente = null,
                         mensajeError = null
                     )
                 }
@@ -272,6 +292,11 @@ class OportunidadViewModel(
                 fuente = "",
                 fechaDeteccion = "",
                 observaciones = "",
+                errorNombre = null,
+                errorDescripcion = null,
+                errorPrioridad = null,
+                errorFechaDeteccion = null,
+                errorFuente = null,
                 mensajeError = null
             )
         }

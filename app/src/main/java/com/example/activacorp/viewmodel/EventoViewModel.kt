@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.ui.text.input.TextFieldValue
 
 class EventoViewModel(
     private val eventoRepository: EventoRepository,
@@ -74,15 +75,27 @@ class EventoViewModel(
         // Deja solo los dígitos
         val digitos = entrada.filter { it.isDigit() }
 
-        if (digitos.length != 4) return null
+        if (digitos.length != 8) return null
 
-        val hora = digitos.substring(0, 2).toIntOrNull() ?: return null
-        val minutos = digitos.substring(2, 4).toIntOrNull() ?: return null
+        val horaInicio = digitos.substring(0, 2).toIntOrNull() ?: return null
+        val minInicio = digitos.substring(2, 4).toIntOrNull() ?: return null
+        val horaFin = digitos.substring(4, 6).toIntOrNull() ?: return null
+        val minFin = digitos.substring(6, 8).toIntOrNull() ?: return null
 
         // Valida rango de horas (00-23) y minutos (00-59)
-        if (hora !in 0..23 || minutos !in 0..59) return null
+        if (horaInicio!in 0..23 || minInicio !in 0..59) return null
+        if (horaFin !in 0..23 || minFin !in 0..59) return null
 
-        return String.format(Locale.getDefault(), "%02d:%02d", hora, minutos)
+        // Valida que la hora de término sea mayor a la de inicio
+        val totalMinInicio = horaInicio * 60 + minInicio
+        val totalMinFin = horaFin * 60 + minFin
+        if (totalMinFin <= totalMinInicio) return null
+
+        return String.format(Locale.getDefault(),
+            "%02d:%02d - %02d:%02d",
+            horaInicio, minInicio,
+                    horaFin, minFin
+            )
     }
 
     fun validacionFecha(fechaStr: String): Date? {
@@ -122,9 +135,6 @@ class EventoViewModel(
 
     fun onFechaTerminoChange(v: String) =
         _estado.update { it.copy(fechaTermino = v, mensajeError = null) }
-    fun onOrganizacionSeleccionada(id: Long) {
-        _estado.update { it.copy(organizacionId = id) }
-    }
 
     fun onDireccionChange(v: String) = _estado.update { it.copy(direccion = v) }
     fun onCantAsistentesChange(v: String) =
@@ -140,10 +150,23 @@ class EventoViewModel(
         _estado.update { it.copy(organizacion = id) }
     }
 
-    fun onHorarioChange(v: String) {
-        val filtrado = v.filter { it.isDigit() || it == ':' }
-        if (filtrado.length <= 5) { // Limita la longitud máxima a "00:00"
-            _estado.update { it.copy(horario = filtrado) }
+    fun onHorarioChange(input: TextFieldValue) {
+
+        val digitos = input.text.filter { it.isDigit() }.take(8)
+
+        val formateado = buildString {
+            digitos.forEachIndexed { index, c ->
+                append(c)
+                if (index == 1 && digitos.length > 2) append(":")
+                if (index == 3 && digitos.length > 4) append(" - ")
+                if (index == 5 && digitos.length > 6) append(":")
+            }
+        }
+
+        _estado.update {
+            it.copy(
+                horario = formateado,
+            )
         }
     }
 
@@ -215,7 +238,7 @@ class EventoViewModel(
         val horarioFinal = if (st.horario.isNotBlank()) {
             val horarioValido = validarHora(st.horario)
             if (horarioValido == null) {
-                _estado.update { it.copy(mensajeError = "El horario debe ser válido (ej: 1750 o 17:50)") }
+                _estado.update { it.copy(mensajeError = "El horario debe tener horario inicio y fin (ej: 17502200 o 17:50 - 22:00)") }
                 return
             }
             horarioValido

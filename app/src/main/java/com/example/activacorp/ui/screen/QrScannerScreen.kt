@@ -75,7 +75,7 @@ fun QrScannerScreen(
             Text(
                 "Escanea un código QR",
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 100.dp)
             )
 
             // Usar el nuevo scanner con CameraX
@@ -108,7 +108,7 @@ fun QrScannerScreen(
                 ) {}
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.padding(top = 100.dp))
             Text(
                 "Enfoca el código QR en el marco central",
                 style = MaterialTheme.typography.bodyMedium,

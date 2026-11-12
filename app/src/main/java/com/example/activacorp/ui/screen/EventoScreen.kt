@@ -49,10 +49,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.activacorp.viewmodel.EventoViewModel
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.navigation.NavController
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -179,9 +180,13 @@ fun EventoScreen(
                                 }
                             }
                             OutlinedTextField(
-                                value = estado.horario,
-                                onValueChange = { viewModel.onHorarioChange(it) },
-                                label = { Text("Horario") },
+                                value = TextFieldValue(
+                                    text = estado.horario,
+                                    selection = TextRange(estado.horario.length)
+                                ),
+                                onValueChange = { viewModel.onHorarioChange( it ) },
+                                label = { Text("Horario (Inicio-Fin)") },
+                                placeholder = { Text("Ej: 17:50 - 22:00") },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 modifier = Modifier.weight(1f),
                                 singleLine = true

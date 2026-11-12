@@ -110,6 +110,15 @@ fun crearOportunidades(
                 value = estado.nombre,
                 onValueChange = { viewModel.onNombreChange(it) },
                 label = { Text("Nombre de la oportunidad") },
+                isError = estado.errorNombre != null,
+                supportingText = {
+                    if (estado.errorNombre != null) {
+                        Text(
+                            text = estado.errorNombre!!,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -150,6 +159,15 @@ fun crearOportunidades(
                 value = estado.descripcion,
                 onValueChange = { viewModel.onDescripcionChange(it) },
                 label = { Text("Descripcion") },
+                isError = estado.errorDescripcion != null,
+                supportingText = {
+                    if (estado.errorDescripcion != null){
+                        Text(
+                            text = estado.errorDescripcion!!,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3
             )
@@ -159,6 +177,15 @@ fun crearOportunidades(
                 value = estado.fuente,
                 onValueChange = { viewModel.onFuenteChange(it) },
                 label = { Text("Fuente de deteccion") },
+                isError = estado.errorFuente != null,
+                supportingText = {
+                    if (estado.errorFuente != null) {
+                        Text(
+                            text = estado.errorFuente!!,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -168,6 +195,15 @@ fun crearOportunidades(
                 value = estado.fechaDeteccion,
                 onValueChange = { viewModel.onFechaDeteccionChange(it) },
                 label = { Text("Fecha de detección (ej: 2026-10-18)") },
+                isError = estado.errorFechaDeteccion != null,
+                supportingText = {
+                    if (estado.errorFechaDeteccion != null) {
+                        Text(
+                            text = estado.errorFechaDeteccion!!,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -215,6 +251,15 @@ fun crearOportunidades(
                 value = estado.prioridad,
                 onValueChange = { viewModel.onPrioridadChange(it) },
                 label = { Text("Prioridad (Número)") },
+                isError = estado.errorPrioridad != null,
+                supportingText = {
+                    if (estado.errorPrioridad != null) {
+                        Text(
+                            text = estado.errorPrioridad!!,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true

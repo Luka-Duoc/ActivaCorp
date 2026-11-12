@@ -64,7 +64,7 @@ fun tabEventos(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -150,7 +150,7 @@ fun tabEventos(
             Button(
                 onClick = {
                     navController.navigate("eventos")
-                }, modifier = Modifier.fillMaxWidth()
+                }, modifier = Modifier.fillMaxWidth(0.9F).align ( Alignment.CenterHorizontally )
             ) {
                 Text("Crear Eventos")
             }
@@ -158,10 +158,11 @@ fun tabEventos(
             Button(
                 onClick = {
                     navController.navigate("vistaEventos")
-                }, modifier = Modifier.fillMaxWidth()
+                }, modifier = Modifier.fillMaxWidth(0.9F).align ( Alignment.CenterHorizontally)
             ) {
                 Text("Ver todos los Eventos")
             }
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }

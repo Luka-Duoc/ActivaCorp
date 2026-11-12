@@ -20,9 +20,17 @@ data class EventoUiState(
     val cantAsistentes: String = "0",
     val requisitos: String = "",
     val costosReferenciales: String = "0",
-    val observaciones: String = "",
-    val mensajeError: String? = null,
+    val observaciones: String = "Sin observaciones",
     val organizaciones: List<OrganizacionEntity> = emptyList(),
     val organizacionId: Long = 0L,
-    val exitSave: Boolean = false
+    val exitSave: Boolean = false,
+
+    // Errores
+    val errorNombre: String? = null,
+    val errorHora: String? = null,
+    val errorFecha: String? = null,
+    val errorDireccion: String? = null,
+    val errorRequisitos: String? = null,
+    val mensajeError: String? = null,
+
 )

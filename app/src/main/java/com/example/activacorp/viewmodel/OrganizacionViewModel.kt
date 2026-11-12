@@ -70,13 +70,13 @@ class OrganizacionViewModel(
         }
     }
 
-    fun onNombreChange(valor: String) = _estado.update { it.copy(nombre = valor, mensajeError = null) }
+    fun onNombreChange(valor: String) = _estado.update { it.copy(nombre = valor, errorNombre = null) }
     fun onTipoChange(valor: TipoOrganizacion) = _estado.update { it.copy(tipo = valor) }
-    fun onRubroChange(valor: String) = _estado.update { it.copy(rubro = valor) }
+    fun onRubroChange(valor: String) = _estado.update { it.copy(rubro = valor, errorRubro = null) }
     fun onComunaChange(id: Long) = _estado.update { it.copy(comunaId = id) }
     fun onSitioWebChange(valor: String) = _estado.update { it.copy(sitioWeb = valor) }
-    fun onPublicoChange(valor: String) = _estado.update { it.copy(publico = valor) }
-    fun onHistorialChange(valor: String) = _estado.update { it.copy(historial = valor) }
+    fun onPublicoChange(valor: String) = _estado.update { it.copy(publico = valor, errorPublico = null) }
+    fun onHistorialChange(valor: String) = _estado.update { it.copy(historial = valor, errorHistorial = null) }
 
 
     fun prepararEdicion(organizacion: OrganizacionEntity) {
@@ -90,6 +90,10 @@ class OrganizacionViewModel(
                 sitioWeb = organizacion.sitioWeb ?: "",
                 publico = organizacion.publico,
                 historial = organizacion.historial,
+                errorNombre = null,
+                errorRubro = null,
+                errorPublico = null,
+                errorHistorial = null,
                 mensajeError = null
             )
         }
@@ -103,10 +107,13 @@ class OrganizacionViewModel(
                 tipo = TipoOrganizacion.EMPRESA,
                 rubro = "",
                 comunaId = it.comunas.firstOrNull()?.id ?: 0L,
-                eventoId = it.listaEventos.firstOrNull()?.id ?: 0L,
                 sitioWeb = "",
                 publico = "",
                 historial = "",
+                errorNombre = null,
+                errorRubro = null,
+                errorPublico = null,
+                errorHistorial = null,
                 mensajeError = null
             )
         }
@@ -115,18 +122,20 @@ class OrganizacionViewModel(
     fun guardarOrganizacion(onExito: () -> Unit) {
         val st = _estado.value
 
-        if (st.nombre.isBlank()) {
-            _estado.update { it.copy(mensajeError = "El nombre no puede estar en blanco") }
-            return
-        }
+        val errNombre = if (st.nombre.isBlank()) "El nombre no puede estar vacio" else null
+        val errRubro = if (st.rubro.isBlank()) "El rubro no puede estar vacio" else null
+        val errPublico = if (st.publico.isBlank()) "El publico no puede estar vacio" else null
+        val errHistorial = if (st.historial.isBlank()) "El historial no puede estar vacio" else null
 
-        if (st.rubro.isBlank() || st.publico.isBlank()) {
-            _estado.update { it.copy(mensajeError = "El rubro y el publico no puede estar en blanco") }
-            return
-        }
-
-        if (st.historial.length < 3) {
-            _estado.update { it.copy(mensajeError = "El historial debe tener al menos 3 letras") }
+        if (errNombre != null || errRubro != null || errPublico != null || errHistorial != null) {
+            _estado.update {
+                it.copy(
+                    errorNombre = errNombre,
+                    errorRubro = errRubro,
+                    errorPublico = errPublico,
+                    errorHistorial = errHistorial
+                )
+            }
             return
         }
 

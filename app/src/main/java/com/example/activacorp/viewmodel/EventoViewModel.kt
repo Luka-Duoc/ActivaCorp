@@ -128,22 +128,22 @@ class EventoViewModel(
         }
     }
 
-    fun onNombreChange(v: String) = _estado.update { it.copy(nombre = v, mensajeError = null) }
+    fun onNombreChange(v: String) = _estado.update { it.copy(nombre = v, errorNombre = null) }
     fun onTipoChange(v: String) = _estado.update { it.copy(tipo = v) }
     fun onFechaInicioChange(v: String) =
-        _estado.update { it.copy(fechaInicio = v, mensajeError = null) }
+        _estado.update { it.copy(fechaInicio = v, errorFecha = null) }
 
     fun onFechaTerminoChange(v: String) =
-        _estado.update { it.copy(fechaTermino = v, mensajeError = null) }
+        _estado.update { it.copy(fechaTermino = v, errorFecha = null) }
 
-    fun onDireccionChange(v: String) = _estado.update { it.copy(direccion = v) }
+    fun onDireccionChange(v: String) = _estado.update { it.copy(direccion = v, errorDireccion = null) }
     fun onCantAsistentesChange(v: String) =
         _estado.update { it.copy(cantAsistentes = v.filter { ch -> ch.isDigit() }) }
 
     fun onCostosReferencialesChange(v: String) =
         _estado.update { it.copy(costosReferenciales = v.filter { ch -> ch.isDigit() }) }
 
-    fun onRequisitosChange(v: String) = _estado.update { it.copy(requisitos = v) }
+    fun onRequisitosChange(v: String) = _estado.update { it.copy(requisitos = v, errorRequisitos = null) }
     fun onObservacionesChange(v: String) = _estado.update { it.copy(observaciones = v) }
 
     fun onOrganizacionChange(id: Long) {
@@ -166,6 +166,7 @@ class EventoViewModel(
         _estado.update {
             it.copy(
                 horario = formateado,
+                errorHora = null
             )
         }
     }
@@ -199,6 +200,11 @@ class EventoViewModel(
                 costosReferenciales = evento.costosReferenciales.toString(),
                 requisitos = evento.requisitos,
                 observaciones = evento.observaciones,
+                errorNombre = null,
+                errorHora = null,
+                errorFecha = null,
+                errorDireccion = null,
+                errorRequisitos = null,
                 mensajeError = null
             )
         }
@@ -213,37 +219,38 @@ class EventoViewModel(
     fun guardarEvento(onExito: () -> Unit = {}) {
         val st = _estado.value
 
-        if (st.nombre.isBlank() || st.fechaInicio.isBlank() || st.fechaTermino.isBlank()) {
-            _estado.update { it.copy(mensajeError = "Nombre y fechas son obligatorios") }
-            return
-        }
-
-        if (st.direccion.isBlank()) {
-            _estado.update { it.copy(mensajeError = "Direccion es obligatorio") }
-            return
-        }
+        val errNombre = if (st.nombre.isBlank()) "El nombre no puede estar vacío" else null
 
         val fechaIni = validacionFecha(st.fechaInicio)
         val fechaFin = validacionFecha(st.fechaTermino)
-        if (fechaIni == null || fechaFin == null) {
-            _estado.update { it.copy(mensajeError = "Formato de fecha inválido") }
-            return
+        val errFecha = when {
+            st.fechaInicio.isBlank() || st.fechaTermino.isBlank() -> "Las fechas son obligatorias"
+            fechaIni == null || fechaFin == null -> "Formato de fecha inválido (dd/MM/yyyy)"
+            fechaFin.before(fechaIni) -> "La fecha de término no puede ser anterior a la de inicio"
+            else -> null
         }
 
-        if (fechaFin.before(fechaIni)) {
-            _estado.update { it.copy(mensajeError = "La fecha de término no puede ser anterior a la de inicio") }
-            return
+        val horarioValido = validarHora(st.horario)
+        val errHora = when {
+            st.horario.isBlank() -> "La hora no puede estar vacía"
+            horarioValido == null -> "Horario inválido (ej: 17:50 - 22:00)"
+            else -> null
         }
 
-        val horarioFinal = if (st.horario.isNotBlank()) {
-            val horarioValido = validarHora(st.horario)
-            if (horarioValido == null) {
-                _estado.update { it.copy(mensajeError = "El horario debe tener horario inicio y fin (ej: 17502200 o 17:50 - 22:00)") }
-                return
+        val errDireccion = if (st.direccion.isBlank()) "La dirección es obligatoria" else null
+        val errRequisitos = if (st.requisitos.isBlank()) "Los requisitos no pueden estar en blanco" else null
+
+        if (errNombre != null || errFecha != null || errHora != null || errDireccion != null || errRequisitos != null) {
+            _estado.update {
+                it.copy(
+                    errorNombre = errNombre,
+                    errorFecha = errFecha,
+                    errorHora = errHora,
+                    errorDireccion = errDireccion,
+                    errorRequisitos = errRequisitos
+                )
             }
-            horarioValido
-        } else {
-            ""
+            return
         }
 
         viewModelScope.launch {
@@ -254,7 +261,7 @@ class EventoViewModel(
                     tipo = st.tipo.trim(),
                     fechaInicio = st.fechaInicio.trim(),
                     fechaTermino = st.fechaTermino.trim(),
-                    horario = horarioFinal,
+                    horario = horarioValido!!,
                     direccion = st.direccion.trim(),
                     comuna = st.comuna,
                     organizacion = st.organizacion,
@@ -325,6 +332,11 @@ class EventoViewModel(
                 requisitos = "",
                 observaciones = "",
                 mensajeError = null,
+                errorNombre = null,
+                errorHora = null,
+                errorFecha = null,
+                errorDireccion = null,
+                errorRequisitos = null,
                 exitSave = exitSave
             )
         }

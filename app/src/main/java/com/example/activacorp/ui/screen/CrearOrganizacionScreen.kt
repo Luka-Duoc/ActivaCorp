@@ -90,6 +90,15 @@ fun CreacionOrganizacionScreen(
                 value = estado.nombre,
                 onValueChange = { viewModel.onNombreChange(it) },
                 label = { Text("Nombre de la organizacion") },
+                isError = estado.errorNombre != null,
+                supportingText = {
+                    if (estado.errorNombre != null) {
+                        Text(
+                            text = estado.errorNombre!!,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -130,6 +139,15 @@ fun CreacionOrganizacionScreen(
                 value = estado.rubro,
                 onValueChange = { viewModel.onRubroChange(it) },
                 label = { Text("Rubro") },
+                isError = estado.errorRubro != null,
+                supportingText = {
+                    if (estado.errorRubro != null) {
+                        Text(
+                            text = estado.errorRubro!!,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -188,6 +206,15 @@ fun CreacionOrganizacionScreen(
                 value = estado.publico,
                 onValueChange = { viewModel.onPublicoChange(it) },
                 label = { Text("Publico objetivo") },
+                isError = estado.errorPublico != null,
+                supportingText = {
+                    if (estado.errorPublico != null) {
+                        Text(
+                            text = estado.errorPublico!!,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -197,6 +224,15 @@ fun CreacionOrganizacionScreen(
                 value = estado.historial,
                 onValueChange = { viewModel.onHistorialChange(it) },
                 label = { Text("Historial") },
+                isError = estado.errorHistorial != null,
+                supportingText = {
+                    if (estado.errorHistorial != null) {
+                        Text(
+                            text = estado.errorHistorial!!,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3
             )

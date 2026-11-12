@@ -133,7 +133,7 @@ fun EventoCard(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = evento.observaciones,
+                        text = if(evento.observaciones.isBlank()) "Sin Observaciones" else evento.observaciones,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }

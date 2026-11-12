@@ -138,6 +138,15 @@ fun EventoScreen(
                             value = estado.nombre,
                             onValueChange = { viewModel.onNombreChange(it) },
                             label = { Text("Nombre del Evento *") },
+                            isError = estado.errorNombre != null,
+                            supportingText = {
+                                if (estado.errorNombre != null) {
+                                    Text(
+                                        text = estado.errorNombre!!,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
@@ -186,6 +195,15 @@ fun EventoScreen(
                                 ),
                                 onValueChange = { viewModel.onHorarioChange( it ) },
                                 label = { Text("Horario (Inicio-Fin)") },
+                                isError = estado.errorHora != null,
+                                supportingText = {
+                                    if (estado.errorHora != null) {
+                                        Text(
+                                            text = estado.errorHora!!,
+                                            color = MaterialTheme.colorScheme.error
+                                        )
+                                    }
+                                },
                                 placeholder = { Text("Ej: 17:50 - 22:00") },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 modifier = Modifier.weight(1f),
@@ -206,6 +224,15 @@ fun EventoScreen(
                                     onValueChange = {},
                                     readOnly = true,
                                     label = { Text("Inicio *") },
+                                    isError =estado.errorFecha != null,
+                                    supportingText = {
+                                        if (estado.errorFecha != null) {
+                                            Text(
+                                                text = estado.errorFecha!!,
+                                                color = MaterialTheme.colorScheme.error
+                                            )
+                                        }
+                                    },
                                     trailingIcon = {
                                         Icon(
                                             imageVector = Icons.Default.DateRange,
@@ -229,6 +256,15 @@ fun EventoScreen(
                                     onValueChange = {},
                                     readOnly = true,
                                     label = { Text("Término *") },
+                                    isError =estado.errorFecha != null,
+                                    supportingText = {
+                                        if (estado.errorFecha != null) {
+                                            Text(
+                                                text = estado.errorFecha!!,
+                                                color = MaterialTheme.colorScheme.error
+                                            )
+                                        }
+                                    },
                                     trailingIcon = {
                                         Icon(
                                             imageVector = Icons.Default.DateRange,
@@ -251,6 +287,15 @@ fun EventoScreen(
                             value = estado.direccion,
                             onValueChange = { viewModel.onDireccionChange(it) },
                             label = { Text("Direccion") },
+                            isError = estado.errorDireccion != null,
+                            supportingText = {
+                                if (estado.errorDireccion != null) {
+                                    Text(
+                                        text = estado.errorDireccion!!,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
@@ -321,6 +366,15 @@ fun EventoScreen(
                             value = estado.requisitos,
                             onValueChange = { viewModel.onRequisitosChange(it) },
                             label = { Text("Requisitos") },
+                            isError = estado.errorRequisitos != null,
+                            supportingText = {
+                                if (estado.errorRequisitos != null) {
+                                    Text(
+                                        text = estado.errorRequisitos!!,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth()
                         )
 

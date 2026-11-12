@@ -13,12 +13,17 @@ data class OrganizacionUiState(
     val comunas: List<ComunaEntity> = emptyList(),
     val comunaSeleccionada: String = "",
     val comunaId: Long = 0L,
-    val eventoId: Long = 0L,
     val listaEventos: List<EventoEntity> = emptyList(),
     val eventoSeleccionado: String = "",
     val sitioWeb: String? = "",
     val publico: String = "",
     val historial: String = "",
+    val exitoGuardado: Boolean = false,
+
+    // Errores
+    val errorNombre: String? = null,
+    val errorRubro: String? = null,
+    val errorPublico: String? = null,
+    val errorHistorial: String? = null,
     val mensajeError: String? = null,
-    val exitoGuardado: Boolean = false
 )

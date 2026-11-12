@@ -174,7 +174,7 @@ fun tabCuenta(
 
     // Datos del usuario
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(0.9F),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -232,8 +232,12 @@ fun tabCuenta(
     // Boton Escáner QR
     OutlinedButton(
         onClick = { navController.navigate("qrCamara") },
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium
+        modifier = Modifier.fillMaxWidth(0.85F),
+        shape = MaterialTheme.shapes.medium,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        )
     ) {
         Text("Escanear Código QR")
     }
@@ -251,7 +255,7 @@ fun tabCuenta(
             containerColor = MaterialTheme.colorScheme.error,
             contentColor = MaterialTheme.colorScheme.onError
         ),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(0.85F),
         shape = MaterialTheme.shapes.medium
     ) {
         Text("Cerrar Sesión")
@@ -264,7 +268,7 @@ fun tabCuenta(
             contentColor = MaterialTheme.colorScheme.error
         ),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(0.85F),
         shape = MaterialTheme.shapes.medium
     ) {
         Icon(

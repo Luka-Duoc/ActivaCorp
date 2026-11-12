@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.filled.Person
@@ -20,6 +21,7 @@ import com.example.activacorp.viewmodel.UsuarioViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
@@ -30,6 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.example.activacorp.model.RolUsuario
 import com.example.activacorp.ui.screen.tab.tabCuenta
@@ -77,10 +80,11 @@ fun CuentaScreen(
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(bottomBar = {
-        TabRow(
+        ScrollableTabRow(
             selectedTabIndex = pagerState.currentPage,
-            containerColor = Color(0xFF301934),
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = Color.White,
+            edgePadding = 0.dp,
             divider = {},
             indicator = { tabPositions ->
                 if (pagerState.currentPage < tabPositions.size) {
@@ -94,8 +98,9 @@ fun CuentaScreen(
             // Iteracion
             itemsMenu.forEachIndexed { index, item ->
                 Tab(
+                    modifier = Modifier.fillMaxWidth(),
                     selected = pagerState.currentPage == index,
-                    text = { Text(item.titulo) },
+                    text = { Text(item.titulo, style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center) },
                     icon = { Icon(imageVector = item.icono, contentDescription = item.titulo) },
                     onClick = {
                         coroutineScope.launch {

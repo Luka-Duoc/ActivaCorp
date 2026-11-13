@@ -64,11 +64,12 @@ fun tabOportunidades(
 
     // Validacion de roles
     val esEjecutivo = remember(rol) {
-        rol.equals("EJECUTIVO COMERCIAL", ignoreCase = true)
+        rol.contains("EJECUTIVO", ignoreCase = true)
     }
     val esSupervisor = remember(rol) {
-        rol.equals("SUPERVISOR COMERCIAL", ignoreCase = true)
+        rol.contains("SUPERVISOR", ignoreCase = true)
     }
+    val puedeGestionar = esEjecutivo || esSupervisor
     Scaffold(topBar = {
         TopAppBar(
             title = {
@@ -190,24 +191,23 @@ fun tabOportunidades(
             Spacer(modifier = Modifier.weight(1f))
 
             if (esEjecutivo) {
-                modalOportunidades {
-                    oportunidadesAsignadas(oportunidadViewModel, id)
-                }
-
+                modalOportunidades(
+                    contenido = {
+                        oportunidadesAsignadas(oportunidadViewModel, id)
+                    }
+                )
             }
-            else if (esSupervisor) {
-                Button(
-                    onClick = { navController.navigate("oportunidades") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    shape = MaterialTheme.shapes.medium
-                ) {
-                    Text(
-                        text = "Ver todas las oportunidades",
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                }
+            Button(
+                onClick = { navController.navigate("oportunidades") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Text(
+                    text = if (puedeGestionar) "Gestionar Oportunidades" else "Ver oportunidades",
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
             }
 
 
@@ -259,7 +259,6 @@ fun modalOportunidades(contenido: @Composable () -> Unit) {
     val sheetState = rememberModalBottomSheetState()
     val coroutineScope = rememberCoroutineScope()
 
-
     Button(
         onClick = { showBottomSheet = true },
         modifier = Modifier
@@ -268,7 +267,7 @@ fun modalOportunidades(contenido: @Composable () -> Unit) {
         shape = MaterialTheme.shapes.medium
     ) {
         Text(
-            text = "Ver mis oportunidades asignadas",
+            text = "Mis Oportunidades Asignadas",
             modifier = Modifier.padding(vertical = 8.dp)
         )
     }

@@ -6,12 +6,17 @@ import androidx.activity.compose.setContent
 import androidx.compose.ui.graphics.Color
 import com.example.activacorp.navigation.AppNavigation
 import android.widget.Toast
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.ui.Modifier
 import com.example.activacorp.ui.theme.BackgroundDark
 import com.example.activacorp.ui.theme.PurpleAccent
 import com.example.activacorp.ui.theme.PurplePrimary
@@ -56,9 +61,19 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+        )
         setContent {
             MaterialTheme(colorScheme = ColoresApp) {
-                Surface {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .navigationBarsPadding(), // Protege la parte inferior en TODAS las pantallas
+                    color = MaterialTheme.colorScheme.background
+                ) {
                     AppNavigation()
                 }
             }

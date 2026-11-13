@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.core.content.ContextCompat
@@ -83,6 +84,7 @@ fun AppNavigation() {
     ) { concedido ->
         hasCameraPermission = concedido
     }
+    val estadoUsuario by usuarioViewModel.estado.collectAsState()
 
     NavHost(
         navController = navController,
@@ -93,7 +95,7 @@ fun AppNavigation() {
         }
 
         composable("oportunidades") {
-            OportunidadScreen(navController, oportunidadViewModel)
+            OportunidadScreen(navController, oportunidadViewModel, rol = estadoUsuario.rol)
         }
         composable("CreacionOportunidad") {
             crearOportunidades(navController, oportunidadViewModel)

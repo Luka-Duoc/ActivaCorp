@@ -33,15 +33,27 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.activacorp.data.local.entity.OportunidadEntity
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
 import com.example.activacorp.viewmodel.OportunidadViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OportunidadScreen(navController: NavController, viewModel: OportunidadViewModel) {
+fun OportunidadScreen(
+    navController: NavController,
+  viewModel: OportunidadViewModel,
+    rol: String,
+) {
+
 
     val estado by viewModel.estado.collectAsState()
+
+    val puedeGestionar = remember(rol) {
+        rol.contains("SUPERVISOR", ignoreCase = true) ||
+                rol.contains("EJECUTIVO", ignoreCase = true)
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -66,10 +78,15 @@ fun OportunidadScreen(navController: NavController, viewModel: OportunidadViewMo
                     Icon(Icons.Default.Replay, contentDescription = "Go back")
                 }
                 // Redireccion crear oportunidad
-                FloatingActionButton(
-                    onClick = { navController.navigate("CreacionOportunidad") }
-                ) {
-                    Icon(Icons.Default.CreateNewFolder, contentDescription = "Crear Oportunidad")
+                if (puedeGestionar) {
+                    FloatingActionButton(
+                        onClick = { navController.navigate("CreacionOportunidad") }
+                    ) {
+                        Icon(
+                            Icons.Default.CreateNewFolder,
+                            contentDescription = "Crear Oportunidad"
+                        )
+                    }
                 }
             }
         }
@@ -96,7 +113,8 @@ fun OportunidadScreen(navController: NavController, viewModel: OportunidadViewMo
                     },
                     onEliminar = {
                         viewModel.eliminar(item)
-                    }
+                    },
+                    puedeGestionar = puedeGestionar
                 )
             }
         }
@@ -110,10 +128,10 @@ fun OportunidadCard(
     oportunidad: OportunidadEntity,
     nombreEvento: String,
     nombreResponsable: String,
-    onEditar:() -> Unit,
-    onEliminar:() -> Unit
+    puedeGestionar: Boolean,
+    onEditar: () -> Unit,
+    onEliminar: () -> Unit
 ) {
-
 
     Column(
         modifier = Modifier
@@ -143,19 +161,21 @@ fun OportunidadCard(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                IconButton(onClick = onEditar) { // Icono editar
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Editar Oportunidad",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                IconButton(onClick = onEliminar) { // Icono eliminar
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Eliminar Oportunidad",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                if (puedeGestionar) {
+                    IconButton(onClick = onEditar) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Editar Oportunidad",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    IconButton(onClick = onEliminar) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Eliminar Oportunidad",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
 

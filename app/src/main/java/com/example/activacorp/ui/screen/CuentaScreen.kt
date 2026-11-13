@@ -8,8 +8,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.filled.Business
@@ -76,19 +78,49 @@ fun CuentaScreen(
         }
     }
 
-    val pagerState = rememberPagerState(pageCount = { 4 })
+    val supervisor = estadoGlobal.rol.contains("SUPERVISOR", ignoreCase = true) ||
+            rolEnum.contains("Supervisor", ignoreCase = true)
+
+    val marketing = estadoGlobal.rol.contains("MARKETING", ignoreCase = true) ||
+            rolEnum.contains("Marketing", ignoreCase = true)
+
+    val ejecutivo = estadoGlobal.rol.contains("EJECUTIVO", ignoreCase = true) ||
+            rolEnum.contains("Ejecutivo", ignoreCase = true)
+
+    val filtroTabs = remember(supervisor, marketing, ejecutivo) {
+        when {
+            supervisor -> listOf(
+                ItemNav("Cuenta", Icons.Default.Person),
+                ItemNav("Oportunidades", Icons.Default.Campaign)
+            )
+            marketing -> listOf(
+                ItemNav("Cuenta", Icons.Default.Person),
+                ItemNav("Eventos", Icons.Default.Event),
+                ItemNav("Oportunidades", Icons.Default.Campaign)
+            )
+            ejecutivo -> listOf(
+                ItemNav("Cuenta", Icons.Default.Person),
+                ItemNav("Oportunidades", Icons.Default.Campaign),
+                ItemNav("Organizaciones", Icons.Default.Business)
+            )
+            else -> listOf(
+                ItemNav("Cuenta", Icons.Default.Person)
+            )
+        }
+    }
+
+    val pagerState = rememberPagerState(pageCount = { filtroTabs.size })
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(bottomBar = {
-        ScrollableTabRow(
+        TabRow(
             selectedTabIndex = pagerState.currentPage,
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = Color.White,
-            edgePadding = 0.dp,
             divider = {},
             indicator = { tabPositions ->
                 if (pagerState.currentPage < tabPositions.size) {
-                    TabRowDefaults.Indicator(
+                    TabRowDefaults.SecondaryIndicator(
                         modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
                         height = 2.dp,
                         color = MaterialTheme.colorScheme.primary
@@ -96,9 +128,8 @@ fun CuentaScreen(
                 }
             }) {
             // Iteracion
-            itemsMenu.forEachIndexed { index, item ->
+            filtroTabs.forEachIndexed { index, item ->
                 Tab(
-                    modifier = Modifier.fillMaxWidth(),
                     selected = pagerState.currentPage == index,
                     text = { Text(item.titulo, style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center) },
                     icon = { Icon(imageVector = item.icono, contentDescription = item.titulo) },
@@ -123,11 +154,11 @@ fun CuentaScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                when (page) {
-                    0 -> tabCuenta(viewModel, navController)
-                    1 -> tabEventos(navController, eventoViewModel)
-                    2 -> tabOportunidades(oportunidadViewModel, navController, rolEnum, estadoGlobal.id)
-                    3 -> tabOrganizaciones(
+                when (filtroTabs.getOrNull(page)?.titulo) {
+                    "Cuenta" -> tabCuenta(viewModel, navController)
+                    "Eventos" -> tabEventos(navController, eventoViewModel)
+                    "Oportunidades" -> tabOportunidades(oportunidadViewModel, navController, rolEnum, estadoGlobal.id)
+                    "Organizaciones" -> tabOrganizaciones(
                         navController,
                         eventoViewModel,
                         oportunidadViewModel,

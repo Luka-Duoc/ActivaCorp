@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.activacorp.data.local.AppDataContainer
+import com.example.activacorp.data.local.SessionDataStore
 import com.example.activacorp.ui.screen.CreacionOrganizacionScreen
 import com.example.activacorp.ui.screen.OportunidadScreen
 import com.example.activacorp.ui.screen.OrganizacionScreen
@@ -41,11 +42,13 @@ fun AppNavigation() {
 
     // Instanciar las dependencias
     val container = remember { AppDataContainer(context.applicationContext) }
+    val sessionDataStore = remember { SessionDataStore(context.applicationContext) }
 
     // Instanciar los viewModel inicializando los repository
     val usuarioViewModel: UsuarioViewModel = viewModel {
         UsuarioViewModel(
-            usuarioRepository = container.usuarioRepository
+            usuarioRepository = container.usuarioRepository,
+            sessionDataStore = sessionDataStore
         )
     }
     val QrViewModel: QrViewModel = viewModel()
@@ -85,10 +88,19 @@ fun AppNavigation() {
         hasCameraPermission = concedido
     }
     val estadoUsuario by usuarioViewModel.estado.collectAsState()
+    val sesionVerificada by usuarioViewModel.sesionVerificada.collectAsState()
+
+    if (!sesionVerificada) return
+
+    val rutaInicial = if (estadoUsuario.id != 0L && estadoUsuario.rol.isNotBlank()) {
+        "cuenta"
+    } else {
+        "home"
+    }
 
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = rutaInicial
     ) {
         composable("home") {
             HomeScreen(navController)

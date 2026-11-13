@@ -54,8 +54,8 @@ fun tabOrganizaciones(
     val estadoEvento by eventoViewModel.estado.collectAsState()
     val estadoOportunidad by oportunidadViewModel.estado.collectAsState()
 
-    val esSupervisor = remember(rol) {
-        rol.equals("Supervisor Comercial", ignoreCase = true)
+    val ejecutivo = remember(rol) {
+        rol.contains("Ejecutivo", ignoreCase = true)
     }
 
     LazyColumn(
@@ -81,7 +81,7 @@ fun tabOrganizaciones(
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
-                if (esSupervisor) {
+                if (ejecutivo) {
                     IconButton(
                         onClick = { navController.navigate("CreacionOrganizacion") },
                         modifier = Modifier.background(
@@ -175,7 +175,7 @@ fun tabOrganizaciones(
                             }
 
                             Row {
-                                if (esSupervisor) {
+                                if (ejecutivo) {
                                     IconButton(
                                         onClick = {
                                             organizacionViewModel.prepararEdicion(organizacion)

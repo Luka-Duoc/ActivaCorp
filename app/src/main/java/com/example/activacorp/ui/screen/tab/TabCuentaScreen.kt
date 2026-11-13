@@ -97,8 +97,14 @@ private fun ItemDatoCuenta(
 @Composable
 fun tabCuenta(
     viewModel: UsuarioViewModel,
-    navController: NavController
+    navController: NavController,
+    rol: String
 ) {
+
+    val ejecutivo = remember(rol) {
+        rol.contains("EJECUTIVO", ignoreCase = true)
+    }
+
     var claveVisible by remember { mutableStateOf(false) }
     var mostrarDialogoEliminar by remember { mutableStateOf(false) } // Confirmar Eliminacion
     val estado by viewModel.estado.collectAsState()
@@ -230,19 +236,22 @@ fun tabCuenta(
     Spacer(modifier = Modifier.height(16.dp))
 
     // Boton Escáner QR
-    OutlinedButton(
-        onClick = { navController.navigate("qrCamara") },
-        modifier = Modifier.fillMaxWidth(0.85F),
-        shape = MaterialTheme.shapes.medium,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onSurface
-        )
-    ) {
-        Text("Escanear Código QR")
+    if (ejecutivo) {
+        OutlinedButton(
+            onClick = { navController.navigate("qrCamara") },
+            modifier = Modifier.fillMaxWidth(0.85F),
+            shape = MaterialTheme.shapes.medium,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            )
+        ) {
+            Text("Escanear Código QR")
+        }
     }
 
     // Botón Cerrar Sesion
+
     Button(
         onClick = {
             viewModel.cerrarSesion()
@@ -260,6 +269,7 @@ fun tabCuenta(
     ) {
         Text("Cerrar Sesión")
     }
+
 
     // Boton Borrar Cuenta
     OutlinedButton(

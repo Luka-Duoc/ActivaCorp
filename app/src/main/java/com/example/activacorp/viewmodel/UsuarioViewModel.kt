@@ -3,6 +3,7 @@ package com.example.activacorp.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.activacorp.data.local.SessionDataStore
 import com.example.activacorp.data.local.entity.UsuarioEntity
 import com.example.activacorp.data.repository.UsuarioRepository
 import com.example.activacorp.model.RolUsuario
@@ -14,15 +15,39 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class UsuarioViewModel(
-    private val usuarioRepository: UsuarioRepository
+    private val usuarioRepository: UsuarioRepository,
+    private val sessionDataStore: SessionDataStore
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow(UsuarioUiState())
 
     val estado: StateFlow<UsuarioUiState> = _estado
 
+    private val _sesionVerificada = MutableStateFlow(false)
+    val sesionVerificada: StateFlow<Boolean> = _sesionVerificada
+
     init {
         cargarUsuarios()
+        restaurarSesion()
+    }
+
+    private fun restaurarSesion() {
+        viewModelScope.launch {
+            sessionDataStore.sesionUsuario.collect { usuarioGuardado ->
+                if (usuarioGuardado != null) {
+                    _estado.update {
+                        it.copy(
+                            id = usuarioGuardado.id,
+                            nombre = usuarioGuardado.nombre,
+                            correo = usuarioGuardado.correo,
+                            clave = usuarioGuardado.clave,
+                            rol = usuarioGuardado.rol
+                        )
+                    }
+                }
+                _sesionVerificada.value = true
+            }
+        }
     }
 
     private fun cargarUsuarios() {
@@ -135,6 +160,7 @@ class UsuarioViewModel(
                         errores = UsuarioErrores()
                     )
                 }
+                sessionDataStore.guardarSesion(usuarioEncontrado)
                 onLoginSuccess()
             } else {
                 _estado.update {
@@ -149,7 +175,8 @@ class UsuarioViewModel(
     fun cerrarSesion() {
         viewModelScope.launch {
             usuarioRepository.limpiarSesion()
-            _estado.value = UsuarioUiState()
+            sessionDataStore.limpiarSesion()
+            _estado.update { UsuarioUiState(usuarios = it.usuarios) }
         }
     }
 
@@ -157,6 +184,8 @@ class UsuarioViewModel(
         viewModelScope.launch {
             try {
                 usuarioRepository.eliminarUsuario(usuario)
+                sessionDataStore.limpiarSesion() // <-- Agrega esta línea
+                _estado.update { UsuarioUiState(usuarios = it.usuarios) }
                 onEliminar()
             } catch (e: Exception) {
                 _estado.update {
@@ -165,7 +194,6 @@ class UsuarioViewModel(
                     )
                 }
             }
-            _estado.update { UsuarioUiState(usuarios = it.usuarios) }
         }
     }
 

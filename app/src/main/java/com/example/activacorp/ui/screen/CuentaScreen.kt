@@ -159,7 +159,7 @@ fun CuentaScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 when (filtroTabs.getOrNull(page)?.titulo) {
-                    "Cuenta" -> tabCuenta(viewModel, navController)
+                    "Cuenta" -> tabCuenta(viewModel, navController, rolEnum)
                     "Eventos" -> tabEventos(navController, eventoViewModel, rolEnum)
                     "Oportunidades" -> tabOportunidades(oportunidadViewModel, navController, rolEnum, estadoGlobal.id)
                     "Ejecutivos" -> listaEjecutivosScreen(navController, viewModel, rolEnum)

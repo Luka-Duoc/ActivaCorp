@@ -48,14 +48,7 @@ class OportunidadViewModel(
                 }
                 .collect { lista ->
                     _estado.update {
-                        it.copy(
-                            usuariosDisponibles = lista,
-                            responsable = if (it.oportunidadIdEnEdicion == null && it.responsable == 0L && lista.isNotEmpty()) {
-                                lista.first().id
-                            } else {
-                                it.responsable
-                            }
-                        )
+                        it.copy(usuariosDisponibles = lista)
                     }
                 }
         }
@@ -173,7 +166,7 @@ class OportunidadViewModel(
                 descripcion = oportunidad.descripcion,
                 fuente = oportunidad.fuente,
                 fechaDeteccion = oportunidad.fechaDeteccion,
-                responsable = oportunidad.responsable,
+                responsable = oportunidad.responsable ?: 0L,
                 prioridad = oportunidad.prioridad.toString(),
                 potencial = oportunidad.potencial,
                 estado = oportunidad.estado,
@@ -215,7 +208,7 @@ class OportunidadViewModel(
         val errPrioridad = if (prioridadNum == null || prioridadNum !in 1..5) "Ingresa un nivel entre 1 y 5" else null
         val errFuente = if (st.fuente.isBlank()) "La fuente de deteccion no puede estar vacia" else null
 
-        if (errNombre != null || errDesc != null || errFecha != null || errPrioridad != null || errFecha != null) {
+        if (errNombre != null || errDesc != null || errFecha != null || errPrioridad != null || errFuente != null) {
             _estado.update {
                 it.copy(
                     errorNombre = errNombre,
@@ -241,7 +234,7 @@ class OportunidadViewModel(
                     descripcion = st.descripcion.trim(),
                     fuente = st.fuente.trim(),
                     fechaDeteccion = st.fechaDeteccion.trim(),
-                    responsable = st.responsable,
+                    responsable = st.responsable.takeIf { it != 0L },
                     prioridad = prioridad,
                     potencial = st.potencial,
                     estado = st.estado,

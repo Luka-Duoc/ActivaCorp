@@ -30,7 +30,7 @@ data class OportunidadEntity(
     val descripcion: String = "",
     val fuente: String = "",
     val fechaDeteccion: String = "",
-    val responsable: Long,
+    val responsable: Long? = null,
     val prioridad: Int,
     val potencial: PotencialComercial,
     val estado: EstadoGestion,

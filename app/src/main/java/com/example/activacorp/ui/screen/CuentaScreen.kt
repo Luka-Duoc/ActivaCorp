@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.collectAsState
 import com.example.activacorp.viewmodel.UsuarioViewModel
@@ -37,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.example.activacorp.model.RolUsuario
+import com.example.activacorp.ui.screen.tab.listaEjecutivosScreen
 import com.example.activacorp.ui.screen.tab.tabCuenta
 import com.example.activacorp.ui.screen.tab.tabEventos
 import com.example.activacorp.ui.screen.tab.tabOportunidades
@@ -91,7 +93,8 @@ fun CuentaScreen(
         when {
             supervisor -> listOf(
                 ItemNav("Cuenta", Icons.Default.Person),
-                ItemNav("Oportunidades", Icons.Default.Campaign)
+                ItemNav("Oportunidades", Icons.Default.Campaign),
+                ItemNav("Ejecutivos", Icons.Default.Group)
             )
             marketing -> listOf(
                 ItemNav("Cuenta", Icons.Default.Person),
@@ -100,6 +103,7 @@ fun CuentaScreen(
             )
             ejecutivo -> listOf(
                 ItemNav("Cuenta", Icons.Default.Person),
+                ItemNav("Eventos", Icons.Default.Event),
                 ItemNav("Oportunidades", Icons.Default.Campaign),
                 ItemNav("Organizaciones", Icons.Default.Business)
             )
@@ -158,6 +162,7 @@ fun CuentaScreen(
                     "Cuenta" -> tabCuenta(viewModel, navController)
                     "Eventos" -> tabEventos(navController, eventoViewModel)
                     "Oportunidades" -> tabOportunidades(oportunidadViewModel, navController, rolEnum, estadoGlobal.id)
+                    "Ejecutivos" -> listaEjecutivosScreen(navController, viewModel, rolEnum)
                     "Organizaciones" -> tabOrganizaciones(
                         navController,
                         eventoViewModel,

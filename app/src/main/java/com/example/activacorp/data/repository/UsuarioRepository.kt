@@ -12,4 +12,6 @@ interface UsuarioRepository {
     suspend fun buscarCorreo(correo: String): UsuarioEntity?
     suspend fun login(correo: String, clave: String): UsuarioEntity?
     suspend fun limpiarSesion()
+
+    suspend fun eliminarEjecutivo(usuario: UsuarioEntity)
 }

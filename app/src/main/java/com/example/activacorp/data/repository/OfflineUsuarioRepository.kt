@@ -13,4 +13,5 @@ class OfflineUsuarioRepository(private val usuarioDao: UsuarioDao) : UsuarioRepo
     override suspend fun buscarCorreo(correo: String): UsuarioEntity? = usuarioDao.buscarCorreo(correo)
     override suspend fun login(correo: String, clave: String): UsuarioEntity? = usuarioDao.login(correo, clave)
     override fun obtenerUsuarios(): Flow<List<UsuarioEntity>> = usuarioDao.obtenerUsuarios()
+    override suspend fun eliminarEjecutivo(usuario: UsuarioEntity) = usuarioDao.eliminar(usuario)
 }

@@ -21,6 +21,33 @@ class UsuarioViewModel(
 
     val estado: StateFlow<UsuarioUiState> = _estado
 
+    init {
+        cargarUsuarios()
+    }
+
+    private fun cargarUsuarios() {
+        viewModelScope.launch {
+            usuarioRepository.obtenerUsuarios()
+                .collect { lista ->
+                    _estado.update { it.copy(usuarios = lista) }
+                }
+        }
+    }
+
+    fun eliminarEjecutivo(usuario: UsuarioEntity) {
+        viewModelScope.launch {
+            try {
+                usuarioRepository.eliminarEjecutivo(usuario)
+            } catch (e: Exception) {
+                _estado.update {
+                    it.copy(
+                        errores = it.errores.copy(nombre = "Error al eliminar: ${e.message}")
+                    )
+                }
+            }
+        }
+    }
+
     fun onNombreChange(valor: String) {
         _estado.update { it.copy(nombre = valor, errores = it.errores.copy(nombre = null)) }
     }
@@ -79,7 +106,7 @@ class UsuarioViewModel(
                     rol = rol.name
                 )
             )
-            _estado.update { UsuarioUiState() }
+            _estado.update { UsuarioUiState(usuarios = it.usuarios) }
             onListo()
         }
     }
@@ -138,6 +165,7 @@ class UsuarioViewModel(
                     )
                 }
             }
+            _estado.update { UsuarioUiState(usuarios = it.usuarios) }
         }
     }
 

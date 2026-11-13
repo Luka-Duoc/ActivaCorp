@@ -44,12 +44,23 @@ import com.example.activacorp.model.TipoOportunidad
 @Composable
 fun crearOportunidades(
     navController: NavController,
-    viewModel: OportunidadViewModel
+    viewModel: OportunidadViewModel,
+    rol: String,
 ) {
 
     val estado by viewModel.estado.collectAsState()
 
-    val usuarioSeleccionado = estado.usuariosDisponibles
+    val Supervisor = remember(rol) {
+        rol.contains("SUPERVISOR", ignoreCase = true)
+    }
+
+    val ejecutivosDisponibles = remember(estado.usuariosDisponibles) {
+        estado.usuariosDisponibles.filter { usuario ->
+            usuario.rol.contains("EJECUTIVO", ignoreCase = true)
+        }
+    }
+
+    val usuarioSeleccionado = ejecutivosDisponibles
         .find { it.id == estado.responsable }
         ?.nombre ?: "Seleccionar responsable"
 
@@ -209,38 +220,40 @@ fun crearOportunidades(
             )
 
             // responsable
-            ExposedDropdownMenuBox(
-                expanded = expandidoResponsable,
-                onExpandedChange = { expandidoResponsable = it }
-            ) {
-                OutlinedTextField(
-                    value = usuarioSeleccionado,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Responsable") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandidoResponsable) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor()
-                )
-                ExposedDropdownMenu(
+            if (Supervisor) {
+                ExposedDropdownMenuBox(
                     expanded = expandidoResponsable,
-                    onDismissRequest = { expandidoResponsable = false }
+                    onExpandedChange = { expandidoResponsable = it }
                 ) {
-                    if (estado.usuariosDisponibles.isEmpty()) {
-                        DropdownMenuItem(
-                            text = { Text("No hay usuarios registrados") },
-                            onClick = { expandidoResponsable = false }
-                        )
-                    } else {
-                        estado.usuariosDisponibles.forEach { usuario ->
+                    OutlinedTextField(
+                        value = usuarioSeleccionado,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Responsable") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandidoResponsable) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expandidoResponsable,
+                        onDismissRequest = { expandidoResponsable = false }
+                    ) {
+                        if (ejecutivosDisponibles.isEmpty()) {
                             DropdownMenuItem(
-                                text = { Text(usuario.nombre) },
-                                onClick = {
-                                    viewModel.onResponsableChange(usuario.id)
-                                    expandidoResponsable = false
-                                }
+                                text = { Text("No hay ejecutivos registrados") },
+                                onClick = { expandidoResponsable = false }
                             )
+                        } else {
+                            ejecutivosDisponibles.forEach { usuario ->
+                                DropdownMenuItem(
+                                    text = { Text(usuario.nombre) },
+                                    onClick = {
+                                        viewModel.onResponsableChange(usuario.id)
+                                        expandidoResponsable = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }

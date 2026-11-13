@@ -98,7 +98,11 @@ fun AppNavigation() {
             OportunidadScreen(navController, oportunidadViewModel, rol = estadoUsuario.rol)
         }
         composable("CreacionOportunidad") {
-            crearOportunidades(navController, oportunidadViewModel)
+            crearOportunidades(
+                navController = navController,
+                viewModel = oportunidadViewModel,
+                rol = estadoUsuario.rol
+            )
         }
 
         composable("registrar") {
@@ -137,7 +141,10 @@ fun AppNavigation() {
         }
 
         composable("CreacionOrganizacion") {
-            CreacionOrganizacionScreen(navController, organizacionViewModel)
+            CreacionOrganizacionScreen(
+                navController,
+                organizacionViewModel
+            )
         }
         composable("organizacion") {
             OrganizacionScreen(navController, organizacionViewModel)

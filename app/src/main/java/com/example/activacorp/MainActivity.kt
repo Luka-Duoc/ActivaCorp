@@ -10,6 +10,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.*
@@ -70,11 +71,12 @@ class MainActivity : ComponentActivity() {
             MaterialTheme(colorScheme = ColoresApp) {
                 Surface(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .navigationBarsPadding(), // Protege la parte inferior en TODAS las pantallas
+                        .fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation()
+                    Box(modifier = Modifier.navigationBarsPadding()) {
+                        AppNavigation()
+                    }
                 }
             }
         }

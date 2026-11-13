@@ -19,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -32,9 +33,14 @@ fun EventoCard(
     evento: EventoEntity,
     comunas: List<ComunaEntity>,
     onEditar: () -> Unit,
-    onEliminar: () -> Unit
+    onEliminar: () -> Unit,
+    rol: String
 ) {
     val nombreComuna = comunas.firstOrNull { it.id == evento.comuna }?.nombre ?: "Comuna no especificada"
+
+    val marketing = remember(rol) {
+        rol.contains("MARKETING", ignoreCase = true)
+    }
 
     Column(
         modifier = Modifier
@@ -66,19 +72,21 @@ fun EventoCard(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                IconButton(onClick = onEditar) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Editar Evento",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                IconButton(onClick = onEliminar) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Eliminar Evento",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                if (!marketing) {
+                    IconButton(onClick = onEditar) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Editar Evento",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    IconButton(onClick = onEliminar) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Eliminar Evento",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
 

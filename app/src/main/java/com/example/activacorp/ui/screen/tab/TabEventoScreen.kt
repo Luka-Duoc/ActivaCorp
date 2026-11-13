@@ -42,8 +42,13 @@ import com.example.activacorp.viewmodel.EventoViewModel
 @Composable
 fun tabEventos(
     navController: NavController,
-    eventoViewModel: EventoViewModel
+    eventoViewModel: EventoViewModel,
+    rol: String
 ) {
+    val marketing = remember(rol) {
+        rol.contains("MARKETING", ignoreCase = true)
+    }
+
     val estadoEvento by eventoViewModel.estado.collectAsState()
     val listaEventos = estadoEvento.eventos
     var expandido by remember { mutableStateOf(false) }
@@ -147,12 +152,14 @@ fun tabEventos(
                     }
                 }
             }
-            Button(
-                onClick = {
-                    navController.navigate("eventos")
-                }, modifier = Modifier.fillMaxWidth(0.9F).align ( Alignment.CenterHorizontally )
-            ) {
-                Text("Crear Eventos")
+            if (!marketing) {
+                Button(
+                    onClick = {
+                        navController.navigate("eventos")
+                    }, modifier = Modifier.fillMaxWidth(0.9F).align(Alignment.CenterHorizontally)
+                ) {
+                    Text("Crear Eventos")
+                }
             }
             Spacer(modifier = Modifier.height(6.dp))
             Button(

@@ -534,10 +534,14 @@ fun EventoScreen(
 @Composable
 fun VistaEventoCard(
     navController: NavController,
-    viewModel: EventoViewModel
+    viewModel: EventoViewModel,
+    rol: String
 ) {
 
     val estado by viewModel.estado.collectAsState()
+    val marketing = remember(rol) {
+        rol.contains("MARKETING", ignoreCase = true)
+    }
 
     Scaffold(
         topBar = {
@@ -563,10 +567,12 @@ fun VistaEventoCard(
                 }
 
                 // Redireccion crear Evento
-                FloatingActionButton(
-                    onClick = { navController.navigate("eventos") }
-                ) {
-                    Icon(Icons.Default.CreateNewFolder, contentDescription = "Crear Evento")
+                if (!marketing) {
+                    FloatingActionButton(
+                        onClick = { navController.navigate("eventos") }
+                    ) {
+                        Icon(Icons.Default.CreateNewFolder, contentDescription = "Crear Evento")
+                    }
                 }
             }
         }
@@ -586,7 +592,8 @@ fun VistaEventoCard(
                     },
                     onEliminar = {
                         viewModel.eliminarEvento(item)
-                    }
+                    },
+                    rol = rol
                 )
             }
         }

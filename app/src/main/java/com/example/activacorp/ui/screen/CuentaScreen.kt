@@ -160,7 +160,7 @@ fun CuentaScreen(
             ) {
                 when (filtroTabs.getOrNull(page)?.titulo) {
                     "Cuenta" -> tabCuenta(viewModel, navController)
-                    "Eventos" -> tabEventos(navController, eventoViewModel)
+                    "Eventos" -> tabEventos(navController, eventoViewModel, rolEnum)
                     "Oportunidades" -> tabOportunidades(oportunidadViewModel, navController, rolEnum, estadoGlobal.id)
                     "Ejecutivos" -> listaEjecutivosScreen(navController, viewModel, rolEnum)
                     "Organizaciones" -> tabOrganizaciones(

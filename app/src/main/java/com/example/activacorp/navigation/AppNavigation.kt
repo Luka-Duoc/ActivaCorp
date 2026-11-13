@@ -137,7 +137,7 @@ fun AppNavigation() {
             EventoScreen(eventosViewModel, navController)
         }
         composable("vistaEventos") {
-            VistaEventoCard(navController = navController, viewModel = eventosViewModel)
+            VistaEventoCard(navController = navController, viewModel = eventosViewModel, rol = estadoUsuario.rol)
         }
 
         composable("CreacionOrganizacion") {

@@ -47,6 +47,12 @@ import com.example.activacorp.viewmodel.EventoViewModel
 import com.example.activacorp.viewmodel.OportunidadViewModel
 import com.example.activacorp.viewmodel.OrganizacionViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableFloatStateOf
 
 // Estructura para las pestañas
 private data class ItemNav(
@@ -117,34 +123,46 @@ fun CuentaScreen(
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(bottomBar = {
-        TabRow(
-            selectedTabIndex = pagerState.currentPage,
+        NavigationBar(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = Color.White,
-            divider = {},
-            indicator = { tabPositions ->
-                if (pagerState.currentPage < tabPositions.size) {
-                    TabRowDefaults.SecondaryIndicator(
-                        modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
-                        height = 2.dp,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }) {
-            // Iteracion
+            contentColor = Color.White
+        ) {
             filtroTabs.forEachIndexed { index, item ->
-                Tab(
+                NavigationBarItem(
                     selected = pagerState.currentPage == index,
-                    text = { Text(item.titulo, style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center) },
-                    icon = { Icon(imageVector = item.icono, contentDescription = item.titulo) },
                     onClick = {
                         coroutineScope.launch {
                             pagerState.animateScrollToPage(index)
                         }
-                    }
+                    },
+                    icon = { Icon(imageVector = item.icono, contentDescription = item.titulo) },
+                    label = {
+                        var textMultiplier by remember { mutableFloatStateOf(1f) }
+
+                        Text(
+                            text = item.titulo,
+                            maxLines = 1,
+                            softWrap = false,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontSize = MaterialTheme.typography.labelSmall.fontSize * textMultiplier
+                            ),
+                            onTextLayout = { textLayoutResult ->
+                                if (textLayoutResult.hasVisualOverflow) {
+                                    textMultiplier *= 0.95f
+                                }
+                            }
+                        )
+                    },
+                    alwaysShowLabel = false,
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primaryContainer,
+                        selectedTextColor = Color.White,
+                        indicatorColor = Color.White,
+                        unselectedIconColor = Color.White.copy(alpha = 0.7f),
+                        unselectedTextColor = Color.White.copy(alpha = 0.7f)
+                    )
                 )
             }
-
         }
     }) { innerPadding ->
         HorizontalPager(

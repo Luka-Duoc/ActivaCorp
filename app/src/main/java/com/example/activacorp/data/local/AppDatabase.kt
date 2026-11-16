@@ -6,12 +6,14 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.activacorp.data.local.dao.ComunaDao
+import com.example.activacorp.data.local.dao.ContactoDao
 import com.example.activacorp.data.local.dao.EventoDao
 import com.example.activacorp.data.local.dao.OportunidadDao
 import com.example.activacorp.data.local.dao.OrganizacionDao
 import com.example.activacorp.data.local.dao.RegionDao
 import com.example.activacorp.data.local.dao.UsuarioDao
 import com.example.activacorp.data.local.entity.ComunaEntity
+import com.example.activacorp.data.local.entity.ContactoEntity
 import com.example.activacorp.data.local.entity.EventoEntity
 import com.example.activacorp.data.local.entity.OportunidadEntity
 import com.example.activacorp.data.local.entity.OrganizacionEntity
@@ -32,7 +34,8 @@ import com.example.activacorp.data.local.seed.RegionSeed
         OrganizacionEntity::class,
         RegionEntity::class,
         ComunaEntity::class,
-    ], version = 4, exportSchema = false
+        ContactoEntity::class
+    ], version = 5, exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun UsuarioDao(): UsuarioDao
@@ -42,6 +45,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun OrganizacionDao(): OrganizacionDao
 
     abstract fun OportunidadDao(): OportunidadDao
+    abstract fun ContactoDao(): ContactoDao
 
     companion object {
         @Volatile
@@ -129,7 +133,7 @@ abstract class AppDatabase : RoomDatabase() {
                                     oportunidad.descripcion,
                                     oportunidad.fuente,
                                     oportunidad.fechaDeteccion,
-                                    oportunidad.responsable,
+                                    null,
                                     oportunidad.prioridad,
                                     oportunidad.potencial.name,
                                     oportunidad.estado.name,

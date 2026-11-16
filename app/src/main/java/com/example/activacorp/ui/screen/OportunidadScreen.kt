@@ -1,6 +1,7 @@
 package com.example.activacorp.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,14 +37,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import com.example.activacorp.viewmodel.OportunidadViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OportunidadScreen(
     navController: NavController,
-  viewModel: OportunidadViewModel,
-    rol: String,
+    viewModel: OportunidadViewModel,
+    rol: String
 ) {
 
 
@@ -93,29 +95,46 @@ fun OportunidadScreen(
     ) {
         innerPadding ->
         Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(innerPadding)) {
-            estado.oportunidades.forEach { item ->
 
-                val nombreEvento = estado.eventosDisponibles
-                    .find { it.id == item.eventoId }?.nombre ?: "Sin evento asignado"
+            if (estado.oportunidades.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No Hay oportunidades actualmente",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            } else {
+                estado.oportunidades.forEach { item ->
+
+                    val nombreEvento = estado.eventosDisponibles
+                        .find { it.id == item.eventoId }?.nombre ?: "Sin evento asignado"
 
 
-                val nombreResponsable = estado.usuariosDisponibles
-                    .find { it.id == item.responsable }
-                    ?.let { it.nombre } ?: "Sin asignar"
+                    val nombreResponsable = estado.usuariosDisponibles
+                        .find { it.id == item.responsable }
+                        ?.let { it.nombre } ?: "Sin asignar"
 
-                OportunidadCard(
-                    oportunidad = item,
-                    nombreEvento = nombreEvento,
-                    nombreResponsable = nombreResponsable,
-                    onEditar = {
-                        viewModel.prepararEdicion(item)
-                        navController.navigate("CreacionOportunidad")
-                    },
-                    onEliminar = {
-                        viewModel.eliminar(item)
-                    },
-                    puedeGestionar = puedeGestionar
-                )
+                    OportunidadCard(
+                        oportunidad = item,
+                        nombreEvento = nombreEvento,
+                        nombreResponsable = nombreResponsable,
+                        onEditar = {
+                            viewModel.prepararEdicion(item)
+                            navController.navigate("CreacionOportunidad")
+                        },
+                        onEliminar = {
+                            viewModel.eliminar(item)
+                        },
+                        puedeGestionar = puedeGestionar
+                    )
+                }
             }
         }
     }

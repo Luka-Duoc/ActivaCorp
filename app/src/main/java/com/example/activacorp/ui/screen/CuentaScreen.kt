@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.collectAsState
 import com.example.activacorp.viewmodel.UsuarioViewModel
@@ -53,6 +54,8 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableFloatStateOf
+import com.example.activacorp.ui.screen.tab.contactoScreen
+import com.example.activacorp.viewmodel.ContactoViewModel
 
 // Estructura para las pestañas
 private data class ItemNav(
@@ -74,7 +77,8 @@ fun CuentaScreen(
     navController: NavController,
     eventoViewModel: EventoViewModel,
     oportunidadViewModel: OportunidadViewModel,
-    organizacionViewModel: OrganizacionViewModel
+    organizacionViewModel: OrganizacionViewModel,
+    contactoViewModel: ContactoViewModel
 ) {
     val estadoGlobal by viewModel.estado.collectAsState() // control de estado para el renderizado dinamico.
 
@@ -100,7 +104,8 @@ fun CuentaScreen(
             supervisor -> listOf(
                 ItemNav("Cuenta", Icons.Default.Person),
                 ItemNav("Oportunidades", Icons.Default.Campaign),
-                ItemNav("Ejecutivos", Icons.Default.Group)
+                ItemNav("Ejecutivos", Icons.Default.Group),
+                ItemNav("Contacto", Icons.Default.People)
             )
             marketing -> listOf(
                 ItemNav("Cuenta", Icons.Default.Person),
@@ -111,7 +116,8 @@ fun CuentaScreen(
                 ItemNav("Cuenta", Icons.Default.Person),
                 ItemNav("Eventos", Icons.Default.Event),
                 ItemNav("Oportunidades", Icons.Default.Campaign),
-                ItemNav("Organizaciones", Icons.Default.Business)
+                ItemNav("Organizaciones", Icons.Default.Business),
+                ItemNav("Contacto", Icons.Default.People)
             )
             else -> listOf(
                 ItemNav("Cuenta", Icons.Default.Person)
@@ -188,6 +194,7 @@ fun CuentaScreen(
                         organizacionViewModel,
                         rolEnum
                     )
+                    "Contacto" -> contactoScreen(navController, contactoViewModel)
                 }
             }
         }

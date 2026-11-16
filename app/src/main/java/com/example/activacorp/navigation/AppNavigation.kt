@@ -31,8 +31,11 @@ import com.example.activacorp.ui.screen.CreacionOrganizacionScreen
 import com.example.activacorp.ui.screen.OportunidadScreen
 import com.example.activacorp.ui.screen.OrganizacionScreen
 import com.example.activacorp.ui.screen.VistaEventoCard
+import com.example.activacorp.ui.screen.creacionContactoScreen
 import com.example.activacorp.viewmodel.OportunidadViewModel
 import com.example.activacorp.ui.screen.crearOportunidades
+import com.example.activacorp.ui.screen.tab.contactoScreen
+import com.example.activacorp.viewmodel.ContactoViewModel
 import com.example.activacorp.viewmodel.OrganizacionViewModel
 
 @Composable
@@ -72,6 +75,14 @@ fun AppNavigation() {
             comunaRepository = container.comunaRepository
         )
     }
+
+    val contactoViewModel: ContactoViewModel = viewModel {
+        ContactoViewModel(
+            contactoRepository = container.contactoRepository,
+            organizacionRepository = container.organizacionRepository
+        )
+    }
+
 
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -129,7 +140,8 @@ fun AppNavigation() {
                 navController,
                 eventoViewModel = eventosViewModel,
                 oportunidadViewModel = oportunidadViewModel,
-                organizacionViewModel = organizacionViewModel
+                organizacionViewModel = organizacionViewModel,
+                contactoViewModel = contactoViewModel
             )
         }
         composable("qrCamara") {
@@ -160,6 +172,14 @@ fun AppNavigation() {
         }
         composable("organizacion") {
             OrganizacionScreen(navController, organizacionViewModel)
+        }
+
+        composable("crearContacto") {
+            creacionContactoScreen(navController, contactoViewModel)
+        }
+
+        composable("vistaContactos") {
+            contactoScreen(navController, contactoViewModel)
         }
 
     }

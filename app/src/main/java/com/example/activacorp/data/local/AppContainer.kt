@@ -1,9 +1,12 @@
 package com.example.activacorp.data.local
 
 import android.content.Context
+import com.example.activacorp.data.local.dao.ContactoDao
 import com.example.activacorp.data.repository.ComunaRepository
+import com.example.activacorp.data.repository.ContactoRepository
 import com.example.activacorp.data.repository.EventoRepository
 import com.example.activacorp.data.repository.OfflineComunaRepository
+import com.example.activacorp.data.repository.OfflineContactoRepository
 import com.example.activacorp.data.repository.OfflineEventoRepository
 import com.example.activacorp.data.repository.OfflineOportunidadRepository
 import com.example.activacorp.data.repository.OfflineOrganizacionRepository
@@ -22,6 +25,7 @@ interface AppContainer {
 
     val comunaRepository: ComunaRepository
     val regionRepository: RegionRepository
+    val contactoRepository: ContactoRepository
 }
 
 class AppDataContainer(private val context: Context) : AppContainer {
@@ -46,5 +50,8 @@ class AppDataContainer(private val context: Context) : AppContainer {
     }
     override val regionRepository: RegionRepository by lazy {
         OfflineRegionRepository(database.RegionDao())
+    }
+    override val contactoRepository: ContactoRepository by lazy {
+        OfflineContactoRepository(database.ContactoDao())
     }
 }

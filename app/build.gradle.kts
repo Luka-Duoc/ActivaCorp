@@ -42,6 +42,12 @@ android {
 
 dependencies {
 
+    implementation(libs.kotest.assertions.core)
+    implementation(libs.kotest.runner.junit5)
+    implementation(libs.junit.jupiter)
+    implementation(libs.mockk)
+    implementation(libs.ui.test.junit4)
+    debugImplementation(libs.ui.test.manifest)
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
@@ -94,4 +100,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    tasks.withType<Test>().configureEach {
+        useJUnitPlatform()
+    }
+    testImplementation(kotlin("test"))
+
 }

@@ -21,7 +21,7 @@ import java.util.Date
 import java.util.Locale
 import androidx.compose.ui.text.input.TextFieldValue
 
-open class EventoViewModel(
+class EventoViewModel(
     private val eventoRepository: EventoRepository,
     private val comunaRepository: ComunaRepository,
     private val organizacionRepository: OrganizacionRepository

@@ -35,7 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.activacorp.viewmodel.EventoPostViewModel
 import com.example.activacorp.viewmodel.EventoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,7 +45,8 @@ import com.example.activacorp.viewmodel.EventoViewModel
 fun tabEventos(
     navController: NavController,
     eventoViewModel: EventoViewModel,
-    rol: String
+    rol: String,
+    eventoPostViewModel: EventoPostViewModel = viewModel()
 ) {
     val marketing = remember(rol) {
         rol.contains("MARKETING", ignoreCase = true)
@@ -51,10 +54,14 @@ fun tabEventos(
 
     val estadoEvento by eventoViewModel.estado.collectAsState()
     val listaEventos = estadoEvento.eventos
+    val listaEventosPost by eventoPostViewModel.postList.collectAsState()
+
     var expandido by remember { mutableStateOf(false) }
-    var eventoSeleccionado by remember(listaEventos) {
+    var eventoSeleccionado by remember(listaEventos, listaEventosPost) {
         mutableStateOf(
-            listaEventos.firstOrNull()?.nombre ?: "Sin eventos disponibles"
+            listaEventos.firstOrNull()?.nombre
+                ?: listaEventosPost.firstOrNull()?.nombre
+                ?: "Sin eventos disponibles"
         )
     }
 
@@ -129,7 +136,7 @@ fun tabEventos(
                         onDismissRequest = { expandido = false },
                         modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                     ) {
-                        if (listaEventos.isEmpty()) {
+                        if (listaEventos.isEmpty() && listaEventosPost.isEmpty()) {
                             DropdownMenuItem(text = {
                                 Text(
                                     text = "No hay eventos registrados aún",
@@ -138,6 +145,17 @@ fun tabEventos(
                             }, onClick = { expandido = false })
                         } else {
                             listaEventos.forEach { evento ->
+                                DropdownMenuItem(text = {
+                                    Text(
+                                        text = "${evento.nombre} (${evento.fechaInicio})",
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }, onClick = {
+                                    eventoSeleccionado = evento.nombre
+                                    expandido = false
+                                })
+                            }
+                            listaEventosPost.forEach { evento ->
                                 DropdownMenuItem(text = {
                                     Text(
                                         text = "${evento.nombre} (${evento.fechaInicio})",

@@ -20,7 +20,7 @@ import com.example.activacorp.data.local.entity.OrganizacionEntity
 import com.example.activacorp.data.local.entity.RegionEntity
 import com.example.activacorp.data.local.entity.UsuarioEntity
 import com.example.activacorp.data.local.seed.ComunaSeed
-import com.example.activacorp.data.local.seed.EventoSeed
+import com.example.activacorp.data.local.seed.ContactosSeed
 import com.example.activacorp.data.local.seed.OportunidadSeed
 import com.example.activacorp.data.local.seed.OrganizacionSeed
 import com.example.activacorp.data.local.seed.RegionSeed
@@ -35,7 +35,7 @@ import com.example.activacorp.data.local.seed.RegionSeed
         RegionEntity::class,
         ComunaEntity::class,
         ContactoEntity::class
-    ], version = 5, exportSchema = false
+    ], version = 6, exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun UsuarioDao(): UsuarioDao
@@ -91,29 +91,25 @@ abstract class AppDatabase : RoomDatabase() {
                                 )
                             )
                         }
-                        EventoSeed.listaEventos.forEach { evento ->
+                        ContactosSeed.listaContactos.forEach { contacto ->
                             db.execSQL(
                                 """
-                                INSERT INTO eventos (
-                                    id, nombre, tipo, fechaInicio, fechaTermino, horario,
-                                    direccion, comuna, organizacion, cantAsistentes,
-                                    requisitos, costosReferenciales, observaciones
-                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                                """.trimIndent(),
+        INSERT INTO contactos (
+            id, organizacionId, nombre, cargo, area,
+            correo, telefono, estado, fechaUltContacto, observaciones
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """.trimIndent(),
                                 arrayOf(
-                                    evento.id,
-                                    evento.nombre,
-                                    evento.tipo,
-                                    evento.fechaInicio,
-                                    evento.fechaTermino,
-                                    evento.horario,
-                                    evento.direccion,
-                                    evento.comuna,
-                                    evento.organizacion,
-                                    evento.cantAsistentes,
-                                    evento.requisitos,
-                                    evento.costosReferenciales,
-                                    evento.observaciones
+                                    contacto.id,
+                                    contacto.organizacionId,
+                                    contacto.nombre,
+                                    contacto.cargo,
+                                    contacto.area.name,
+                                    contacto.correo,
+                                    contacto.telefono,
+                                    contacto.estado.name,
+                                    contacto.fechaUltContacto,
+                                    contacto.observaciones
                                 )
                             )
                         }

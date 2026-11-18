@@ -74,6 +74,8 @@ fun contactoScreen(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
+                .padding(horizontal = 24.dp, vertical = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             estado.contactos.forEach { item ->
                 contactoCard(

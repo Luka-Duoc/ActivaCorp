@@ -587,9 +587,11 @@ fun VistaEventoCard(
         ) {
             EventoPostListScreen(
                 comunas = estado.comunas,
-                viewModel = eventoPostViewModel
+                viewModel = eventoPostViewModel,
+                eventoViewModel = viewModel,
+                rol = rol,
+                navController = navController
             )
         }
     }
-
 }

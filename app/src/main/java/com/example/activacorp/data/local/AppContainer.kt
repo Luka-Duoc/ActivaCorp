@@ -1,7 +1,6 @@
 package com.example.activacorp.data.local
 
 import android.content.Context
-import com.example.activacorp.data.local.dao.ContactoDao
 import com.example.activacorp.data.repository.ComunaRepository
 import com.example.activacorp.data.repository.ContactoRepository
 import com.example.activacorp.data.repository.EventoRepository

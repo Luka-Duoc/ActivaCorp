@@ -175,7 +175,7 @@ fun AppNavigation() {
         }
 
         composable("crearContacto") {
-            creacionContactoScreen(navController, contactoViewModel)
+            creacionContactoScreen(navController, contactoViewModel,)
         }
 
         composable("vistaContactos") {

@@ -248,7 +248,9 @@ fun creacionContactoScreen(
 
             // Guardar / Actualizar
             Button(
-                onClick = { viewModel.guardar() },
+                onClick = { viewModel.guardar(onExito = {
+                    navController.popBackStack()
+                }) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 12.dp)

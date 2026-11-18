@@ -143,7 +143,7 @@ class ContactoViewModel(
         return listOf(errorNombre, errorCargo, errorOrganizacion, errorContacto).all { it == null }
     }
 
-    fun guardar() {
+    fun guardar(onExito: () -> Unit = {}) {
         if (!validarFormulario()) return
         val e = _estado.value
 
@@ -183,6 +183,8 @@ class ContactoViewModel(
                         )
                     )
                 }
+                limpiarFormulario(exitoSave = true)
+                onExito()
                 _estado.update { it.copy(exitoSave = true) }
             } catch (ex: Exception) {
                 _estado.update { it.copy(mensajeError = "Error al guardar el contacto: ${ex.message}") }
@@ -197,6 +199,20 @@ class ContactoViewModel(
             } catch (ex: Exception) {
                 _estado.update { it.copy(mensajeError = "Error al eliminar el contacto") }
             }
+        }
+    }
+
+    fun limpiarFormulario(exitoSave: Boolean = false) {
+        _estado.update { actual ->
+            actual.copy(
+                organizacionId = 0L,
+                nombre = "",
+                cargo = "",
+                correo = "",
+                telefono = "",
+                observaciones = "",
+                exitoSave = exitoSave
+            )
         }
     }
 

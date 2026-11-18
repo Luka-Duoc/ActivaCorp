@@ -54,7 +54,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.activacorp.viewmodel.EventoPostViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -538,6 +540,7 @@ fun VistaEventoCard(
     rol: String
 ) {
 
+    val eventoPostViewModel: EventoPostViewModel = viewModel()
     val estado by viewModel.estado.collectAsState()
     val marketing = remember(rol) {
         rol.contains("MARKETING", ignoreCase = true)
@@ -577,25 +580,15 @@ fun VistaEventoCard(
             }
         }
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
-                .verticalScroll(rememberScrollState())
+                .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            estado.eventos.forEach { item ->
-                EventoCard(
-                    evento = item,
-                    comunas = estado.comunas,
-                    onEditar = {
-                        viewModel.editar(item)
-                        navController.navigate("eventos")
-                    },
-                    onEliminar = {
-                        viewModel.eliminarEvento(item)
-                    },
-                    rol = rol
-                )
-            }
+            EventoPostListScreen(
+                comunas = estado.comunas,
+                viewModel = eventoPostViewModel
+            )
         }
     }
 

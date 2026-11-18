@@ -103,138 +103,138 @@ fun contactoCard(
     onEliminar: () -> Unit
 ) {
     Card(
-    modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
-    Row(
-        modifier = Modifier
-            .padding(all = 20.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+        Row(
+            modifier = Modifier
+                .padding(all = 20.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = contacto.nombre,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = contacto.cargo,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            IconButton(onClick = onEditar) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Editar Contacto",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            IconButton(onClick = onEliminar) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Eliminar Contacto",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+
+        HorizontalDivider()
+
+        // Organización y Área
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             Text(
-                text = contacto.nombre,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = contacto.cargo,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-        IconButton(onClick = onEditar) {
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = "Editar Contacto",
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-        IconButton(onClick = onEliminar) {
-            Icon(
-                imageVector = Icons.Default.Delete,
-                contentDescription = "Eliminar Contacto",
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-
-    HorizontalDivider()
-
-    // Organización y Área
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Text(
-            text = "Organización y Área",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = "$nombreOrganizacion | Área: ${contacto.area.name}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.SemiBold
-        )
-    }
-
-    // Correo, Teléfono y Observaciones
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        // Correo
-        Column {
-            Text(
-                text = "Correo",
+                text = "Organización y Área",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = if (contacto.correo.isBlank()) "Sin correo" else contacto.correo,
-                style = MaterialTheme.typography.bodyMedium
+                text = "$nombreOrganizacion | Área: ${contacto.area.name}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold
             )
         }
 
-        // Teléfono
-        Column {
-            Text(
-                text = "Teléfono",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = if (contacto.telefono.isBlank()) "Sin teléfono" else contacto.telefono,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-
-        // Observaciones
-        Column {
-            Text(
-                text = "Observaciones",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = if (contacto.observaciones.isBlank()) "Sin Observaciones" else contacto.observaciones,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    }
-
-    // Estado
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
+        // Correo, Teléfono y Observaciones
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = "Estado",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = contacto.estado.name,
-                style = MaterialTheme.typography.bodyMedium
-            )
+            // Correo
+            Column {
+                Text(
+                    text = "Correo",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = if (contacto.correo.isBlank()) "Sin correo" else contacto.correo,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            // Teléfono
+            Column {
+                Text(
+                    text = "Teléfono",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = if (contacto.telefono.isBlank()) "Sin teléfono" else contacto.telefono,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            // Observaciones
+            Column {
+                Text(
+                    text = "Observaciones",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = if (contacto.observaciones.isBlank()) "Sin Observaciones" else contacto.observaciones,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+
+        // Estado
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = "Estado",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = contacto.estado.name,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
-}
 }

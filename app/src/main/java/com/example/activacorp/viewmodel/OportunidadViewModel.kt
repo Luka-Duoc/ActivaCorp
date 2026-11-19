@@ -129,7 +129,7 @@ class OportunidadViewModel(
 
         viewModelScope.launch {
             oportunidadRepository.obtenerOportunidadesPorUsuario(responsable).catch { e ->
-                _estado.update { it.copy(mensajeError = "Error al cargar :${e.message}") }
+                _estado.update { it.copy(mensajeError = e.message) }
             }.collect { oportunidadesUsuario ->
                 _estado.update {
                     it.copy(oportunidadUsuario = oportunidadesUsuario)

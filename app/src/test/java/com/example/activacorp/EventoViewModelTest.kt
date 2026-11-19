@@ -8,12 +8,9 @@ import com.example.activacorp.data.repository.EventoRepository
 import com.example.activacorp.data.repository.OrganizacionRepository
 import com.example.activacorp.viewmodel.EventoViewModel
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.junit.Rule
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import kotlin.test.junit5.JUnit5Asserter.assertEquals
@@ -230,10 +227,12 @@ class EventoViewModelTest {
             mockk<OrganizacionRepository>(relaxed = true)
         )
 
-        viewModel.onOrganizacionChange(5)
+        val id: Long = 5
+
+        viewModel.onOrganizacionChange(id)
         assertEquals(
             message = "Hay coincidencia",
-            expected = 5,
+            expected = id,
             actual = viewModel.estado.value.organizacion
         )
 
@@ -252,6 +251,5 @@ class EventoViewModelTest {
         assertEquals("Hay coincidencia", comuna.nombre, viewModel.estado.value.comunaSeleccionada)
 
     }
-
 
 }

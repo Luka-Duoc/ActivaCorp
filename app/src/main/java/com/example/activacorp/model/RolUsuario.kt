@@ -11,7 +11,7 @@ enum class RolUsuario(val titulo: String, val descripcion: String) {
             return when {
                 c.endsWith("@comercial.cl") || c.endsWith("@ejecutivo.cl") -> EJECUTIVO
                 c.endsWith("@supervisor.cl") -> SUPERVISOR
-                c.endsWith("marketing.cl") -> MARKETING
+                c.endsWith("@marketing.cl") -> MARKETING
                 else -> null
             }
         }

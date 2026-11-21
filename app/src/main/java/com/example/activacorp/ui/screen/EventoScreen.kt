@@ -590,7 +590,8 @@ fun VistaEventoCard(
                 viewModel = eventoPostViewModel,
                 eventoViewModel = viewModel,
                 rol = rol,
-                navController = navController
+                navController = navController,
+                organizaciones = estado.organizaciones
             )
         }
     }

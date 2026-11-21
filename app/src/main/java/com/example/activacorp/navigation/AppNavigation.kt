@@ -36,6 +36,7 @@ import com.example.activacorp.viewmodel.OportunidadViewModel
 import com.example.activacorp.ui.screen.crearOportunidades
 import com.example.activacorp.ui.screen.tab.contactoScreen
 import com.example.activacorp.viewmodel.ContactoViewModel
+import com.example.activacorp.viewmodel.EventoPostViewModel
 import com.example.activacorp.viewmodel.OrganizacionViewModel
 
 @Composable
@@ -62,6 +63,7 @@ fun AppNavigation() {
             organizacionRepository = container.organizacionRepository
         )
     }
+    val eventoPostViewModel: EventoPostViewModel = viewModel()
     val oportunidadViewModel: OportunidadViewModel = viewModel {
         OportunidadViewModel(
             oportunidadRepository = container.oportunidadRepository,

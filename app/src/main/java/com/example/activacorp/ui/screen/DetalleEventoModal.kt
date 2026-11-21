@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.activacorp.data.local.entity.ComunaEntity
 import com.example.activacorp.data.local.entity.EventoEntity
+import com.example.activacorp.data.local.entity.OrganizacionEntity
 import com.example.activacorp.viewmodel.EventoPostViewModel
 import com.example.activacorp.viewmodel.EventoViewModel
 
@@ -40,7 +41,8 @@ fun EventoPostListScreen(
     eventoViewModel: EventoViewModel,
     viewModel: EventoPostViewModel,
     rol: String,
-    navController: NavController
+    navController: NavController,
+    organizaciones: List<OrganizacionEntity>
 ) {
     val posts = viewModel.postList.collectAsState().value
     val estadoLocal = eventoViewModel.estado.collectAsState().value
@@ -54,10 +56,12 @@ fun EventoPostListScreen(
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 12.dp)
     ) {
-        // 1. EVENTOS LOCALES
+        //  EVENTOS LOCALES
         items(estadoLocal.eventos) { evento ->
             val nombreComuna = comunas.firstOrNull { it.id == evento.comuna }?.nombre
                 ?: "Comuna no especificada"
+            val nombreOrganizacion = organizaciones.firstOrNull { it.id == evento.organizacion }?.nombre
+                ?: "Organizacion no definida"
 
             Card(
                 modifier = Modifier
@@ -204,14 +208,29 @@ fun EventoPostListScreen(
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Organización",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = nombreOrganizacion,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
         }
 
-        // 2. EVENTOS REMOTOS
+        //  EVENTOS REMOTOS
         items(posts) { post ->
             val nombreComuna = comunas.firstOrNull { it.id == post.comuna.toLong() }?.nombre
                 ?: "Comuna no especificada"
+            val nombreOrganizacion = organizaciones.firstOrNull { it.id == post.organizacion }?.nombre
+                ?: "Organización no especificada"
 
             Card(
                 modifier = Modifier
@@ -330,6 +349,19 @@ fun EventoPostListScreen(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "$${post.costosEstimados}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Organización",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = nombreOrganizacion,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }

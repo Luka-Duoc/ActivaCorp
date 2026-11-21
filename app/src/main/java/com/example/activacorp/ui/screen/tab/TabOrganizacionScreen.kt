@@ -37,7 +37,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.activacorp.viewmodel.EventoPostViewModel
 import com.example.activacorp.viewmodel.EventoViewModel
 import com.example.activacorp.viewmodel.OportunidadViewModel
 import com.example.activacorp.viewmodel.OrganizacionViewModel
@@ -48,11 +50,15 @@ fun tabOrganizaciones(
     eventoViewModel: EventoViewModel,
     oportunidadViewModel: OportunidadViewModel,
     organizacionViewModel: OrganizacionViewModel,
-    rol: String
+    rol: String,
+    postViewModel: EventoPostViewModel = viewModel()
 ) {
+
     val estadoOrganizacion by organizacionViewModel.estado.collectAsState()
     val estadoEvento by eventoViewModel.estado.collectAsState()
     val estadoOportunidad by oportunidadViewModel.estado.collectAsState()
+
+    val posts by postViewModel.postList.collectAsState()
 
     val ejecutivo = remember(rol) {
         rol.contains("Ejecutivo", ignoreCase = true)
@@ -131,6 +137,12 @@ fun tabOrganizaciones(
                 val eventosAsociados = remember(estadoEvento.eventos, organizacion.id) {
                     estadoEvento.eventos.filter { it.organizacion == organizacion.id }
                 }
+                val postsAsociados = remember(posts, organizacion.id) {
+                    posts.filter { it.organizacion == organizacion.id }
+                }
+                val totalEventos = eventosAsociados.size + postsAsociados.size
+
+
 
                 Card(
                     modifier = Modifier
@@ -217,7 +229,7 @@ fun tabOrganizaciones(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        if (eventosAsociados.isEmpty()) {
+                        if (eventosAsociados.isEmpty() && postsAsociados.isEmpty()) {
                             Text(
                                 text = "No hay eventos registrados para esta organización.",
                                 style = MaterialTheme.typography.bodySmall,
@@ -225,8 +237,8 @@ fun tabOrganizaciones(
                             )
                         } else {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                // Eventos locales
                                 eventosAsociados.forEach { evento ->
-
                                     val cantidadOportunidades = remember(
                                         estadoOportunidad.oportunidades,
                                         evento.id
@@ -276,6 +288,54 @@ fun tabOrganizaciones(
                                                 text = "$cantidadOportunidades Op.",
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = if (tieneOportunidades) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                        }
+                                    }
+                                }
+
+                                // Eventos remotos
+                                postsAsociados.forEach { post ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(
+                                                MaterialTheme.colorScheme.surface,
+                                                RoundedCornerShape(8.dp)
+                                            )
+                                            .padding(12.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = post.nombre,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                fontWeight = FontWeight.Medium,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                            Text(
+                                                text = post.fechaInicio,
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+
+                                        Box(
+                                            modifier = Modifier
+                                                .background(
+                                                    MaterialTheme.colorScheme.surfaceVariant,
+                                                    RoundedCornerShape(8.dp)
+                                                )
+                                                .padding(
+                                                    horizontal = 8.dp,
+                                                    vertical = 4.dp
+                                                )
+                                        ) {
+                                            Text(
+                                                text = "0 Op.",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 fontWeight = FontWeight.SemiBold
                                             )
                                         }

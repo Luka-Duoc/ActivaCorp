@@ -1,5 +1,6 @@
 package com.example.activacorp
 
+import androidx.compose.ui.text.input.TextFieldValue
 import com.example.activacorp.data.local.entity.ComunaEntity
 import com.example.activacorp.data.local.entity.EventoEntity
 import com.example.activacorp.data.local.entity.OrganizacionEntity
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.RegisterExtension
+import kotlin.test.assertFalse
 import kotlin.test.junit5.JUnit5Asserter.assertEquals
 
 @ExtendWith(MockKExtension::class)
@@ -246,5 +248,72 @@ class EventoViewModelTest {
         )
         coVerify { eventoRepository.eliminar(eventoAgregado) }
     }
+
+    @Test
+    fun  `guardar Evento marca todos los errores y no inserta cuando el formulario esta vacio`() = runTest {
+        val fakeEventoRepository = mockk<EventoRepository>(relaxed = true)
+        val viewModel = EventoViewModel(
+            fakeEventoRepository,
+            mockk(relaxed = true),
+            mockk(relaxed = true)
+        )
+
+        var exito = false
+
+        viewModel.guardarEvento(onExito = { exito = true })
+
+        assertEquals(message = "Falto errorNombre", expected =  "El nombre no puede estar vacío", actual = viewModel.estado.value.errorNombre)
+        assertEquals(message = "Falto errorFecha", expected = "Las fechas son obligatorias", actual = viewModel.estado.value.errorFecha)
+        assertEquals(message = "Falto errorHora", expected = "La hora no puede estar vacía", actual = viewModel.estado.value.errorHora)
+        assertEquals(message = "Falto errorDireccion", expected = "La dirección es obligatoria", actual = viewModel.estado.value.errorDireccion)
+        assertEquals(message = "Falto errorRequisitos", expected = "Los requisitos no pueden estar en blanco", actual = viewModel.estado.value.errorRequisitos)
+        assertFalse(actual = exito, message = "No debe crear el evento")
+        coVerify(exactly = 0) { fakeEventoRepository.insertar(any()) }
+    }
+
+    @Test
+    fun `guardar Evento inserta el nuevo evento correctamente`() = runTest {
+        val fakeEventoRepository = mockk<EventoRepository>(relaxed = true)
+        val viewModel = EventoViewModel(
+            fakeEventoRepository,
+            mockk(relaxed = true),
+            mockk(relaxed = true)
+        )
+
+        viewModel.onNombreChange("Feria Corporativa 2026")
+        viewModel.onTipoChange("Feria")
+        viewModel.onFechaInicioChange("10/12/2026")
+        viewModel.onFechaTerminoChange("12/12/2026")
+        viewModel.onHorarioChange(TextFieldValue("10001830"))
+        viewModel.onDireccionChange("Av. Las Condes 5000")
+        viewModel.onComunaSeleccionada(ComunaEntity(3L, 1L, "Las Condes"))
+        viewModel.onOrganizacionChange(2L)
+        viewModel.onCantAsistentesChange("250")
+        viewModel.onCostosReferencialesChange("450000")
+        viewModel.onRequisitosChange("Credencial y toldo")
+        viewModel.onObservacionesChange("Confirmar montaje")
+
+        val eventoEsperado = EventoEntity(
+            id = 0L,
+            nombre = "Feria Corporativa 2026",
+            tipo = "Feria",
+            fechaInicio = "10/12/2026",
+            fechaTermino = "12/12/2026",
+            horario = "10:00 - 18:30",
+            direccion = "Av. Las Condes 5000",
+            comuna = 3L,
+            organizacion = 2L,
+            cantAsistentes = 250,
+            requisitos = "Credencial y toldo",
+            costosReferenciales = 450000,
+            observaciones = "Confirmar montaje"
+        )
+
+        viewModel.guardarEvento()
+
+        coVerify(exactly = 1) { fakeEventoRepository.insertar(eventoEsperado)
+        }
+    }
+
 
 }

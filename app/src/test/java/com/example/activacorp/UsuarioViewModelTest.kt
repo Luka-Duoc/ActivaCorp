@@ -5,10 +5,12 @@ import com.example.activacorp.data.local.entity.UsuarioEntity
 import com.example.activacorp.data.repository.UsuarioRepository
 import com.example.activacorp.model.RolUsuario
 import com.example.activacorp.viewmodel.UsuarioViewModel
+import io.kotest.matchers.ints.exactly
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
@@ -139,6 +141,93 @@ class UsuarioViewModelTest {
             assertEquals( message = "El correo debió limpiarse tras guardar", expected =  "", actual = viewModel.estado.value.correo)
             assertTrue(actual = callbackEjecutado, message = "Debió ejecutarse onListo al completar el registro")
         }
+    }
+
+    @Test
+    fun `iniciar sesion lanza error cuando un correo o clave estan vacios `() = runTest {
+        viewModel.onCorreoChange("")
+        viewModel.onClaveChange("")
+        var loginExitoso = false
+
+        viewModel.iniciarSesion(onLoginSuccess = { loginExitoso = true })
+        advanceUntilIdle()
+
+        assertEquals(message = "Debe mostrar mensaje de error", expected = "Ingresa correo y contraseña", actual = viewModel.estado.value.errores.clave)
+        assertFalse(loginExitoso, "No debe ejecutarse el onLoginSucces con campos vacios")
+        coVerify(exactly = 0) { usuarioRepository.login(any(), any())  }
+        coVerify(exactly = 0){ sessionDataStore.guardarSesion(any()) }
+    }
+
+    @Test
+    fun `iniciar sesion cuando las credenciales son incorrectas`() = runTest {
+        val correo = "nacho@ejecutivo.cl"
+        val clave = "nachito"
+        viewModel.onCorreoChange(correo)
+        viewModel.onClaveChange(clave)
+
+        coEvery { usuarioRepository.login(correo, clave) } returns null
+        var loginExitoso = false
+
+        viewModel.iniciarSesion(onLoginSuccess = { loginExitoso = true })
+        advanceUntilIdle()
+
+        assertEquals(
+            message = "Debió mostrar error de credenciales incorrectas",
+            expected = "Correo o contrasela incorrectos",
+            actual = viewModel.estado.value.errores.clave
+        )
+        assertFalse(loginExitoso, "no se debe iniciar sesion con datos invalidos")
+        coVerify(exactly = 0){ sessionDataStore.guardarSesion(any()) }
+    }
+
+    @Test
+    fun `iniciar sesion permite el ingreso del usuario y guarda la sesion`() = runTest {
+        val correo = "nacho@ejecutivo.cl"
+        val clave = "nachito"
+        val usuarioDb = UsuarioEntity(
+            id = 5L,
+            nombre = "nachito Battistoni",
+            correo = correo,
+            clave = clave,
+            rol = "EJECUTIVO"
+        )
+
+        viewModel.onCorreoChange(correo)
+        viewModel.onClaveChange(clave)
+        coEvery { usuarioRepository.login(correo, clave) } returns usuarioDb
+
+        var loginExitoso = false
+
+        viewModel.iniciarSesion(onLoginSuccess = { loginExitoso = true })
+        advanceUntilIdle()
+
+        assertEquals(message = "El ID del usuario no coincide", expected = 5L, actual = viewModel.estado.value.id)
+        assertEquals(message = "El nombre no se cargó en estado", expected = "nachito Battistoni", actual = viewModel.estado.value.nombre)
+        assertEquals(message = "El rol no se cargó en estado", expected = "EJECUTIVO", actual = viewModel.estado.value.rol)
+        assertEquals(message = "El error de clave debió limpiarse", expected = null, actual = viewModel.estado.value.errores.clave)
+
+        coVerify(exactly = 1) { sessionDataStore.guardarSesion(usuarioDb) }
+        assertTrue(actual = loginExitoso, message = "Se logro iniciar sesión correctamente")
+
+    }
+
+    @Test
+    fun `cargar a todos los usuarios llama al resoitorio y devuelve a los usuario`() = runTest {
+        val fakeUse = listOf(
+            UsuarioEntity(
+                id = 1L,
+                nombre = "nacho",
+                correo = "nacho@ejecutivo.cl",
+                clave = "123456",
+                rol = "EJECUTIVO",
+                activo = true
+            )
+        )
+
+        coEvery { usuarioRepository.obtenerUsuarios() }returns flowOf(fakeUse)
+        val viewModel = UsuarioViewModel(usuarioRepository, sessionDataStore)
+
+        assertEquals(message = "Hay coincidencia", expected = fakeUse, actual = viewModel.estado.value.usuarios)
     }
 
 }

@@ -245,7 +245,7 @@ class OportunidadViewModel(
                 if (st.oportunidadIdEnEdicion != null) {
                     oportunidadRepository.actualizarOportunidad(oportunidadAProcesar)
                 } else {
-                    oportunidadRepository.insertarOportunidades(listOf(oportunidadAProcesar))
+                    oportunidadRepository.insertarOportunidades(oportunidadAProcesar)
                 }
                 _estado.update {
                     it.copy(

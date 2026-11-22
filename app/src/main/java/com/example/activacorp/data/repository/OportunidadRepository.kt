@@ -6,7 +6,7 @@ import com.example.activacorp.model.OportunidadConOrganizacion
 import kotlinx.coroutines.flow.Flow
 
 interface OportunidadRepository {
-    suspend fun insertarOportunidades(lista: List<OportunidadEntity>)
+    suspend fun insertarOportunidades(lista: OportunidadEntity)
     suspend fun actualizarOportunidad(oportunidad: OportunidadEntity)
     suspend fun eliminarOportunidad(oportunidad: OportunidadEntity)
     fun obtenerTodas(): Flow<List<OportunidadEntity>>

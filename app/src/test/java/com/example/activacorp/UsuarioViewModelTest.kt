@@ -5,7 +5,6 @@ import com.example.activacorp.data.local.entity.UsuarioEntity
 import com.example.activacorp.data.repository.UsuarioRepository
 import com.example.activacorp.model.RolUsuario
 import com.example.activacorp.viewmodel.UsuarioViewModel
-import io.kotest.matchers.ints.exactly
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.RelaxedMockK

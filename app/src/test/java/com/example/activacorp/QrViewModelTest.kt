@@ -1,11 +1,9 @@
 package com.example.activacorp
 import com.example.activacorp.viewmodel.QrViewModel
-import io.mockk.junit5.MockKExtension
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.extension.RegisterExtension
 import kotlin.test.junit5.JUnit5Asserter.assertEquals
 
 @ExtendWith(InstantTaskExecutorExtension::class)

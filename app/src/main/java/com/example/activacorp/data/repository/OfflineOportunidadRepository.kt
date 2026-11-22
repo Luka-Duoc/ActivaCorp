@@ -10,7 +10,7 @@ class OfflineOportunidadRepository(
     private val oportunidadDao: OportunidadDao
 ) : OportunidadRepository {
 
-    override suspend fun insertarOportunidades(lista: List<OportunidadEntity>) =
+    override suspend fun insertarOportunidades(lista: OportunidadEntity) =
         oportunidadDao.insertar(lista)
 
     override suspend fun actualizarOportunidad(oportunidad: OportunidadEntity) =

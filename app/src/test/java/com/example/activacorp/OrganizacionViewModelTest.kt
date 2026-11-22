@@ -6,7 +6,6 @@ import com.example.activacorp.data.repository.ComunaRepository
 import com.example.activacorp.data.repository.OrganizacionRepository
 import com.example.activacorp.model.TipoOrganizacion
 import com.example.activacorp.viewmodel.OrganizacionViewModel
-import io.kotest.matchers.string.match
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.RelaxedMockK

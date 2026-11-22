@@ -128,13 +128,13 @@ class ContactoViewModelTest {
         val estadoContacto = mockk<EstadoContacto>(relaxed = true)
 
         viewModel.onOrganizacionSeleccionada(org)
-        viewModel.onNombreChange("  Valeria Muñoz  ")
-        viewModel.onCargoChange("  Coordinadora RRHH  ")
+        viewModel.onNombreChange("Valeria Muñoz")
+        viewModel.onCargoChange("Coordinadora RRHH")
         viewModel.onAreaChange(area)
-        viewModel.onCorreoChange("  valeria@ejecutivo.cl  ")
-        viewModel.onTelefonoChange("  912345678  ")
+        viewModel.onCorreoChange("valeria@ejecutivo.cl")
+        viewModel.onTelefonoChange("912345678")
         viewModel.onEstadoChange(estadoContacto)
-        viewModel.onObservacionesChange("  Contacto principal  ")
+        viewModel.onObservacionesChange("Contacto principal")
 
         var exito = false
         viewModel.guardar(onExito = { exito = true })

@@ -10,7 +10,6 @@ import com.example.activacorp.model.OportunidadConEjecutivo
 import com.example.activacorp.model.PotencialComercial
 import com.example.activacorp.model.TipoOportunidad
 import com.example.activacorp.viewmodel.OportunidadViewModel
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit5.MockKExtension
@@ -209,23 +208,79 @@ class OportunidadViewModelTest {
             nombre = "Oportunidad de prueba",
             descripcion = "Ninguna descripcion relevante."
         )
-        val oportunidades = listOf(
-            oportunidadMock
-        )
+        val oportunidades = listOf(oportunidadMock)
 
-        every { oportunidadRepository.obtenerOportunidadesPorUsuario(505L) } returns flow { oportunidades }
+        every { oportunidadRepository.obtenerOportunidadesPorUsuario(505L) } returns flowOf(oportunidades)
 
+        viewModel.obtenerOportunidadesPorUsuario(505L)
+        advanceUntilIdle()
 
         val oportunidadesPorUsuario = viewModel.estado.value.oportunidadUsuario
-
-
 
         assertEquals(
             "Error al encontrar oportunidades al usuario dado",
             oportunidades,
             oportunidadesPorUsuario
         )
-
     }
 
+    @Test
+    fun `guardarOportunidad marca errores y no inserta cuando los campos estan vacios`() = runTest {
+        var exitoEjecutado = false
+
+        viewModel.guardarOportunidad(onExito = { exitoEjecutado = true })
+        advanceUntilIdle()
+
+        assertEquals("Falto errorNombre", "El nombre de la oportunidad es obligatorio", viewModel.estado.value.errorNombre)
+        assertEquals("Falto errorDescripcion", "La descripción no puede estar vacía", viewModel.estado.value.errorDescripcion)
+        assertEquals("Falto errorFechaDeteccion", "La fecha de detección es obligatoria", viewModel.estado.value.errorFechaDeteccion)
+        assertEquals("Falto errorFuente", "La fuente de deteccion no puede estar vacia", viewModel.estado.value.errorFuente)
+        assertEquals("No debe ejecutarse onExito", false, exitoEjecutado)
+        io.mockk.coVerify(exactly = 0) { oportunidadRepository.insertarOportunidades(any()) }
+    }
+
+    @Test
+    fun `guardarOportunidad inserta la oportunidad cuando los datos son validos`() = runTest {
+        val tipoMock = mockk<TipoOportunidad>(relaxed = true)
+        val potencialMock = mockk<PotencialComercial>(relaxed = true)
+        val estadoMock = mockk<EstadoGestion>(relaxed = true)
+
+        viewModel.onNombreChange("Convenio Corporativo")
+        viewModel.onDescripcionChange("Implementación de pausas activas")
+        viewModel.onFechaDeteccionChange("22/11/2026")
+        viewModel.onPrioridadChange("4")
+        viewModel.onFuenteChange("Feria Empresarial")
+        viewModel.onTipoChange(tipoMock)
+        viewModel.onPotencialChange(potencialMock)
+        viewModel.onEstadoGestionChange(estadoMock)
+        viewModel.onEventoIdChange(10L)
+        viewModel.onResponsableChange(5L)
+        viewModel.onObservacionesChange("Llamar el lunes")
+
+        var exitoEjecutado = false
+
+        viewModel.guardarOportunidad(onExito = { exitoEjecutado = true })
+        advanceUntilIdle()
+
+        io.mockk.coVerify(exactly = 1) {
+            oportunidadRepository.insertarOportunidades(
+                match {
+                    it.id == 0L &&
+                            it.nombre == "Convenio Corporativo" &&
+                            it.descripcion == "Implementación de pausas activas" &&
+                            it.fechaDeteccion == "22/11/2026" &&
+                            it.prioridad == 4 &&
+                            it.fuente == "Feria Empresarial" &&
+                            it.eventoId == 10L &&
+                            it.responsable == 5L &&
+                            it.observaciones == "Llamar el lunes"
+                }
+            )
+        }
+
+        assertEquals("El nombre debe limpiarse tras guardar", "", viewModel.estado.value.nombre)
+        assertEquals("La descripción debe limpiarse tras guardar", "", viewModel.estado.value.descripcion)
+        assertEquals("exitoGuardado debe quedar en true", true, viewModel.estado.value.exitoGuardado)
+        assertTrue(exitoEjecutado, "Debe ejecutarse onExito al guardar la oportunidad")
+    }
 }

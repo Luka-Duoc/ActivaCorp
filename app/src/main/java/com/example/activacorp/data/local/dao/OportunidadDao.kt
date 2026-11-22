@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface OportunidadDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertar(org: List<OportunidadEntity>)
+    suspend fun insertar(org: OportunidadEntity)
 
     @Update
     suspend fun actualizar(oportunidad: OportunidadEntity)

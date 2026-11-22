@@ -11,6 +11,8 @@ import com.example.activacorp.data.local.dao.EventoDao
 import com.example.activacorp.data.local.dao.OportunidadDao
 import com.example.activacorp.data.local.dao.OrganizacionDao
 import com.example.activacorp.data.local.dao.RegionDao
+import com.example.activacorp.data.local.dao.ResultadoDao
+import com.example.activacorp.data.local.dao.SeguimientoDao
 import com.example.activacorp.data.local.dao.UsuarioDao
 import com.example.activacorp.data.local.entity.ComunaEntity
 import com.example.activacorp.data.local.entity.ContactoEntity
@@ -18,12 +20,15 @@ import com.example.activacorp.data.local.entity.EventoEntity
 import com.example.activacorp.data.local.entity.OportunidadEntity
 import com.example.activacorp.data.local.entity.OrganizacionEntity
 import com.example.activacorp.data.local.entity.RegionEntity
+import com.example.activacorp.data.local.entity.ResultadoEntity
+import com.example.activacorp.data.local.entity.SeguimientoEntity
 import com.example.activacorp.data.local.entity.UsuarioEntity
 import com.example.activacorp.data.local.seed.ComunaSeed
 import com.example.activacorp.data.local.seed.ContactosSeed
 import com.example.activacorp.data.local.seed.OportunidadSeed
 import com.example.activacorp.data.local.seed.OrganizacionSeed
 import com.example.activacorp.data.local.seed.RegionSeed
+import com.example.activacorp.data.local.seed.SeguimientoSeed
 
 
 @Database(
@@ -34,7 +39,9 @@ import com.example.activacorp.data.local.seed.RegionSeed
         OrganizacionEntity::class,
         RegionEntity::class,
         ComunaEntity::class,
-        ContactoEntity::class
+        ContactoEntity::class,
+        SeguimientoEntity::class,
+        ResultadoEntity::class,
     ], version = 6, exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -46,6 +53,10 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun OportunidadDao(): OportunidadDao
     abstract fun ContactoDao(): ContactoDao
+
+    abstract fun SeguimientoDao(): SeguimientoDao
+
+    abstract fun ResultadoDao(): ResultadoDao
 
     companion object {
         @Volatile
@@ -138,10 +149,32 @@ abstract class AppDatabase : RoomDatabase() {
                                 )
                             )
                         }
+                        SeguimientoSeed.listaSeguimientos.forEach { seguimiento ->
+                            db.execSQL(
+                                """"
+                                    INSERT INTO seguimientos (id, oportunidadRelacionada, 
+                                    usuarioResponsable, tipoDeAccion, fecha, 
+                                    hora, resultado, proximaAccion, fechaProxSeguimiento
+                                    observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""".trimIndent(),
+                                arrayOf(
+                                    1L,
+                                    seguimiento.oportunidadRelacionada,
+                                    seguimiento.usuarioResponsable,
+                                    seguimiento.tipoDeAccion,
+                                    seguimiento.fecha,
+                                    seguimiento.hora,
+                                    seguimiento.resultado,
+                                    seguimiento.proximaAccion,
+                                    seguimiento.fechaProxSeguimiento,
+                                    seguimiento.observaciones
+
+                                )
+                            )
+                        }
 
                         db.execSQL("PRAGMA foreign_keys = ON;")
 
-                        }
+                    }
                 })
                     .fallbackToDestructiveMigration()
                     .build().also { INSTANCE = it }

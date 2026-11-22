@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface SeguimientoRepository {
     suspend fun insertar(seguimiento: SeguimientoEntity)
-    suspend fun update(seguimiento: SeguimientoEntity)
-    suspend fun delete(seguimiento: SeguimientoEntity)
+    suspend fun actualizar(seguimiento: SeguimientoEntity)
+    suspend fun eliminar(seguimiento: SeguimientoEntity)
     fun obtenerSeguimientos(): Flow<List<SeguimientoEntity>>
 }

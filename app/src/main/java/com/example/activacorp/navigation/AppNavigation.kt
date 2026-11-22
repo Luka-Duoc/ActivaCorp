@@ -30,6 +30,7 @@ import com.example.activacorp.data.local.SessionDataStore
 import com.example.activacorp.ui.screen.CreacionOrganizacionScreen
 import com.example.activacorp.ui.screen.OportunidadScreen
 import com.example.activacorp.ui.screen.OrganizacionScreen
+import com.example.activacorp.ui.screen.SeguimientoScreen
 import com.example.activacorp.ui.screen.VistaEventoCard
 import com.example.activacorp.ui.screen.creacionContactoScreen
 import com.example.activacorp.viewmodel.OportunidadViewModel
@@ -38,6 +39,7 @@ import com.example.activacorp.ui.screen.tab.contactoScreen
 import com.example.activacorp.viewmodel.ContactoViewModel
 import com.example.activacorp.viewmodel.EventoPostViewModel
 import com.example.activacorp.viewmodel.OrganizacionViewModel
+import com.example.activacorp.viewmodel.SeguimientoViewModel
 
 @Composable
 fun AppNavigation() {
@@ -85,6 +87,10 @@ fun AppNavigation() {
         )
     }
 
+    val seguimientoViewModel: SeguimientoViewModel = viewModel {
+        SeguimientoViewModel(seguimientoRepository = container.seguimientoRepository)
+    }
+
 
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -113,7 +119,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = rutaInicial
+        startDestination = "vistaSeguimiento"
     ) {
         composable("home") {
             HomeScreen(navController)
@@ -182,6 +188,10 @@ fun AppNavigation() {
 
         composable("vistaContactos") {
             contactoScreen(navController, contactoViewModel)
+        }
+
+        composable("vistaSeguimiento") {
+            SeguimientoScreen(navController, seguimientoViewModel)
         }
 
     }

@@ -1,7 +1,9 @@
 package com.example.activacorp.model
 
+import com.example.activacorp.data.local.entity.ResultadoEntity
+
 data class ResultadoUiState(
-    val id: Long = 0,
+    val resultados: List<ResultadoEntity> = emptyList(),
     val fechaRealizacion: String = "",
     val estadoFinal: EstadoGestion? = null,
     val cantidadEstimadaAsistentes: Int = 0,

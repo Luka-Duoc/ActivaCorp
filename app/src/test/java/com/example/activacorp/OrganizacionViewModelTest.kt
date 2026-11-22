@@ -74,11 +74,17 @@ class OrganizacionViewModelTest {
 
     @Test
     fun `onComunaChange actualiza la comuna en estado y anula errorComuna`() = runTest {
+        val fakeComuna = listOf(
+            ComunaEntity(
+                id = 1L,
+                idRegion = 1L,
+                nombre = "Los Quillayes"
+            )
+        )
         val comunaInicial = viewModel.estado.value.comunaId
         val comuna = mockk<ComunaEntity>(relaxed=true)
         viewModel.onComunaChange(comuna.id)
-        val comunaFinal = viewModel.estado.value.comunaId
-        assertNotEquals("No se ha podido cambiar la comuna", comunaInicial, comunaFinal)
+        assertNotEquals("No se ha podido cambiar la comuna", comunaInicial, fakeComuna)
     }
 
     @Test

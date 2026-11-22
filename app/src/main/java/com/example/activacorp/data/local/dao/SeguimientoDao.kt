@@ -9,7 +9,7 @@ import com.example.activacorp.data.local.entity.SeguimientoEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface SeguimientoDao {
+interface   SeguimientoDao {
 
     @Insert
     suspend fun insertar(seguimiento: SeguimientoEntity)

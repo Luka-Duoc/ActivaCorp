@@ -55,8 +55,8 @@ class OportunidadViewModelTest {
     fun `cargarUsuarios llama al repositorio y devuelve los datos`() = runTest {
 
         val usuarios = listOf(
-            UsuarioEntity(1, nombre="Usuario1"),
-            UsuarioEntity(2, nombre="Usuario2")
+            UsuarioEntity(1, nombre = "Usuario1"),
+            UsuarioEntity(2, nombre = "Usuario2")
         )
 
         every { usuarioRepository.obtenerUsuarios() } returns flowOf(usuarios)
@@ -65,7 +65,11 @@ class OportunidadViewModelTest {
 
         advanceUntilIdle()
 
-        assertNotEquals("Error al cargar usuarios", null, viewModel.estado.value.usuariosDisponibles)
+        assertNotEquals(
+            "Error al cargar usuarios",
+            null,
+            viewModel.estado.value.usuariosDisponibles
+        )
         println(viewModel.estado.value.usuariosDisponibles)
     }
 
@@ -129,23 +133,35 @@ class OportunidadViewModelTest {
 
     @Test
     fun `onPotencialChange actualiza el potencial en estado`() = runTest {
-        val potencial = mockk<PotencialComercial>(relaxed=true)
+        val potencial = mockk<PotencialComercial>(relaxed = true)
         viewModel.onPotencialChange(potencial);
-        assertEquals("El potencial no se ha modificado", potencial, viewModel.estado.value.potencial);
+        assertEquals(
+            "El potencial no se ha modificado",
+            potencial,
+            viewModel.estado.value.potencial
+        );
     }
 
     @Test
     fun `onEstadoGestionChange actualiza el estadoGestion en estado`() = runTest {
-        val estadoGestion = mockk<EstadoGestion>(relaxed=true)
+        val estadoGestion = mockk<EstadoGestion>(relaxed = true)
         viewModel.onEstadoGestionChange(estadoGestion)
-        assertEquals("El estadoGestion no se ha modificado", estadoGestion, viewModel.estado.value.estado)
+        assertEquals(
+            "El estadoGestion no se ha modificado",
+            estadoGestion,
+            viewModel.estado.value.estado
+        )
     }
 
     @Test
     fun `onObservacionesChange actualiza las observaciones en estado`() = runTest {
         val observacion = "Observacion de prueba"
         viewModel.onObservacionesChange(observacion)
-        assertEquals("La observacion no se ha agregado", observacion, viewModel.estado.value.observaciones)
+        assertEquals(
+            "La observacion no se ha agregado",
+            observacion,
+            viewModel.estado.value.observaciones
+        )
     }
 
     @Test
@@ -159,17 +175,57 @@ class OportunidadViewModelTest {
     fun `onResponsableChange actualiza el responsable en estado`() = runTest {
         val responsableId: Long = 1L
         viewModel.onResponsableChange(responsableId)
-        assertEquals("No se ha modificado al responsable",responsableId, viewModel.estado.value.responsable)
+        assertEquals(
+            "No se ha modificado al responsable",
+            responsableId,
+            viewModel.estado.value.responsable
+        )
     }
 
     @Test
     fun `prepararEdicion actualiza los datos de la oportunidad que recibe`() = runTest {
-        val tipoOportunidadMock = mockk<TipoOportunidad>(relaxed=true)
-        val potencialMock = mockk<PotencialComercial>(relaxed=true)
-        val estadoGestionMock = mockk<EstadoGestion>(relaxed=true)
-        val oportunidadMock = OportunidadEntity(id = 404L, nombre = "Oportunidad de prueba", prioridad=1, tipo=tipoOportunidadMock, potencial=potencialMock, estado =  estadoGestionMock)
+        val tipoOportunidadMock = mockk<TipoOportunidad>(relaxed = true)
+        val potencialMock = mockk<PotencialComercial>(relaxed = true)
+        val estadoGestionMock = mockk<EstadoGestion>(relaxed = true)
+        val oportunidadMock = OportunidadEntity(
+            id = 404L,
+            nombre = "Oportunidad de prueba",
+            prioridad = 1,
+            tipo = tipoOportunidadMock,
+            potencial = potencialMock,
+            estado = estadoGestionMock
+        )
         viewModel.prepararEdicion(oportunidadMock)
-        assertEquals("No se ha recibido el id de la oportunidad a modificar", oportunidadMock.id, viewModel.estado.value.oportunidadIdEnEdicion)
+        assertEquals(
+            "No se ha recibido el id de la oportunidad a modificar",
+            oportunidadMock.id,
+            viewModel.estado.value.oportunidadIdEnEdicion
+        )
+    }
+
+    @Test
+    fun `obtenerOportunidadesPorUsuario `() = runTest {
+        val oportunidadMock = OportunidadConEjecutivo(
+            nombre = "Oportunidad de prueba",
+            descripcion = "Ninguna descripcion relevante."
+        )
+        val oportunidades = listOf(
+            oportunidadMock
+        )
+
+        every { oportunidadRepository.obtenerOportunidadesPorUsuario(505L) } returns flow { oportunidades }
+
+
+        val oportunidadesPorUsuario = viewModel.estado.value.oportunidadUsuario
+
+
+
+        assertEquals(
+            "Error al encontrar oportunidades al usuario dado",
+            oportunidades,
+            oportunidadesPorUsuario
+        )
+
     }
 
 }

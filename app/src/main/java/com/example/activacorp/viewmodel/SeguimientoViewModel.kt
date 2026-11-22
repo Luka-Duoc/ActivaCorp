@@ -30,5 +30,13 @@ class SeguimientoViewModel(
         }
     }
 
+    fun obtenerGestionesPartConfirmada() {
+        viewModelScope.launch {
+            seguimientoRepository.obtenerGestionesPartConfirmada().collect { lista -> _estado.update {
+                it.copy(gestiones = lista)
+            } }
+        }
+    }
+
 
 }

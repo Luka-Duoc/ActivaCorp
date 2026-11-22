@@ -14,5 +14,6 @@ data class SeguimientoUiState(
     val resultado: Long = 0L,
     val proximaAccion: TipoDeAccion? = null,
     val fechaProxSeguimiento: String? = "",
-    val observaciones: String? = ""
+    val observaciones: String? = "",
+    val gestiones: List<GestionesPartConfirmada> = emptyList()
     )

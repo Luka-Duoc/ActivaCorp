@@ -151,20 +151,20 @@ abstract class AppDatabase : RoomDatabase() {
                         }
                         SeguimientoSeed.listaSeguimientos.forEach { seguimiento ->
                             db.execSQL(
-                                """"
+                                """
                                     INSERT INTO seguimientos (id, oportunidadRelacionada, 
                                     usuarioResponsable, tipoDeAccion, fecha, 
-                                    hora, resultado, proximaAccion, fechaProxSeguimiento
+                                    hora, resultado, proximaAccion, fechaProxSeguimiento,
                                     observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""".trimIndent(),
                                 arrayOf(
                                     1L,
                                     seguimiento.oportunidadRelacionada,
                                     seguimiento.usuarioResponsable,
-                                    seguimiento.tipoDeAccion,
+                                    seguimiento.tipoDeAccion.name,
                                     seguimiento.fecha,
                                     seguimiento.hora,
                                     seguimiento.resultado,
-                                    seguimiento.proximaAccion,
+                                    seguimiento.proximaAccion.name,
                                     seguimiento.fechaProxSeguimiento,
                                     seguimiento.observaciones
 

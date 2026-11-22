@@ -119,7 +119,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "vistaSeguimiento"
+        startDestination = rutaInicial
     ) {
         composable("home") {
             HomeScreen(navController)

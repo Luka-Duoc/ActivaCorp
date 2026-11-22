@@ -12,7 +12,7 @@ object SeguimientoSeed {
             tipoDeAccion = TipoDeAccion.REQUIERE_SEGUIMIENTO,
             fecha = "HOY",
             hora = "12:00",
-            resultado = 1L,
+            resultado = null,
             proximaAccion = TipoDeAccion.EN_EVALUACION,
             fechaProxSeguimiento = "DIA",
             observaciones = "Ninguna"

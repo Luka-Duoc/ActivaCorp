@@ -135,7 +135,7 @@ abstract class AppDatabase : RoomDatabase() {
                                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                                 """.trimIndent(),
                                 arrayOf(
-                                    1L,
+                                    oportunidad.id,
                                     oportunidad.nombre,
                                     oportunidad.tipo.name,
                                     oportunidad.descripcion,
@@ -159,7 +159,7 @@ abstract class AppDatabase : RoomDatabase() {
                                     observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                                     """.trimIndent(),
                                 arrayOf(
-                                    1L,
+                                    seguimiento.id,
                                     seguimiento.oportunidadRelacionada,
                                     seguimiento.usuarioResponsable,
                                     seguimiento.tipoDeAccion.name,
@@ -183,7 +183,7 @@ abstract class AppDatabase : RoomDatabase() {
                                 aprendizajes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                             """.trimIndent(),
                                 arrayOf(
-                                    1L,
+                                    resultado.id,
                                     resultado.fechaRealizacion,
                                     resultado.estadoFinal.name,
                                     resultado.cantidadEstimadaAsistentes,

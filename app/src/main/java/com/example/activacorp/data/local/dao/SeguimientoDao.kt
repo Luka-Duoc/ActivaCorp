@@ -23,4 +23,7 @@ interface SeguimientoDao {
     @Query("select * from seguimientos")
     fun obtenerSeguimientos(): Flow<List<SeguimientoEntity>>
 
+    @Query("select * from seguimientos ")
+    fun obtenerSeguimientosPorTipoDeAccion(): Flow<List<SeguimientoEntity>>
+
 }

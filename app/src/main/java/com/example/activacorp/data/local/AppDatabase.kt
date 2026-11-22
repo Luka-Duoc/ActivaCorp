@@ -28,6 +28,7 @@ import com.example.activacorp.data.local.seed.ContactosSeed
 import com.example.activacorp.data.local.seed.OportunidadSeed
 import com.example.activacorp.data.local.seed.OrganizacionSeed
 import com.example.activacorp.data.local.seed.RegionSeed
+import com.example.activacorp.data.local.seed.ResultadoSeed
 import com.example.activacorp.data.local.seed.SeguimientoSeed
 
 
@@ -155,7 +156,8 @@ abstract class AppDatabase : RoomDatabase() {
                                     INSERT INTO seguimientos (id, oportunidadRelacionada, 
                                     usuarioResponsable, tipoDeAccion, fecha, 
                                     hora, resultado, proximaAccion, fechaProxSeguimiento,
-                                    observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""".trimIndent(),
+                                    observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                    """.trimIndent(),
                                 arrayOf(
                                     1L,
                                     seguimiento.oportunidadRelacionada,
@@ -168,6 +170,29 @@ abstract class AppDatabase : RoomDatabase() {
                                     seguimiento.fechaProxSeguimiento,
                                     seguimiento.observaciones
 
+                                )
+                            )
+                        }
+                        ResultadoSeed.listaResultados.forEach { resultado ->
+                            db.execSQL(
+                                """
+                                INSERT INTO resultados(id, fechaRealizacion, estadoFinal, 
+                                cantidadEstimadaAsistentes, cantidadContactosGenerados, 
+                                cantidadPersonasInteresadas, cantidadInscripciones, 
+                                observaciones, evaluacionGeneral, 
+                                aprendizajes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            """.trimIndent(),
+                                arrayOf(
+                                    1L,
+                                    resultado.fechaRealizacion,
+                                    resultado.estadoFinal.name,
+                                    resultado.cantidadEstimadaAsistentes,
+                                    resultado.cantidadContactosGenerados,
+                                    resultado.cantidadPersonasInteresadas,
+                                    resultado.cantidadInscripciones,
+                                    resultado.observaciones,
+                                    resultado.evaluacionGeneral,
+                                    resultado.aprendizajes
                                 )
                             )
                         }

@@ -160,7 +160,7 @@ class OrganizacionViewModel(
                 if (st.idEnEdicion != null) {
                     organizacionRepository.actualizar(entidad)
                 } else {
-                    organizacionRepository.insertar(listOf(entidad))
+                    organizacionRepository.insertar(entidad)
                 }
                 resetFormulario()
                 onExito()

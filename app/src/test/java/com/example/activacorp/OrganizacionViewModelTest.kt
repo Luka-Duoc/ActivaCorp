@@ -1,18 +1,27 @@
 package com.example.activacorp
 
 import com.example.activacorp.data.local.entity.ComunaEntity
+import com.example.activacorp.data.local.entity.OrganizacionEntity
 import com.example.activacorp.data.repository.ComunaRepository
 import com.example.activacorp.data.repository.OrganizacionRepository
 import com.example.activacorp.model.TipoOrganizacion
 import com.example.activacorp.viewmodel.OrganizacionViewModel
+import io.kotest.matchers.string.match
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.RegisterExtension
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlin.test.junit5.JUnit5Asserter.assertNotEquals
 
 @ExtendWith(MockKExtension::class)
@@ -97,6 +106,90 @@ class OrganizacionViewModelTest {
         viewModel.onHistorialChange(historialDato)
         val historialFinal = viewModel.estado.value.historial
         assertNotEquals("No se ha podido modificar el historial", historialInicial, historialFinal)
+    }
+
+    @Test
+    fun `cargar todas las organizaciones llama al repositorio y devuelve las organizaciones`() = runTest {
+        val fakeOrganizacion = listOf(
+            OrganizacionEntity(
+                id = 12L,
+                nombre = "Alchemax inc.",
+                tipo = TipoOrganizacion.EMPRESA,
+                rubro = "TI",
+                comuna = 1L,
+                sitioWeb = "alchemax.com",
+                publico = "Gente interesada en tecnologia",
+                historial = "5 años en tecnologia"
+            )
+        )
+
+        coEvery { organizacionRepository.obtenerTodas() } returns flowOf(fakeOrganizacion)
+        val viewModel = OrganizacionViewModel(organizacionRepository,comunaRepository)
+
+        assertEquals(message = "Hay coincidencia", expected = fakeOrganizacion, actual = viewModel.estado.value.organizaciones)
+    }
+
+    @Test
+    fun `guardar marca los errores y no inserta cuando el formulario este vacio`() = runTest {
+        val fakeOrgRepository = mockk<OrganizacionRepository>(relaxed = true)
+        val viewModel = OrganizacionViewModel(
+            fakeOrgRepository,
+            mockk(relaxed = true)
+        )
+
+        var exito = false
+
+        viewModel.guardarOrganizacion(onExito = { exito = true })
+
+        assertEquals(message = "falto errorNombre", expected = "El nombre no puede estar vacio", actual = viewModel.estado.value.errorNombre)
+        assertEquals(message = "falto errorRubro", expected = "El rubro no puede estar vacio", actual = viewModel.estado.value.errorRubro)
+        assertEquals(message = "falto errorPublico", expected = "El publico no puede estar vacio", actual = viewModel.estado.value.errorPublico)
+        assertEquals(message = "faltoErrorHistorial", expected = "El historial no puede estar vacio", actual = viewModel.estado.value.errorHistorial)
+        assertFalse(actual = exito, message = "No debe crear la organizacion")
+        coVerify(exactly = 0) { fakeOrgRepository.insertar(any()) }
+    }
+
+    @Test
+    fun `guardar organizacion inserta correctamente en la bd`() = runTest {
+        val nombre = "alchemax"
+        val tipo = TipoOrganizacion.OTROS
+        val rubro = "TI"
+        val comuna = 1L
+        val sitio = "alchemax.cl"
+        val publico = "Gente interesada en tecnologia"
+        val historial = "Sin historial"
+
+        viewModel.onNombreChange(nombre)
+        viewModel.onTipoChange(tipo)
+        viewModel.onRubroChange(rubro)
+        viewModel.onComunaChange(comuna)
+        viewModel.onSitioWebChange(sitio)
+        viewModel.onPublicoChange(publico)
+        viewModel.onHistorialChange(historial)
+
+        var exito = false
+
+        viewModel.guardarOrganizacion(onExito = { exito = true })
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            organizacionRepository.insertar(
+                match {
+                    it.nombre == "alchemax" &&
+                            it.tipo == tipo &&
+                            it.rubro == "TI" &&
+                            it.comuna == 1L &&
+                            it.sitioWeb == "alchemax.cl" &&
+                            it.publico == "Gente interesada en tecnologia" &&
+                            it.historial == "Sin historial"
+                }
+
+            )
+        }
+
+        assertEquals(message = "El nombre debió limpiarse tras guardar", expected = "", actual = viewModel.estado.value.nombre)
+        assertEquals(message = "El rubro debió limpiarse tras guardar", expected = "", actual = viewModel.estado.value.rubro)
+        assertTrue(actual = exito, message = "Debio guardarse la organización")
     }
 
 }

@@ -212,7 +212,7 @@ class UsuarioViewModelTest {
     }
 
     @Test
-    fun `cargar a todos los usuarios llama al resoitorio y devuelve a los usuario`() = runTest {
+    fun `cargar a todos los usuarios llama al repositorio y devuelve a los usuario`() = runTest {
         val fakeUse = listOf(
             UsuarioEntity(
                 id = 1L,

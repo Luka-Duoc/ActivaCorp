@@ -8,7 +8,7 @@ class OfflineOrganizacionRepository(
     private val organizacionDao: OrganizacionDao
 ) : OrganizacionRepository {
 
-    override suspend fun insertar(organizaciones: List<OrganizacionEntity>) = organizacionDao.insertar(organizaciones)
+    override suspend fun insertar(organizaciones: OrganizacionEntity) = organizacionDao.insertar(organizaciones)
 
     override suspend fun actualizar(organizacion: OrganizacionEntity) = organizacionDao.actualizar(organizacion)
 

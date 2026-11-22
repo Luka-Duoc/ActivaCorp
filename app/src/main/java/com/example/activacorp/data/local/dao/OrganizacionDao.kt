@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 interface OrganizacionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertar(org: List<OrganizacionEntity>)
+    suspend fun insertar(org: OrganizacionEntity)
 
     @Update
     suspend fun actualizar(organizacion: OrganizacionEntity)

@@ -64,9 +64,9 @@ class ContactoViewModelTest {
     @Test
     fun `onCorreoChange actualiza el correo en estado y limpia ErrorContacto`() = runTest {
         viewModel.guardar()
-        viewModel.onCorreoChange("camila@empresa.cl")
+        viewModel.onCorreoChange("camila@ejecutivo.cl")
 
-        assertEquals("camila@empresa.cl", viewModel.estado.value.correo, "El correo no se actualizo")
+        assertEquals("camila@ejecutivo.cl", viewModel.estado.value.correo, "El correo no se actualizo")
         assertNull(viewModel.estado.value.ErrorContacto, "El error de contacto debe limpiarse")
     }
 

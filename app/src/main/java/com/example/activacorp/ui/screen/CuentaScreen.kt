@@ -2,60 +2,49 @@ package com.example.activacorp.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.icons.Icons
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.collectAsState
-import com.example.activacorp.viewmodel.UsuarioViewModel
-import androidx.compose.runtime.getValue
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScrollableTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.example.activacorp.model.RolUsuario
+import com.example.activacorp.ui.screen.tab.contactoScreen
 import com.example.activacorp.ui.screen.tab.listaEjecutivosScreen
 import com.example.activacorp.ui.screen.tab.tabCuenta
 import com.example.activacorp.ui.screen.tab.tabEventos
 import com.example.activacorp.ui.screen.tab.tabOportunidades
 import com.example.activacorp.ui.screen.tab.tabOrganizaciones
+import com.example.activacorp.viewmodel.ContactoViewModel
 import com.example.activacorp.viewmodel.EventoViewModel
 import com.example.activacorp.viewmodel.OportunidadViewModel
 import com.example.activacorp.viewmodel.OrganizacionViewModel
+import com.example.activacorp.viewmodel.UsuarioViewModel
 import kotlinx.coroutines.launch
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableFloatStateOf
-import com.example.activacorp.ui.screen.tab.contactoScreen
-import com.example.activacorp.viewmodel.ContactoViewModel
 
 // Estructura para las pestañas
 private data class ItemNav(
@@ -107,11 +96,13 @@ fun CuentaScreen(
                 ItemNav("Ejecutivos", Icons.Default.Group),
                 ItemNav("Contacto", Icons.Default.People)
             )
+
             marketing -> listOf(
                 ItemNav("Cuenta", Icons.Default.Person),
                 ItemNav("Eventos", Icons.Default.Event),
                 ItemNav("Oportunidades", Icons.Default.Campaign)
             )
+
             ejecutivo -> listOf(
                 ItemNav("Cuenta", Icons.Default.Person),
                 ItemNav("Eventos", Icons.Default.Event),
@@ -119,6 +110,7 @@ fun CuentaScreen(
                 ItemNav("Organizaciones", Icons.Default.Business),
                 ItemNav("Contacto", Icons.Default.People)
             )
+
             else -> listOf(
                 ItemNav("Cuenta", Icons.Default.Person)
             )
@@ -185,7 +177,13 @@ fun CuentaScreen(
                 when (filtroTabs.getOrNull(page)?.titulo) {
                     "Cuenta" -> tabCuenta(viewModel, navController, rolEnum)
                     "Eventos" -> tabEventos(navController, eventoViewModel, rolEnum)
-                    "Oportunidades" -> tabOportunidades(oportunidadViewModel, navController, rolEnum, estadoGlobal.id)
+                    "Oportunidades" -> tabOportunidades(
+                        oportunidadViewModel,
+                        navController,
+                        rolEnum,
+                        estadoGlobal.id
+                    )
+
                     "Ejecutivos" -> listaEjecutivosScreen(navController, viewModel, rolEnum)
                     "Organizaciones" -> tabOrganizaciones(
                         navController,
@@ -194,6 +192,7 @@ fun CuentaScreen(
                         organizacionViewModel,
                         rolEnum
                     )
+
                     "Contacto" -> contactoScreen(navController, contactoViewModel)
                 }
             }

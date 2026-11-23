@@ -15,13 +15,19 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class SeguimientoViewModel(
-    private val seguimientoRepository: SeguimientoRepository
+    private val seguimientoRepository: SeguimientoRepository,
+    private val usuarioRepository: UsuarioRepository,
+    private val oportunidadRepository: OportunidadRepository,
+    private val resultadoRepository: ResultadoRepository
 ) : ViewModel() {
     private val _estado = MutableStateFlow(SeguimientoUiState())
     val estado: StateFlow<SeguimientoUiState> = _estado
 
     init {
         cargarSeguimientos()
+        cargarUsuarios()
+        cargarOportunidades()
+        cargarResultados()
     }
 
     fun cargarSeguimientos() {
@@ -32,10 +38,34 @@ class SeguimientoViewModel(
         }
     }
 
+    fun cargarOportunidades() {
+        viewModelScope.launch {
+            oportunidadRepository.obtenerTodas().collect { lista ->
+                _estado.update { it.copy(oportunidadesDisponibles = lista) }
+            }
+        }
+    }
+
+    fun cargarResultados() {
+        viewModelScope.launch {
+            resultadoRepository.obtenerResultados().collect { lista ->
+                _estado.update { it.copy(resultadoDisponible = lista) }
+            }
+        }
+    }
+
     fun obtenerGestionesPartConfirmada() {
         viewModelScope.launch {
             seguimientoRepository.obtenerGestionesPartConfirmada().collect { lista -> _estado.update {
                 it.copy(gestiones = lista)
+            } }
+        }
+    }
+
+    fun cargarUsuarios() {
+        viewModelScope.launch {
+            usuarioRepository.obtenerUsuarios().collect { lista -> _estado.update {
+                it.copy(usuariosDisponibles = lista)
             } }
         }
     }
@@ -144,18 +174,21 @@ class SeguimientoViewModel(
             return
         }
 
-        if (sg.resultado == 0L) {
-            _estado.update { it.copy(mensajeError = "Debe seleccionar un resultado valido") }
+        if ((sg.oportunidadRelacionada ?: 0L) == 0L || (sg.usuarioResponsable ?: 0L) == 0L) {
+            _estado.update {
+                it.copy(mensajeError = "Debes seleccionar una oportunidad y un usuario responsable")
+            }
             return
         }
 
         val seguimiento = SeguimientoEntity(
-            oportunidadRelacionada = sg.oportunidadRelacionada?: 0L,
-            usuarioResponsable = sg.usuarioResponsable?: 0L,
+            id = sg.idEdicion ?: 0L,
+            oportunidadRelacionada = sg.oportunidadRelacionada ?: 0L,
+            usuarioResponsable = sg.usuarioResponsable ?: 0L,
             tipoDeAccion = sg.tipoDeAccion,
             fecha = sg.fecha,
             hora = sg.hora,
-            resultado = sg.resultado,
+            resultado = if ((sg.resultado ?: 0L) == 0L) null else sg.resultado,
             proximaAccion = sg.proximaAccion ?: TipoDeAccion.EN_EVALUACION,
             fechaProxSeguimiento = sg.fechaProxSeguimiento,
             observaciones = sg.observaciones

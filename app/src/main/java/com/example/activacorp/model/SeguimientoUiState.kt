@@ -1,6 +1,7 @@
 package com.example.activacorp.model
 
 import com.example.activacorp.data.local.entity.OportunidadEntity
+import com.example.activacorp.data.local.entity.ResultadoEntity
 import com.example.activacorp.data.local.entity.SeguimientoEntity
 import com.example.activacorp.data.local.entity.UsuarioEntity
 
@@ -13,9 +14,12 @@ data class SeguimientoUiState(
     val fecha: String = "",
     val hora: String = "",
     val resultado: Long? = 0L,
+    val resultadoDisponible: List<ResultadoEntity> = emptyList(),
     val proximaAccion: TipoDeAccion? = null,
     val fechaProxSeguimiento: String? = "",
     val observaciones: String? = "",
+    val usuariosDisponibles: List<UsuarioEntity> = emptyList(),
+    val oportunidadesDisponibles: List<OportunidadEntity> = emptyList(),
     val gestiones: List<GestionesPartConfirmada> = emptyList(),
 
     // Errores

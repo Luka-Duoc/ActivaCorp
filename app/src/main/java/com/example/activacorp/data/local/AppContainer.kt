@@ -10,6 +10,7 @@ import com.example.activacorp.data.repository.OfflineEventoRepository
 import com.example.activacorp.data.repository.OfflineOportunidadRepository
 import com.example.activacorp.data.repository.OfflineOrganizacionRepository
 import com.example.activacorp.data.repository.OfflineRegionRepository
+import com.example.activacorp.data.repository.OfflineResultadoRepository
 import com.example.activacorp.data.repository.OfflineSeguimientoRepository
 import com.example.activacorp.data.repository.OfflineUsuarioRepository
 import com.example.activacorp.data.repository.OportunidadRepository
@@ -30,6 +31,8 @@ interface AppContainer {
     val contactoRepository: ContactoRepository
 
     val seguimientoRepository: SeguimientoRepository
+
+    val resultadoRepository: ResultadoRepository
 
 }
 
@@ -62,6 +65,10 @@ class AppDataContainer(private val context: Context) : AppContainer {
 
     override val seguimientoRepository: SeguimientoRepository by lazy {
         OfflineSeguimientoRepository(database.SeguimientoDao())
+    }
+
+    override val resultadoRepository: ResultadoRepository by lazy {
+        OfflineResultadoRepository(database.ResultadoDao())
     }
 
 }

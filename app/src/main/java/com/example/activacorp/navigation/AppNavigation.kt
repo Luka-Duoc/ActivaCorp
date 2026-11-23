@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.activacorp.data.local.AppDataContainer
 import com.example.activacorp.data.local.SessionDataStore
+import com.example.activacorp.data.repository.UsuarioRepository
 import com.example.activacorp.ui.screen.CreacionOrganizacionScreen
 import com.example.activacorp.ui.screen.OportunidadScreen
 import com.example.activacorp.ui.screen.OrganizacionScreen
@@ -35,6 +36,7 @@ import com.example.activacorp.ui.screen.VistaEventoCard
 import com.example.activacorp.ui.screen.creacionContactoScreen
 import com.example.activacorp.viewmodel.OportunidadViewModel
 import com.example.activacorp.ui.screen.crearOportunidades
+import com.example.activacorp.ui.screen.formSeguimiento
 import com.example.activacorp.ui.screen.tab.contactoScreen
 import com.example.activacorp.viewmodel.ContactoViewModel
 import com.example.activacorp.viewmodel.EventoPostViewModel
@@ -88,7 +90,10 @@ fun AppNavigation() {
     }
 
     val seguimientoViewModel: SeguimientoViewModel = viewModel {
-        SeguimientoViewModel(seguimientoRepository = container.seguimientoRepository)
+        SeguimientoViewModel(seguimientoRepository = container.seguimientoRepository,
+            usuarioRepository = container.usuarioRepository,
+            oportunidadRepository = container.oportunidadRepository,
+            resultadoRepository = container.resultadoRepository)
     }
 
 

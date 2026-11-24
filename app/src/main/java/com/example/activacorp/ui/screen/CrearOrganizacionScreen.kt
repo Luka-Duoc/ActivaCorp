@@ -110,7 +110,7 @@ fun CreacionOrganizacionScreen(
             ) {
                 OutlinedTextField(
                     readOnly = true,
-                    value = estado.tipo.name,
+                    value = estado.tipo.nombreMuestra,
                     onValueChange = {},
                     label = { Text("Tipo de organizacion") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandidoTipo) },
@@ -123,7 +123,7 @@ fun CreacionOrganizacionScreen(
                 ) {
                     TipoOrganizacion.entries.forEach { tipoItem ->
                         DropdownMenuItem(
-                            text = { Text(tipoItem.name) },
+                            text = { Text(tipoItem.nombreMuestra) },
                             onClick = {
                                 viewModel.onTipoChange(tipoItem)
                                 expandidoTipo = false

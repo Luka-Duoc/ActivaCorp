@@ -155,7 +155,7 @@ fun FormSeguimiento(
                 onExpandedChange = { expandidoTipoAccion = it }
             ) {
                 OutlinedTextField(
-                    value = estado.tipoDeAccion.name,
+                    value = estado.tipoDeAccion.nombreMuestra,
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Tipo de acción") },
@@ -170,7 +170,7 @@ fun FormSeguimiento(
                 ) {
                     TipoDeAccion.entries.forEach { accion ->
                         DropdownMenuItem(
-                            text = { Text(accion.name) },
+                            text = { Text(accion.nombreMuestra) },
                             onClick = {
                                 viewModel.onTipoAccionChange(accion)
                                 expandidoTipoAccion = false
@@ -242,7 +242,7 @@ fun FormSeguimiento(
                         estado.resultadoDisponible?.forEach { res ->
                             DropdownMenuItem(
                                 text = {
-                                    Text("Resultado #${res.id} - ${res.estadoFinal.name} (${res.fechaRealizacion})")
+                                    Text("Resultado #${res.id} - ${res.estadoFinal.nombreMuestra} (${res.fechaRealizacion})")
                                 },
                                 onClick = {
                                     viewModel.onResultadoChange(res.id)
@@ -260,7 +260,7 @@ fun FormSeguimiento(
                 onExpandedChange = { expandidoAccionProxima = it }
             ) {
                 OutlinedTextField(
-                    value = estado.proximaAccion?.name ?: "Seleccionar proxima acción",
+                    value = estado.proximaAccion?.nombreMuestra ?: "Seleccionar proxima acción",
                     onValueChange = {},
                     readOnly = true,
                     singleLine = true,
@@ -278,7 +278,7 @@ fun FormSeguimiento(
                 ) {
                     TipoDeAccion.entries.forEach { accion ->
                         DropdownMenuItem(
-                            text = { Text(accion.name) },
+                            text = { Text(accion.nombreMuestra) },
                             onClick = {
                                 viewModel.onProximaAccionChange(accion)
                                 expandidoAccionProxima = false

@@ -1,6 +1,7 @@
 package com.example.activacorp.viewmodel
 
 
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.activacorp.data.local.entity.ComunaEntity
@@ -11,25 +12,44 @@ import com.example.activacorp.data.repository.OrganizacionRepository
 import com.example.activacorp.model.EventoQr
 import com.example.activacorp.model.uiStates.EventoUiState
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.compose.ui.text.input.TextFieldValue
 
 class EventoViewModel(
     private val eventoRepository: EventoRepository,
     private val comunaRepository: ComunaRepository,
     private val organizacionRepository: OrganizacionRepository
-): ViewModel() {
+) : ViewModel() {
 
     private val _estado = MutableStateFlow(EventoUiState())
-
     val estado: StateFlow<EventoUiState> = _estado.asStateFlow()
+
+    private val _consulta = MutableStateFlow("")
+    val consulta: StateFlow<String> = _consulta.asStateFlow()
+
+    val resultadosConsulta: StateFlow<List<EventoEntity>> =
+        _consulta.debounce(300L).distinctUntilChanged().flatMapLatest { consulta ->
+            if (consulta.isEmpty()) {
+                eventoRepository.obtenerTodos()
+            } else {
+                eventoRepository.buscarEventos(consulta.trim())
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000L),
+            initialValue = emptyList()
+        )
 
     init {
         cargarEventos()
@@ -83,7 +103,7 @@ class EventoViewModel(
         val minFin = digitos.substring(6, 8).toIntOrNull() ?: return null
 
         // Valida rango de horas (00-23) y minutos (00-59)
-        if (horaInicio!in 0..23 || minInicio !in 0..59) return null
+        if (horaInicio !in 0..23 || minInicio !in 0..59) return null
         if (horaFin !in 0..23 || minFin !in 0..59) return null
 
         // Valida que la hora de término sea mayor a la de inicio
@@ -91,11 +111,12 @@ class EventoViewModel(
         val totalMinFin = horaFin * 60 + minFin
         if (totalMinFin <= totalMinInicio) return null
 
-        return String.format(Locale.getDefault(),
+        return String.format(
+            Locale.getDefault(),
             "%02d:%02d - %02d:%02d",
             horaInicio, minInicio,
-                    horaFin, minFin
-            )
+            horaFin, minFin
+        )
     }
 
     fun validacionFecha(fechaStr: String): Date? {
@@ -118,6 +139,10 @@ class EventoViewModel(
         }
     }
 
+    fun onConsultaChange(nuevaConsulta: String) {
+        _consulta.value = nuevaConsulta
+    }
+
     private fun cargarEventos() {
         viewModelScope.launch {
             eventoRepository.obtenerTodos()
@@ -136,14 +161,18 @@ class EventoViewModel(
     fun onFechaTerminoChange(v: String) =
         _estado.update { it.copy(fechaTermino = v, errorFecha = null) }
 
-    fun onDireccionChange(v: String) = _estado.update { it.copy(direccion = v, errorDireccion = null) }
+    fun onDireccionChange(v: String) =
+        _estado.update { it.copy(direccion = v, errorDireccion = null) }
+
     fun onCantAsistentesChange(v: String) =
         _estado.update { it.copy(cantAsistentes = v.filter { ch -> ch.isDigit() }) }
 
     fun onCostosReferencialesChange(v: String) =
         _estado.update { it.copy(costosReferenciales = v.filter { ch -> ch.isDigit() }) }
 
-    fun onRequisitosChange(v: String) = _estado.update { it.copy(requisitos = v, errorRequisitos = null) }
+    fun onRequisitosChange(v: String) =
+        _estado.update { it.copy(requisitos = v, errorRequisitos = null) }
+
     fun onObservacionesChange(v: String) = _estado.update { it.copy(observaciones = v) }
 
     fun onOrganizacionChange(id: Long) {
@@ -183,7 +212,8 @@ class EventoViewModel(
     }
 
     fun editar(evento: EventoEntity) {
-        val nombreDeComuna = _estado.value.comunas.firstOrNull { it.id == evento.comuna }?.nombre ?: ""
+        val nombreDeComuna =
+            _estado.value.comunas.firstOrNull { it.id == evento.comuna }?.nombre ?: ""
         _estado.update {
             it.copy(
                 eventoIdEnEdicion = evento.id,
@@ -238,7 +268,8 @@ class EventoViewModel(
         }
 
         val errDireccion = if (st.direccion.isBlank()) "La dirección es obligatoria" else null
-        val errRequisitos = if (st.requisitos.isBlank()) "Los requisitos no pueden estar en blanco" else null
+        val errRequisitos =
+            if (st.requisitos.isBlank()) "Los requisitos no pueden estar en blanco" else null
 
         if (errNombre != null || errFecha != null || errHora != null || errDireccion != null || errRequisitos != null) {
             _estado.update {
@@ -256,7 +287,8 @@ class EventoViewModel(
         viewModelScope.launch {
             try {
                 val eventoAProcesar = EventoEntity(
-                    id = st.eventoIdEnEdicion ?: 0, // Si está editando usa el ID existente, si es nuevo usa 0
+                    id = st.eventoIdEnEdicion
+                        ?: 0, // Si está editando usa el ID existente, si es nuevo usa 0
                     nombre = st.nombre.trim(),
                     tipo = st.tipo.trim(),
                     fechaInicio = st.fechaInicio.trim(),
@@ -280,7 +312,7 @@ class EventoViewModel(
                 limpiarFormulario(exitSave = true)
                 onExito()
             } catch (e: Exception) {
-                _estado.update { it.copy(mensajeError = "Error al procesar el evento: ${e.message}") }
+                _estado.update { it.copy(mensajeError = "Debes asociar este evento a una organización") }
             }
         }
     }
@@ -307,6 +339,7 @@ class EventoViewModel(
             }
         }
     }
+
     private fun limpiarFormulario(exitSave: Boolean = false) {
         _estado.update { actual ->
             actual.copy(

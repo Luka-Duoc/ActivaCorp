@@ -41,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -138,10 +139,14 @@ fun tabEventos(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp),
-                        contentPadding = PaddingValues(vertical = 4.dp)) {
-                        items(resultados, key = { it.id }) { item ->
-                            EventoCard(evento = item)
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier= Modifier.padding(vertical=4.dp)) {
+                        if (resultados.isEmpty()) {
+                            Text("No hay eventos que coincidan con la busqueda.")
+                        }
+                        resultados.take(3).forEach { evento ->
+                            key(evento.id) {
+                                EventoCard(evento = evento)
+                            }
                         }
                     }
 

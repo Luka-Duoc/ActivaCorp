@@ -12,4 +12,6 @@ interface EventoRepository {
 
     fun obtenerTodos(): Flow<List<EventoEntity>>
 
+    fun buscarEventos(consulta: String): Flow<List<EventoEntity>>
+
 }

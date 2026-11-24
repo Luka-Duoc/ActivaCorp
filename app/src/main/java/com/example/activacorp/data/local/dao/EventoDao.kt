@@ -23,4 +23,7 @@ interface EventoDao {
     @Query("select * from eventos")
     fun obtenerTodos(): Flow<List<EventoEntity>>
 
+    @Query("select * from eventos where nombre like '%' || :consulta ||'%' order by nombre")
+    fun buscarEventos(consulta: String): Flow<List<EventoEntity>>
+
 }

@@ -202,7 +202,7 @@ fun creacionContactoScreen(
                 onExpandedChange = { expandidoEstado = it }
             ) {
                 OutlinedTextField(
-                    value = estado.estado.name,
+                    value = estado.estado.nombreMuestra,
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Estado") },
@@ -217,7 +217,7 @@ fun creacionContactoScreen(
                 ) {
                     EstadoContacto.entries.forEach { est ->
                         DropdownMenuItem(
-                            text = { Text(est.name) },
+                            text = { Text(est.nombreMuestra) },
                             onClick = {
                                 viewModel.onEstadoChange(est)
                                 expandidoEstado = false

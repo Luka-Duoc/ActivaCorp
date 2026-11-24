@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.activacorp.model.enums.EstadoGestion
 import com.example.activacorp.model.enums.PotencialComercial
@@ -109,9 +110,11 @@ fun crearOportunidades(
         ) {
             estado.mensajeError?.let { error ->
                 Text(
+                    modifier = Modifier.padding(4.dp),
                     text = error,
                     color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
                 )
             }
 
@@ -139,7 +142,7 @@ fun crearOportunidades(
                 onExpandedChange = { expandidoTipo = it }
             ) {
                 OutlinedTextField(
-                    value = estado.tipo.name,
+                    value = estado.tipo.nombreMuestra,
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Tipo de oportunidad") },
@@ -154,7 +157,7 @@ fun crearOportunidades(
                 ) {
                     TipoOportunidad.entries.forEach { tipoItem ->
                         DropdownMenuItem(
-                            text = { Text(tipoItem.name) },
+                            text = { Text(tipoItem.nombreMuestra) },
                             onClick = {
                                 viewModel.onTipoChange(tipoItem)
                                 expandidoTipo = false
@@ -314,7 +317,7 @@ fun crearOportunidades(
                 onExpandedChange = { expandidoEstado = it }
             ) {
                 OutlinedTextField(
-                    value = estado.estado.name,
+                    value = estado.estado.nombreMuestra,
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Estado de Gestión") },
@@ -330,7 +333,7 @@ fun crearOportunidades(
                 ) {
                     EstadoGestion.entries.forEach { estItem ->
                         DropdownMenuItem(
-                            text = { Text(estItem.name) },
+                            text = { Text(estItem.nombreMuestra) },
                             onClick = {
                                 viewModel.onEstadoGestionChange(estItem)
                                 expandidoEstado = false

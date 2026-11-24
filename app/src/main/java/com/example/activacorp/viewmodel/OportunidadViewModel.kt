@@ -269,7 +269,7 @@ class OportunidadViewModel(
                 onExito()
             } catch (e: Exception) {
                 _estado.update {
-                    it.copy(mensajeError = "Error al guardar la oportunidad: ${e.message}")
+                    it.copy(mensajeError = "No puedes registrar una oportunidad sin asociarla a un evento.")
                 }
             }
         }

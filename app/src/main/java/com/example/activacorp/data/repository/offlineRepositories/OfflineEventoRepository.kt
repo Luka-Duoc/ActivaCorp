@@ -20,5 +20,5 @@ class OfflineEventoRepository (
 
     override fun obtenerTodos(): Flow<List<EventoEntity>> =
         eventoDao.obtenerTodos()
-
+    override fun buscarEventos(consulta: String): Flow<List<EventoEntity>> = eventoDao.buscarEventos(consulta)
 }

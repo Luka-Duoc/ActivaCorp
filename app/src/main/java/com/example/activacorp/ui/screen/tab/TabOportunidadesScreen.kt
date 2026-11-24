@@ -186,6 +186,7 @@ fun tabOportunidades(
                         }
                     }
                 }
+
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -205,13 +206,19 @@ fun tabOportunidades(
                 shape = MaterialTheme.shapes.medium
             ) {
                 Text(
-                    text = if (puedeGestionar) "Gestionar Oportunidades" else "Ver oportunidades",
+                    text = if (puedeGestionar) "Administrar oportunidades" else "Ver oportunidades",
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
-
-
-
+            Button(
+                onClick = { navController.navigate("vistaSeguimiento") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Text(text = "Ver seguimientos", modifier = Modifier.padding(vertical = 8.dp))
+            }
         }
     }
 }
@@ -351,55 +358,54 @@ fun oportunidadesAsignadas(viewModel: OportunidadViewModel, id: Long) {
                 textAlign = TextAlign.Center
             )
         }
-    }
-
-    else { LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(
-            items = oportunidades,
-            key = { it.nombre + it.tipo } // Clave para optimizar recomposición y scroll
-        ) { op ->
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.Start
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(
+                items = oportunidades,
+                key = { it.nombre + it.tipo } // Clave para optimizar recomposición y scroll
+            ) { op ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 ) {
-                    Text(
-                        text = op.nombre,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        Text(
+                            text = op.nombre,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
 
-                    Text(
-                        text = op.tipo,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                        Text(
+                            text = op.tipo,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(
-                        text = op.descripcion,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                        Text(
+                            text = op.descripcion,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }
-    }
     }
 }

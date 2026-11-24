@@ -9,9 +9,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -19,6 +24,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -34,6 +40,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -80,7 +88,8 @@ fun tabEventos(
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -95,14 +104,16 @@ fun tabEventos(
                         text = "Eventos",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = Color.White,
+                        textAlign = TextAlign.Center
                     )
                 }
 
                 Text(
                     text = "Lista de eventos registrados",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.LightGray
+                    color = Color.LightGray,
+                    textAlign = TextAlign.Center
                 )
                 ExposedDropdownMenuBox(
                     expanded = expandido,
@@ -148,7 +159,7 @@ fun tabEventos(
                                 DropdownMenuItem(text = {
                                     Text(
                                         text = "${evento.nombre} (${evento.fechaInicio})",
-                                        color = MaterialTheme.colorScheme.onSurface
+                                        color = MaterialTheme.colorScheme.onSurface,
                                     )
                                 }, onClick = {
                                     eventoSeleccionado = evento.nombre
@@ -174,7 +185,9 @@ fun tabEventos(
                 Button(
                     onClick = {
                         navController.navigate("eventos")
-                    }, modifier = Modifier.fillMaxWidth(0.9F).align(Alignment.CenterHorizontally)
+                    }, modifier = Modifier
+                        .fillMaxWidth(0.9F)
+                        .align(Alignment.CenterHorizontally)
                 ) {
                     Text("Crear Eventos")
                 }
@@ -183,11 +196,42 @@ fun tabEventos(
             Button(
                 onClick = {
                     navController.navigate("vistaEventos")
-                }, modifier = Modifier.fillMaxWidth(0.9F).align ( Alignment.CenterHorizontally)
+                }, modifier = Modifier
+                    .fillMaxWidth(0.9F)
+                    .align(Alignment.CenterHorizontally)
             ) {
                 Text("Ver todos los Eventos")
             }
             Spacer(modifier = Modifier.height(12.dp))
         }
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+fun vistaEventos() {
+    var text by remember { mutableStateOf("")}
+
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+            .background(MaterialTheme.colorScheme.onPrimaryContainer),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            modifier = Modifier.padding(8.dp),
+            text = "Buscar eventos",
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.titleLarge
+        )
+        OutlinedTextField(modifier = Modifier.padding(16.dp).fillMaxWidth(), value=text, onValueChange = {text=it},
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search Icon"
+                )
+            },
+            shape = CircleShape,
+            placeholder ={Text("Nombre del evento")})
     }
 }

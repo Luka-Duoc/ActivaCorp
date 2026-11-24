@@ -1,7 +1,7 @@
 package com.example.activacorp.data.local.seed
 
 import com.example.activacorp.data.local.entity.ResultadoEntity
-import com.example.activacorp.model.EstadoGestion
+import com.example.activacorp.model.enums.EstadoGestion
 
 object ResultadoSeed {
     val listaResultados = listOf(

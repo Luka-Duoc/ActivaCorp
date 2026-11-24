@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.activacorp.data.local.entity.OrganizacionEntity
 import com.example.activacorp.data.repository.ComunaRepository
 import com.example.activacorp.data.repository.OrganizacionRepository
-import com.example.activacorp.model.OrganizacionUiState
-import com.example.activacorp.model.TipoOrganizacion
+import com.example.activacorp.model.uiStates.OrganizacionUiState
+import com.example.activacorp.model.enums.TipoOrganizacion
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

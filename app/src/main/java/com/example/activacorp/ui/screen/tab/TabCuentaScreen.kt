@@ -51,7 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.activacorp.data.local.entity.UsuarioEntity
-import com.example.activacorp.model.RolUsuario
+import com.example.activacorp.model.enums.RolUsuario
 import com.example.activacorp.viewmodel.UsuarioViewModel
 
 @Composable

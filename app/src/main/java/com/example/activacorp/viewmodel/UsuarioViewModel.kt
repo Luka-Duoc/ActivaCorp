@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.activacorp.data.local.SessionDataStore
 import com.example.activacorp.data.local.entity.UsuarioEntity
 import com.example.activacorp.data.repository.UsuarioRepository
-import com.example.activacorp.model.RolUsuario
+import com.example.activacorp.model.enums.RolUsuario
 import com.example.activacorp.model.UsuarioErrores
-import com.example.activacorp.model.UsuarioUiState
+import com.example.activacorp.model.uiStates.UsuarioUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update

@@ -1,0 +1,30 @@
+package com.example.activacorp.model.uiStates
+
+import com.example.activacorp.data.local.entity.ComunaEntity
+import com.example.activacorp.data.local.entity.EventoEntity
+import com.example.activacorp.data.local.entity.OrganizacionEntity
+import com.example.activacorp.model.enums.TipoOrganizacion
+
+data class OrganizacionUiState(
+    val idEnEdicion: Long? = null,
+    val organizaciones: List<OrganizacionEntity> = emptyList(),
+    val nombre: String = "",
+    val tipo: TipoOrganizacion = TipoOrganizacion.OTROS,
+    val rubro: String = "",
+    val comunas: List<ComunaEntity> = emptyList(),
+    val comunaSeleccionada: String = "",
+    val comunaId: Long = 0L,
+    val listaEventos: List<EventoEntity> = emptyList(),
+    val eventoSeleccionado: String = "",
+    val sitioWeb: String? = "",
+    val publico: String = "",
+    val historial: String = "",
+    val exitoGuardado: Boolean = false,
+
+    // Errores
+    val errorNombre: String? = null,
+    val errorRubro: String? = null,
+    val errorPublico: String? = null,
+    val errorHistorial: String? = null,
+    val mensajeError: String? = null,
+)

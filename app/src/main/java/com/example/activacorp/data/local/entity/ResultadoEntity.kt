@@ -2,7 +2,7 @@ package com.example.activacorp.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.activacorp.model.EstadoGestion
+import com.example.activacorp.model.enums.EstadoGestion
 
 @Entity(tableName = "resultados")
 data class ResultadoEntity(

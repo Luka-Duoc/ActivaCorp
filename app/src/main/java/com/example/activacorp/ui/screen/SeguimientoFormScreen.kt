@@ -9,7 +9,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
@@ -35,11 +34,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.activacorp.model.TipoDeAccion
+import com.example.activacorp.model.enums.TipoDeAccion
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun formSeguimiento(
+fun FormSeguimiento(
     navController: NavController,
     viewModel: SeguimientoViewModel = viewModel(),
     onListo:() -> Unit = {}

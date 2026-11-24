@@ -1,8 +1,8 @@
 package com.example.activacorp.data.local.seed
-import com.example.activacorp.model.TipoOportunidad
+import com.example.activacorp.model.enums.TipoOportunidad
 import com.example.activacorp.data.local.entity.OportunidadEntity
-import com.example.activacorp.model.EstadoGestion
-import com.example.activacorp.model.PotencialComercial
+import com.example.activacorp.model.enums.EstadoGestion
+import com.example.activacorp.model.enums.PotencialComercial
 
 object OportunidadSeed {
     val listaOportunidades = listOf(

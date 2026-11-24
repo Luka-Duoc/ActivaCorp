@@ -6,9 +6,9 @@ import com.example.activacorp.data.local.entity.ContactoEntity
 import com.example.activacorp.data.local.entity.OrganizacionEntity
 import com.example.activacorp.data.repository.ContactoRepository
 import com.example.activacorp.data.repository.OrganizacionRepository
-import com.example.activacorp.model.AreaContacto
-import com.example.activacorp.model.ContactoUiState
-import com.example.activacorp.model.EstadoContacto
+import com.example.activacorp.model.enums.AreaContacto
+import com.example.activacorp.model.uiStates.ContactoUiState
+import com.example.activacorp.model.enums.EstadoContacto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

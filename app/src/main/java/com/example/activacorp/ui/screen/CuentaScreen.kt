@@ -32,7 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
-import com.example.activacorp.model.RolUsuario
+import com.example.activacorp.model.enums.RolUsuario
 import com.example.activacorp.ui.screen.tab.contactoScreen
 import com.example.activacorp.ui.screen.tab.listaEjecutivosScreen
 import com.example.activacorp.ui.screen.tab.tabCuenta

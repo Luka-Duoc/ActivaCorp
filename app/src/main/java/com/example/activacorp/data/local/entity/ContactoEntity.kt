@@ -4,8 +4,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.activacorp.model.AreaContacto
-import com.example.activacorp.model.EstadoContacto
+import com.example.activacorp.model.enums.AreaContacto
+import com.example.activacorp.model.enums.EstadoContacto
 
 @Entity(
     tableName = "contactos",

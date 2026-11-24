@@ -24,7 +24,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavController
 import com.example.activacorp.viewmodel.ContactoViewModel
@@ -34,8 +33,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.activacorp.model.AreaContacto
-import com.example.activacorp.model.EstadoContacto
+import com.example.activacorp.model.enums.AreaContacto
+import com.example.activacorp.model.enums.EstadoContacto
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

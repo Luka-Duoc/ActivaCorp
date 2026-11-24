@@ -9,7 +9,7 @@ import com.example.activacorp.data.repository.ComunaRepository
 import com.example.activacorp.data.repository.EventoRepository
 import com.example.activacorp.data.repository.OrganizacionRepository
 import com.example.activacorp.model.EventoQr
-import com.example.activacorp.model.EventoUiState
+import com.example.activacorp.model.uiStates.EventoUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

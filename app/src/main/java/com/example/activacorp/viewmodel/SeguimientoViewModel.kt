@@ -7,8 +7,8 @@ import com.example.activacorp.data.repository.OportunidadRepository
 import com.example.activacorp.data.repository.ResultadoRepository
 import com.example.activacorp.data.repository.SeguimientoRepository
 import com.example.activacorp.data.repository.UsuarioRepository
-import com.example.activacorp.model.SeguimientoUiState
-import com.example.activacorp.model.TipoDeAccion
+import com.example.activacorp.model.uiStates.SeguimientoUiState
+import com.example.activacorp.model.enums.TipoDeAccion
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update

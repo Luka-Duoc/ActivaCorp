@@ -6,10 +6,10 @@ import com.example.activacorp.data.local.entity.OportunidadEntity
 import com.example.activacorp.data.repository.EventoRepository
 import com.example.activacorp.data.repository.OportunidadRepository
 import com.example.activacorp.data.repository.UsuarioRepository
-import com.example.activacorp.model.EstadoGestion
-import com.example.activacorp.model.OportunidadUiState
-import com.example.activacorp.model.PotencialComercial
-import com.example.activacorp.model.TipoOportunidad
+import com.example.activacorp.model.enums.EstadoGestion
+import com.example.activacorp.model.uiStates.OportunidadUiState
+import com.example.activacorp.model.enums.PotencialComercial
+import com.example.activacorp.model.enums.TipoOportunidad
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

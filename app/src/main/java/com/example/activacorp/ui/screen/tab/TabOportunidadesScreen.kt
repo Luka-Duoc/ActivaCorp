@@ -133,9 +133,9 @@ fun tabOportunidades(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            LazyRow(
+            LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 if (estadoOportunidad.oportunidadesAltas.isEmpty()) {
@@ -143,7 +143,8 @@ fun tabOportunidades(
                         Text(
                             text = "No hay oportunidades de prioridad alta en este momento.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray
+                            color = Color.Gray,
+                            textAlign = TextAlign.Left
                         )
                     }
                 } else {

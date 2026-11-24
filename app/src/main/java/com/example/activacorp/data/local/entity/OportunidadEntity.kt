@@ -4,9 +4,9 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.activacorp.model.EstadoGestion
-import com.example.activacorp.model.PotencialComercial
-import com.example.activacorp.model.TipoOportunidad
+import com.example.activacorp.model.enums.EstadoGestion
+import com.example.activacorp.model.enums.PotencialComercial
+import com.example.activacorp.model.enums.TipoOportunidad
 
 
 @Entity(

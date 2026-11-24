@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.activacorp.model.TipoOrganizacion
+import com.example.activacorp.model.enums.TipoOrganizacion
 
 @Entity(
     tableName = "organizaciones",

@@ -28,6 +28,7 @@ class SeguimientoViewModel(
         cargarUsuarios()
         cargarOportunidades()
         cargarResultados()
+        obtenerGestionesPartConfirmada()
     }
 
     fun cargarSeguimientos() {
